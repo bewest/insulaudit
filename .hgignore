@@ -1,0 +1,10 @@
+
+syntax: glob
+
+*.swp
+*.swo
+*.pyc
+*.pyo
+
+#####
+# EOF
