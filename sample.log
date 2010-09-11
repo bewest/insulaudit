@@ -1,0 +1,10 @@
+INFO:root:hello world
+hello world
+Traceback (most recent call last):
+  File "./a.py", line 87, in <module>
+    S      = carelink.get( S )
+  File "./a.py", line 38, in get
+    p.write( self.encode( self.code ) )
+  File "./a.py", line 29, in encode
+    self.log( 'encode: %s' % s )
+AttributeError: Logger instance has no __call__ method
