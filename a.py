@@ -56,6 +56,7 @@ class Command( object ):
   # Default timeout for a read.
   timeout     = 2
   sleep       = 1
+  info        = None
 
   min_reply_size  = 64
   def __init__( self, **kwds ):
@@ -67,19 +68,19 @@ class Command( object ):
 
   def __str__( self ):
     x = str( bytearray( self.code ) )
-    log.info( '{label}.encode: {msg}'\
-              .format( label=self.label, msg=pformat( x ) ) )
+    #s = '{label}: {msg}'.format( label=self.label, msg=self.info )
     return x
 
   def __repr__( self ):
-    return '<{agent}:code={code}, label={label}>'\
+    return '<{agent}:code={code}, label={label}, info={info}>'\
            .format( code  =repr( self.code ),
                     agent =self.__class__.__name__,
-                    label =self.label )
+                    label =self.label,
+                    info  =self.info )
 
   def __call__( self, reply, device=False ):
     self.last_reply = reply
-    reply.info = self
+    reply.info = self.info
     return reply
 
 class USBStatus( Command ):
@@ -99,7 +100,9 @@ class USBStatus( Command ):
            , 'status'          : CarelinkComStatus( reply.body[ 2 ] )
            , 'rfBytesAvailable': self.rfByteCount( reply.body[ 3:5 ] )
            }
-    reply.info = info
+    self.__dict__.update( info )
+    reply.info = self
+    self.info  = info
     log.debug( 'status reply: %r' % info )
     return reply
    
@@ -117,12 +120,13 @@ class USBProductInfo( Command ):
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
     , 'serial'           : reply.body[ 0:3 ]
     , 'product.version'  : reply.body[ 3:5 ]
-    , 'description'      : str( reply.body[ 06:11 ] )
+    , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : reply.body[ 16:18 ]
     , 'interfaces'       : reply.body[ 18 ]
     }
-    reply.info = info
     log.info( 'usbproductinfo: %r' % info )
+    self.__dict__.update( info )
+    reply.info = info
     return reply
 
 
@@ -137,9 +141,9 @@ class USBSignalStrength( Command ):
   value = '??'
 
   def __call__( self, reply, *args ):
-    self.reply = reply
     self.value = reply.body[ 0 ]
     log.info( '{0}: {1}dBm'.format( self.label, self.value ) )
+    reply.info = self.value
     return reply
 
   def __repr__( self ):
@@ -283,6 +287,7 @@ class Reply( object ):
   
   log    = logging.getLogger( 'reply' )
   ack    = False
+  info   = None
 
   def __init__( self, raw_reply ):
     self.log = logging.getLogger( self.__class__.__name__ )
@@ -290,7 +295,7 @@ class Reply( object ):
     self.msg = bytearray( raw_reply )
     try:
       self.ack  = ACK( self.msg[ 0:3 ] )
-      self.body = self.msg[ 3: ]
+      self.body = self.msg[ 3: len(self.msg) - 3 ]
     except IndexError, e:
       raise NoReplyException( e )
     #self.readBytesAvailable = self.msg[ 3:4 ]
@@ -303,10 +308,12 @@ class Reply( object ):
     return [ dehex( l ) for l in S ]
 
   def __str__( self ):
-    return str( self.msg )
+    return pformat( { 'info' : repr( self.info )
+                    , 'ack'  : self.ack
+                    , 'body' : self.body } )
 
   def __repr__( self ):
-    return "<{agent}:ack={ack}:{0}>".format( self.printable,
+    return "<{agent}:ack={ack}:{0}>".format( self.info,
                                    agent=self.__class__.__name__,
                                    ack=self.ack )
 
@@ -319,7 +326,7 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   
-  reply = carelink( USBStatus( ) )
+  print carelink( USBStatus( ) )
   print carelink( USBProductInfo( ) )
   print carelink( USBSignalStrength( ) )
   print carelink( USBInterfaceStats( ) )
