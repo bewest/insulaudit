@@ -83,6 +83,11 @@ class Command( object ):
     reply.info = self.info
     return reply
 
+def BangInt( ints ):
+  ( x, y ) = ints
+  return ( x & 0xFF ) << 8 | y & 0xFF;
+  
+
 class USBStatus( Command ):
   """
   """
@@ -92,16 +97,15 @@ class USBStatus( Command ):
   label = 'usb.status'
 
   def rfByteCount( self, count ):
-    ( x, y ) = count
-    return ( x & 0xFF ) << 8 | y & 0xFF;
+    return BangInt( count )
 
   def __call__( self, reply, *args ):
-    info = { 'commModuleStatus': reply.body[ 0 ]
-           , 'status'          : CarelinkComStatus( reply.body[ 2 ] )
-           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 3:5 ] )
+    info = { 'error.fatal'     : reply.body[ 3 ]
+           , 'status'          : CarelinkComStatus( reply.body[ 5 ] )
+           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
            }
     self.__dict__.update( info )
-    reply.info = self
+    reply.info = info
     self.info  = info
     log.debug( 'status reply: %r' % info )
     return reply
@@ -129,10 +133,34 @@ class USBProductInfo( Command ):
     reply.info = info
     return reply
 
+def BangLong( bytez ):
+  ( a, b, c, d ) = bytez
+  l = a << 24 | b << 16 | c << 8 | d;
+  return l
 
-class USBInterfaceStats( Command ):
+
+class InterfaceStats( Command ):
   code          = [ 5 ]
   INTERFACE_IDX = 19
+  label         = 'usb.interfaceStats'
+  def __call__( self, reply, *args ):
+    b = reply.body
+    reply.info = {
+      'errors.crc'      : b[ 0 ]
+    , 'errors.sequence' : b[ 1 ]
+    , 'errors.naks'     : b[ 2 ]
+    , 'errors.timeouts' : b[ 3 ]
+    , 'packets.received': BangLong( b[ 4: 8 ] )
+    , 'packets.transmit': BangLong( b[ 8:12 ] )
+    }
+    return reply
+
+class USBInterfaceStats( InterfaceStats ):
+  code          = [ 5, 1 ]
+  label         = 'usb.interfaceStats'
+
+class RadioInterfaceStats( InterfaceStats ):
+  code          = [ 5, 0 ]
   label         = 'usb.interfaceStats'
 
 class USBSignalStrength( Command ):
@@ -213,12 +241,12 @@ class CarelinkUsb( object ):
     self.write( x )
     log.debug( 'sent command, waiting' )
     time.sleep( command.sleep )
-    response = self.readline( )
+    response = self.read( 64 )
     # log.debug( 'response: %s' % bytearray( response ) )
     reply    = Reply( response )
-    log.debug( 'command {0} inspects {1}'.format(
+    log.debug( 'command {0} inspects ACK{1}'.format(
                 repr( command ),
-                repr( reply ) ) )
+                repr( reply.ack ) ) )
     reply    = command( reply, self )
     return reply
     
@@ -238,18 +266,23 @@ class CarelinkComStatus( object ):
   }
   name  = 'ERROR'
   value = '????'
+  flags = { }
   def __init__( self, status ):
-    self.raw = status
+    self.raw  = status
     self.name = ''.join( [ self.name, ' ',
                          str( bytearray( [ status ] )[ 0 ] ) ] )
+    flags = { }
     for k,v in self.statmap.iteritems( ):
       log.debug( 'status lookup: {0}: {1}'.format( k,v ) )
+      flags[ k ] = status & v
       if status & v > 0:
         self.name  = k
+        flags[ k ] = True
         self.value = status & v
-        break
+    self.flags = flags
+
   def __str__( self ):
-    return self.name
+    return '%s:%s:%s' %( self.__class__.__name__, self.name, self.value )
 
   def __repr__( self ):
     return ''.join( [
@@ -322,7 +355,7 @@ class Reply( object ):
 if __name__ == '__main__':
   print 'hello world'
   
-  port = '/dev/ttyUSB0'
+  port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
   
@@ -330,6 +363,7 @@ if __name__ == '__main__':
   print carelink( USBProductInfo( ) )
   print carelink( USBSignalStrength( ) )
   print carelink( USBInterfaceStats( ) )
+  print carelink( RadioInterfaceStats( ) )
   #print carelink( USBInterfaceStats( ) )
   #print carelink( USBReadData( timeout = 2 ) )
 
