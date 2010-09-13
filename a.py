@@ -11,7 +11,7 @@ import binascii
 from binascii import b2a_hex as dehex
 from pprint import pprint, pformat
 
-logging.basicConfig( stream=sys.stdout )
+logging.basicConfig( )
 log = logging.getLogger( 'carelink' )
 log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
@@ -116,21 +116,34 @@ class USBProductInfo( Command ):
   code   = [ 4 ]
   SW_VER = 16
   label  = 'usb.productInfo'
-  rf_table = { 001: '868.35Mhz' ,
-               255: '916.5Mhz'  }
+  rf_table  = { 001: '868.35Mhz' ,
+                255: '916.5Mhz'  }
+  iface_key = { 3: 'USB',
+                1: 'Paradigm RF' }
+
+  @classmethod
+  def decodeInterfaces( klass, L ):
+    n, tail    = L[ 0 ], L[ 1: ]
+    interfaces = [ ]
+    for x in xrange( n ):
+      i    = x*2
+      k, v = tail[i], tail[i+1]
+      interfaces.append( ( k, klass.iface_key.get( v, 'UNKNOWN'  ) ) )
+    return interfaces
 
   def __call__( self, reply, device ):
     info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
-    , 'serial'           : reply.body[ 0:3 ]
-    , 'product.version'  : reply.body[ 3:5 ]
+    , 'serial'           : sum( reply.body[ 0:3 ] )
+    , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
-    , 'software.version' : reply.body[ 16:18 ]
-    , 'interfaces'       : reply.body[ 18 ]
+    , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
+    , 'interfaces'       : self.decodeInterfaces( reply.body[ 18: ] )
     }
     log.info( 'usbproductinfo: %r' % info )
     self.__dict__.update( info )
-    reply.info = info
+    reply.info    = info
+    reply.command = self
     return reply
 
 def BangLong( bytez ):
@@ -181,10 +194,55 @@ class USBSignalStrength( Command ):
                     signal = self.value,
                     label  = self.label )
 
+class lib:
+
+  @staticmethod
+  def HighByte( arg ):
+    return arg >> 8 & 0xFF
+
+  @staticmethod
+  def LowByte( arg ):
+    return arg & 0xFF
+  class CRC8:
+    lookup = [ 0, 155, 173, 54, 193, 90, 108, 247, 25, 130, 180, 47,
+      216, 67, 117, 238, 50, 169, 159, 4, 243, 104, 94, 197, 43, 176,
+      134, 29, 234, 113, 71, 220, 100, 255, 201, 82, 165, 62, 8, 147,
+      125, 230, 208, 75, 188, 39, 17, 138, 86, 205, 251, 96, 151, 12,
+      58, 161, 79, 212, 226, 121, 142, 21, 35, 184, 200, 83, 101, 254,
+      9, 146, 164, 63, 209, 74, 124, 231, 16, 139, 189, 38, 250, 97,
+      87, 204, 59, 160, 150, 13, 227, 120, 78, 213, 34, 185, 143, 20,
+      172, 55, 1, 154, 109, 246, 192, 91, 181, 46, 24, 131, 116, 239,
+      217, 66, 158, 5, 51, 168, 95, 196, 242, 105, 135, 28, 42, 177,
+      70, 221, 235, 112, 11, 144, 166, 61, 202, 81, 103, 252, 18, 137,
+      191, 36, 211, 72, 126, 229, 57, 162, 148, 15, 248, 99, 85, 206,
+      32, 187, 141, 22, 225, 122, 76, 215, 111, 244, 194, 89, 174, 53,
+      3, 152, 118, 237, 219, 64, 183, 44, 26, 129, 93, 198, 240, 107,
+      156, 7, 49, 170, 68, 223, 233, 114, 133, 30, 40, 179, 195, 88,
+      110, 245, 2, 153, 175, 52, 218, 65, 119, 236, 27, 128, 182, 45,
+      241, 106, 92, 199, 48, 171, 157, 6, 232, 115, 69, 222, 41, 178,
+      132, 31, 167, 60, 10, 145, 102, 253, 203, 80, 190, 37, 19, 136,
+      127, 228, 210, 73, 149, 14, 56, 163, 84, 207, 249, 98, 140, 23,
+      33, 186, 77, 214, 224, 123 ];
+
+    @classmethod
+    def compute( klass, block ):
+      result = 0
+      for i in xrange( len( block ) ):
+        result = klass.lookup[ ( result ^ block[ i ] & 0xFF ) ]
+      return result
+
 class USBReadData( Command ):
   # XXX: !!!!
-  code  = [ 12 ]
+  code  = [ 12, 0 ]
   label = 'usb.readdata'
+  def __init__( self, length ):
+    super( type( self ), self ).__init__( )
+    code  = [ 12, 0 ]
+    self.length = length
+    self.code.extend( [ lib.HighByte( length )
+                      , lib.LowByte( length ) ] )
+    self.code.append( lib.CRC8.compute( self.code ) )
+
 
 class CarelinkUsb( object ):
   timeout = 0
@@ -205,6 +263,15 @@ class CarelinkUsb( object ):
                   agent  =self.__class__.__name__
                 ) )
 
+  def radio( self, length ):
+    code = [ 12, 0 ]
+    #code.extend( [ lib.HighByte( length )
+    #             , lib.LowByte( length  ) ] )
+    #code.append( lib.CRC8.compute( code ) )
+    self.write( str( bytearray( code ) ) )
+    time.sleep( 0.100 )
+    return bytearray( self.read( length ) )
+    
   def write( self, string ):
     r = self.serial.write( string )
     log.info( 'usb.write len={len}: {0}'.format( string.encode( 'string_escape' ) ,
@@ -264,36 +331,29 @@ class CarelinkComStatus( object ):
       'error.receiving.overflow': 0x10,
       'error.transmit.overflow' : 0x20
   }
-  name  = 'ERROR'
   value = '????'
   flags = { }
   def __init__( self, status ):
     self.raw  = status
-    self.name = ''.join( [ self.name, ' ',
-                         str( bytearray( [ status ] )[ 0 ] ) ] )
     flags = { }
     for k,v in self.statmap.iteritems( ):
-      log.debug( 'status lookup: {0}: {1}'.format( k,v ) )
       flags[ k ] = status & v
       if status & v > 0:
-        self.name  = k
         flags[ k ] = True
         self.value = status & v
     self.flags = flags
 
   def __str__( self ):
-    return '%s:%s:%s' %( self.__class__.__name__, self.name, self.value )
+    return '%s:%r' %( self.__class__.__name__, self.flags )
 
   def __repr__( self ):
     return ''.join( [
           '<', '{agent}',
-          ':', '{name}',
           ':', 'raw={raw}',
-          ':', 'value={value}'
+          ':', 'flags={flags}'
              , '>' ] ).format(
                 raw   = self.raw,
-                name  = self.name,
-                value = self.value,
+                flags = self.flags,
                 agent = self.__class__.__name__
           )
 
@@ -359,11 +419,20 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   
-  print carelink( USBStatus( ) )
-  print carelink( USBProductInfo( ) )
-  print carelink( USBSignalStrength( ) )
+  print carelink( USBStatus( ) ).info
   print carelink( USBInterfaceStats( ) )
   print carelink( RadioInterfaceStats( ) )
+  print carelink( USBProductInfo( ) ).info
+  print carelink( USBStatus( ) ).info
+  print carelink( USBProductInfo( ) ).info
+  print carelink( USBInterfaceStats( ) )
+  print carelink( RadioInterfaceStats( ) )
+  info = carelink( USBStatus( ) ).info
+  print info
+  print carelink.radio( info[ 'rfBytesAvailable' ] )
+  #print carelink( USBSignalStrength( ) )
+  #print carelink( USBInterfaceStats( ) )
+  #print carelink( RadioInterfaceStats( ) )
   #print carelink( USBInterfaceStats( ) )
   #print carelink( USBReadData( timeout = 2 ) )
 
