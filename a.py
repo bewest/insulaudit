@@ -263,14 +263,15 @@ class CarelinkUsb( object ):
                   agent  =self.__class__.__name__
                 ) )
 
-  def radio( self, length ):
+  def radio( self, length, crc=False ):
     code = [ 12, 0 ]
-    #code.extend( [ lib.HighByte( length )
-    #             , lib.LowByte( length  ) ] )
-    #code.append( lib.CRC8.compute( code ) )
+    if crc:
+      code.extend( [ lib.HighByte( length )
+                   , lib.LowByte( length  ) ] )
+      code.append( lib.CRC8.compute( code ) )
     self.write( str( bytearray( code ) ) )
     time.sleep( 0.100 )
-    return bytearray( self.read( length ) )
+    return bytearray( self.read( 64 ) )
     
   def write( self, string ):
     r = self.serial.write( string )
