@@ -13,8 +13,10 @@ from pprint import pprint, pformat
 
 logging.basicConfig( )
 log = logging.getLogger( 'carelink' )
-log.setLevel( logging.DEBUG )
+log.setLevel( logging.FATAL )
 log.info( 'hello world' )
+io  = logging.getLogger( 'carelink.io' )
+io.setLevel( logging.DEBUG )
 
 example = '\x01U\x00\x00\x02\x00\x00\x00\x05\x04\x00mLink II\x01\x10\x02\x00\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
@@ -77,6 +79,12 @@ class Command( object ):
                     agent =self.__class__.__name__,
                     label =self.label,
                     info  =self.info )
+
+  def hexdump( self ):
+    return lib.hexdump( bytearray( self.code ) )
+
+  def bytez( self ):
+    return bytearray( self.code )
 
   def __call__( self, reply, device=False ):
     self.last_reply = reply
@@ -197,7 +205,27 @@ class USBSignalStrength( Command ):
 class lib:
 
   @staticmethod
+  def hexdump( src, length=8 ):
+    result = [ ]
+    digits = 4 if isinstance( src, unicode ) else 2
+    for i in xrange( 0, len( src ), length ):
+      s    = src[i:i+length]
+      print ('%s' % s ).encode( 'string_escape' )
+      hexa = b' '.join( [ '%04s' % str( x ).encode( 'string_escape' ) \
+                          for x in s ] )
+      #hexa = b' '.join( [ "%0*X" % ( digits, ord( x ) ) \
+      #                               for x in s     ] )
+      text = b'' .join( [ x if 0x20 <= x < 0x7F else b'.' \
+                            for x in s ] )
+      result.append( b"%04X   %-*s   %s" % ( i, length * ( digits + 1 ),
+                     hexa,
+                     text ) )
+    return b'\n'.join(result)
+
+
+  @staticmethod
   def HighByte( arg ):
+    # may not be correct. java uses an unsigned shift: >>>
     return arg >> 8 & 0xFF
 
   @staticmethod
@@ -222,7 +250,7 @@ class lib:
       241, 106, 92, 199, 48, 171, 157, 6, 232, 115, 69, 222, 41, 178,
       132, 31, 167, 60, 10, 145, 102, 253, 203, 80, 190, 37, 19, 136,
       127, 228, 210, 73, 149, 14, 56, 163, 84, 207, 249, 98, 140, 23,
-      33, 186, 77, 214, 224, 123 ];
+      33, 186, 77, 214, 224, 123 ]
 
     @classmethod
     def compute( klass, block ):
@@ -263,7 +291,7 @@ class CarelinkUsb( object ):
                   agent  =self.__class__.__name__
                 ) )
 
-  def radio( self, length, crc=False ):
+  def radio( self, length, crc=True ):
     code = [ 12, 0 ]
     if crc:
       code.extend( [ lib.HighByte( length )
@@ -275,29 +303,26 @@ class CarelinkUsb( object ):
     
   def write( self, string ):
     r = self.serial.write( string )
-    log.info( 'usb.write len={len}: {0}'.format( string.encode( 'string_escape' ) ,
-                                                 len=len(string) ) )
+    io.info( 'usb.write.len: %s\n%s' % ( len( string ),
+                                          lib.hexdump( string ) ) )
     return r
 
   def read( self, c ):
     r = self.serial.read( c )
-    log.info( 'usb.read: {0}'.format(
-              str( bytearray( r ) ).encode( 'string_escape' ) ) )
-    log.debug( 'usb.read.len: %s' % len( r ) )
+    io.info( 'usb.read.len: %s\n%s' % ( len( r ),
+                                          lib.hexdump( r ) ) )
     return r
     
   def readline( self ):
     r = self.serial.readline( )
-    log.info( 'usb.readline: {0}'.format(
-              str( bytearray( r ) ).encode( 'string_escape' ) ) )
-    log.debug( 'usb.readline.len: %s' % len( r ) )
+    io.info( 'usb.read.len: %s\n%s' % ( len( r ),
+                                          lib.hexdump( r ) ) )
     return r
       
   def readlines( self ):
     r = self.serial.readlines( )
-    log.info( 'usb.readlines: {0}'.format(
-              str( bytearray( r ) ).encode( 'string_escape' ) ) )
-    log.debug( 'usb.readlines.len: %s' % len( r ) )
+    io.info( 'usb.read.len: %s\n%s' % ( len( r ),
+                                          lib.hexdump( r ) ) )
     return r
 
 
@@ -306,6 +331,8 @@ class CarelinkUsb( object ):
     x = str( command )
     self.serial.setTimeout( command.timeout )
     log.debug( 'setting timeout: %s' % command.timeout )
+    io.info( 'carelink.command: %r\n%s' % ( command,
+                                            command.hexdump( ) ) )
     self.write( x )
     log.debug( 'sent command, waiting' )
     time.sleep( command.sleep )
@@ -420,17 +447,21 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   
-  print carelink( USBStatus( ) ).info
-  print carelink( USBInterfaceStats( ) )
-  print carelink( RadioInterfaceStats( ) )
-  print carelink( USBProductInfo( ) ).info
-  print carelink( USBStatus( ) ).info
-  print carelink( USBProductInfo( ) ).info
-  print carelink( USBInterfaceStats( ) )
-  print carelink( RadioInterfaceStats( ) )
+  pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( USBInterfaceStats(   ) ).info )
+  pprint( carelink( RadioInterfaceStats( ) ).info )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBInterfaceStats(   ) ).info )
+  pprint( carelink( RadioInterfaceStats( ) ).info )
+
   info = carelink( USBStatus( ) ).info
-  print info
+  pprint( info )
   print carelink.radio( info[ 'rfBytesAvailable' ] )
+
+
+
   #print carelink( USBSignalStrength( ) )
   #print carelink( USBInterfaceStats( ) )
   #print carelink( RadioInterfaceStats( ) )
