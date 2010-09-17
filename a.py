@@ -11,7 +11,7 @@ import binascii
 from binascii import b2a_hex as dehex
 from pprint import pprint, pformat
 
-logging.basicConfig( )
+logging.basicConfig( stream=sys.stdout )
 log = logging.getLogger( 'carelink' )
 log.setLevel( logging.FATAL )
 log.info( 'hello world' )
@@ -448,6 +448,10 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   
+  info = carelink( USBStatus( ) ).info
+  pprint( info )
+  length = info[ 'rfBytesAvailable' ]
+  print carelink.radio( 64 )
   pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( RadioInterfaceStats( ) ).info )
@@ -457,9 +461,6 @@ if __name__ == '__main__':
   pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( RadioInterfaceStats( ) ).info )
 
-  info = carelink( USBStatus( ) ).info
-  pprint( info )
-  #print carelink.radio( info[ 'rfBytesAvailable' ] )
 
 
 
