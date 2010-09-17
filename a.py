@@ -215,11 +215,12 @@ class lib:
                           for x in s ] )
       #hexa = b' '.join( [ "%0*X" % ( digits, ord( x ) ) \
       #                               for x in s     ] )
-      text = b'' .join( [ x if 0x20 <= x < 0x7F else b'.' \
-                            for x in s ] )
-      result.append( b"%04X   %-*s   %s" % ( i, length * ( digits + 1 ),
-                     hexa,
-                     text ) )
+      #text = b'' .join( [ x if 0x20 <= byte( x ) < 0x7F else b'.' \
+      #                      for x in s ] )
+      #result.append( b"%04X   %-*s   %s" % \
+      result.append( b"%04X   %-*s" % \
+                   ( i, length * ( digits + 1 )
+                   , hexa ) )
     return b'\n'.join(result)
 
 
@@ -304,7 +305,7 @@ class CarelinkUsb( object ):
   def write( self, string ):
     r = self.serial.write( string )
     io.info( 'usb.write.len: %s\n%s' % ( len( string ),
-                                          lib.hexdump( string ) ) )
+                                         lib.hexdump( bytearray( string ) ) ) )
     return r
 
   def read( self, c ):
@@ -458,7 +459,7 @@ if __name__ == '__main__':
 
   info = carelink( USBStatus( ) ).info
   pprint( info )
-  print carelink.radio( info[ 'rfBytesAvailable' ] )
+  #print carelink.radio( info[ 'rfBytesAvailable' ] )
 
 
 
