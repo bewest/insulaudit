@@ -517,17 +517,21 @@ if __name__ == '__main__':
   #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
-  pprint( carelink( USBStatus(           ) ).info )
-  pprint( carelink( USBProductInfo(      ) ).info )
-  pprint( carelink( USBStatus(           ) ).info )
-
-  carelink.close( )
-
-  sys.exit( 0 )
   try:
     loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
+
+  print "Checking status first..."
+  pprint( carelink( USBStatus(           ) ).info )
+  print "Try resetting radio?..."
+  print lib.hexdump( carelink.radio( 64 ) )
+  print lib.hexdump( carelink.radio( 64, False ) )
+  print lib.hexdump( carelink.radio( 64, False ) )
+  pprint( carelink( USBStatus(           ) ).info )
+  print "closing for real now"
+  carelink.close( )
+  sys.exit( 0 )
 
   info   = carelink( USBStatus( ) ).info
   pprint( info )
