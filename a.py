@@ -217,14 +217,17 @@ class lib:
     if len( src ) == 0:
       return ''
     result = [ ]
-    src    = bytearray( src )
     digits = 4 if isinstance( src, unicode ) else 2
     for i in xrange( 0, len( src ), length ):
       s    = src[i:i+length]
-      hexa = ' '.join( [ '%04X' %  x for x in s ] )
-      text = '' .join( [ x if 0x20 <= x < 0x7F else '.' \
-                            for x in s ] )
-      result.append( b"%04X   %-*s   %s" % \
+      hexa = ' '.join( [ '%#04x' %  x for x in list( s ) ] )
+      text = ''.join( [ chr(x) if 0x20 <= x < 0x7F else '.' \
+                      for x in s ] )
+      #b'' .join( [ x if 0x20 <= x < 0x7F else b'.' \
+      #                      for x in s ] )
+      #''.join( [ chr(x) if 0x20 <=  x < 0x7F else '.' x \
+      #            for x in s ] )
+      result.append( "%04X   %-*s   %s" % \
                    ( i, length * ( digits + 1 )
                    , hexa, text ) )
     return '\n'.join(result)
@@ -324,7 +327,7 @@ class CarelinkUsb( object ):
   def read( self, c ):
     r = self.serial.read( c )
     io.info( 'usb.read.len: %s'   % ( len( r ) ) )
-    io.info( 'usb.read.raw: \n%s' % ( lib.hexdump( r ) ) )
+    io.info( 'usb.read.raw: \n%s' % ( lib.hexdump( bytearray( r ) ) ) )
     return r
     
   def readline( self ):
@@ -495,6 +498,17 @@ def getBytesAvailable( carelink ):
   return length
 
   
+def loopingRead( carelink ):
+  for x in itertools.count( ):
+    print 'loop:%s' % x
+    length = getBytesAvailable( carelink )
+    print 'found length %s' % length
+    print 
+    response = readBytes( carelink, length )
+    print lib.hexdump( response )
+    print "Read a total of %s bytes" % len( response )
+    pprint( carelink( USBStatus( ) ).info )
+    print 'finishing loop:%s' % x
 
 if __name__ == '__main__':
   print 'hello world'
@@ -503,18 +517,18 @@ if __name__ == '__main__':
   #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
-  length   = getBytesAvailable( carelink )
-  print 'found length %s' % length
-  print 
-  response = readBytes( carelink, length )
-  print 
-  print lib.hexdump( response )
-  print "Read a total of %s bytes" % len( response )
-  pprint( carelink( USBStatus( ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
 
   carelink.close( )
 
   sys.exit( 0 )
+  try:
+    loopingRead( carelink )
+  except KeyboardInterrupt:
+    print "closing"
+
   info   = carelink( USBStatus( ) ).info
   pprint( info )
   length = info[ 'rfBytesAvailable' ]
