@@ -8,6 +8,7 @@ import serial
 import time
 import logging
 import binascii
+import itertools
 from binascii import b2a_hex as dehex
 from pprint import pprint, pformat
 
@@ -206,22 +207,20 @@ class lib:
 
   @staticmethod
   def hexdump( src, length=8 ):
+    if len( src ) == 0:
+      return '<no-data>'
     result = [ ]
+    src    = bytearray( src )
     digits = 4 if isinstance( src, unicode ) else 2
     for i in xrange( 0, len( src ), length ):
       s    = src[i:i+length]
-      print ('%s' % s ).encode( 'string_escape' )
-      hexa = b' '.join( [ '%04s' % str( x ).encode( 'string_escape' ) \
-                          for x in s ] )
-      #hexa = b' '.join( [ "%0*X" % ( digits, ord( x ) ) \
-      #                               for x in s     ] )
-      #text = b'' .join( [ x if 0x20 <= byte( x ) < 0x7F else b'.' \
-      #                      for x in s ] )
-      #result.append( b"%04X   %-*s   %s" % \
-      result.append( b"%04X   %-*s" % \
+      hexa = ' '.join( [ '%04X' %  x for x in s ] )
+      text = '' .join( [ x if 0x20 <= x < 0x7F else '.' \
+                            for x in s ] )
+      result.append( b"%04X   %-*s   %s" % \
                    ( i, length * ( digits + 1 )
-                   , hexa ) )
-    return b'\n'.join(result)
+                   , hexa, text ) )
+    return '\n'.join(result)
 
 
   @staticmethod
@@ -274,7 +273,10 @@ class USBReadData( Command ):
 
 
 class CarelinkUsb( object ):
-  timeout = 0
+  class ID:
+    VENDOR  = 0x0a21
+    PRODUCT = 0x8001
+  timeout = .150
   def __init__( self, port, timeout=timeout ):
     self.timeout = timeout
     self.open( port )
@@ -292,6 +294,10 @@ class CarelinkUsb( object ):
                   agent  =self.__class__.__name__
                 ) )
 
+  def close( self ):
+    io.info( 'closing serial port' )
+    return self.serial.close( )
+
   def radio( self, length, crc=True ):
     code = [ 12, 0 ]
     if crc:
@@ -299,7 +305,7 @@ class CarelinkUsb( object ):
                    , lib.LowByte( length  ) ] )
       code.append( lib.CRC8.compute( code ) )
     self.write( str( bytearray( code ) ) )
-    time.sleep( 0.100 )
+    time.sleep( 0.200 )
     return bytearray( self.read( 64 ) )
     
   def write( self, string ):
@@ -310,8 +316,8 @@ class CarelinkUsb( object ):
 
   def read( self, c ):
     r = self.serial.read( c )
-    io.info( 'usb.read.len: %s\n%s' % ( len( r ),
-                                          lib.hexdump( r ) ) )
+    io.info( 'usb.read.len: %s'   % ( len( r ) ) )
+    io.info( 'usb.read.raw: \n%s' % ( lib.hexdump( r ) ) )
     return r
     
   def readline( self ):
@@ -440,15 +446,52 @@ class Reply( object ):
                                    ack=self.ack )
 
 
+def readBytes( carelink, length ):
+    remaining = length
+    io.info( 'read total: %s' % length )
+    result    = [ ]
+    
+    while remaining > 0:
+      io.info( 'remaining to read: %s' % remaining )
+      response  = carelink.radio( remaining )
+      remaining = remaining - len( response )
+      result.append( response )
+    return bytearray( ).join( result )
+  
+
+def getBytesAvailable( carelink ):
+  info   = carelink( USBStatus( ) ).info
+  length = info[ 'rfBytesAvailable' ]
+  io.info( 'initial bytes available: %s' % length )
+  for x in itertools.takewhile( lambda x: length==0
+                              , itertools.count( ) ):
+    info   = carelink( USBStatus( ) ).info
+    length = info[ 'rfBytesAvailable' ]
+    io.info( 'x:%s len: %s' % ( x, length ) )
+  return length
+
+  
 
 if __name__ == '__main__':
   print 'hello world'
   
-  port = '/dev/ttyUSB1'
+  port = sys.argv[ 1 ]
+  #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
-  
-  info = carelink( USBStatus( ) ).info
+  length   = getBytesAvailable( carelink )
+  print 'found length %s' % length
+  print 
+  response = readBytes( carelink, length )
+  print 
+  print lib.hexdump( response )
+  print "Read a total of %s bytes" % len( response )
+  pprint( carelink( USBStatus( ) ).info )
+
+  carelink.close( )
+
+  sys.exit( 0 )
+  info   = carelink( USBStatus( ) ).info
   pprint( info )
   length = info[ 'rfBytesAvailable' ]
   print carelink.radio( 64 )
@@ -461,7 +504,7 @@ if __name__ == '__main__':
   pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( RadioInterfaceStats( ) ).info )
 
-
+    
 
 
   #print carelink( USBSignalStrength( ) )
