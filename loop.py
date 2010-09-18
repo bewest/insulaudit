@@ -480,7 +480,7 @@ def readBytes( carelink, length ):
     
     while remaining > 0:
       io.info( 'remaining to read: %s' % remaining )
-      response  = carelink.radio( remaining )
+      response  = carelink.radio( 250 )
       remaining = remaining - len( response )
       result.append( response )
     return bytearray( ).join( result )
@@ -503,7 +503,6 @@ def loopingRead( carelink ):
     print 'loop:%s' % x
     length = getBytesAvailable( carelink )
     print 'found length %s' % length
-    print 
     response = readBytes( carelink, length )
     print lib.hexdump( response )
     print "Read a total of %s bytes" % len( response )
