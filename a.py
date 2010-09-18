@@ -104,19 +104,26 @@ class USBStatus( Command ):
   ACK   = 85  # U
   NAK   = 102 # f
   label = 'usb.status'
+  __info__ = { 'error.fatal'     : 0x00
+             , 'status'          : 0x00
+             , 'rfBytesAvailable': 0x00
+             }
 
   def rfByteCount( self, count ):
     return BangInt( count )
 
   def __call__( self, reply, *args ):
-    info = { 'error.fatal'     : reply.body[ 3 ]
-           , 'status'          : CarelinkComStatus( reply.body[ 5 ] )
-           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
-           }
-    self.__dict__.update( info )
-    reply.info = info
-    self.info  = info
-    log.debug( 'status reply: %r' % info )
+    self.info = self.__info__
+    if reply.ack.isACK( ):
+      info = { 'error.fatal'     : reply.body[ 3 ]
+             , 'status'          : CarelinkComStatus( reply.body[ 5 ] )
+             , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
+             }
+      self.__dict__.update( info )
+      reply.info = info
+      self.info  = info
+    reply.info = self.info
+    log.debug( 'status reply: %r' % self.info )
     return reply
    
 
@@ -208,7 +215,7 @@ class lib:
   @staticmethod
   def hexdump( src, length=8 ):
     if len( src ) == 0:
-      return '<no-data>'
+      return ''
     result = [ ]
     src    = bytearray( src )
     digits = 4 if isinstance( src, unicode ) else 2
@@ -349,6 +356,7 @@ class CarelinkUsb( object ):
     log.debug( 'command {0} inspects ACK{1}'.format(
                 repr( command ),
                 repr( reply.ack ) ) )
+    #if reply.ack.isACK( ) or reply.ack.isNAK( ):
     reply    = command( reply, self )
     return reply
     
@@ -393,23 +401,39 @@ class CarelinkComStatus( object ):
           )
 
 class ACK( object ):
-  ACK     = 85  # U
-  NAK     = 102 # f
-  __ack__ = 'ACK'
+  ACK         = 85  # U
+  NAK         = 102 # f
+  __ack__     = 'ACK'
+  error       = -1
+  readable    = -1
+  __reason__  = 'UNKNOWN REASON'
+  head        = ''
   def __init__( self, head ):
-    ( self.power, self.error, self.code ) = head
+    self.head = head
+    try:
+      ( self.readable, self.error, self.code ) = head
+    except ValueError, e:
+      self.__reason__ = '%s:head.length:%s' % ( self.__reason__, len( head ) )
   
   def __repr__( self ):
-    return (     self.power == 1
+    return (     self.readable == 1
              and self.error == self.ACK
            ) and self.__ack__  or self.__nak__( )
 
   def __nak__( self ):
-    return ''.join( [ chr( self.error )
-             , ' ', self.reason( )  ] )
+    return '%s:raw:%s' % ( self.reason( ), lib.hexdump( self.head ) )
+
+  def isACK( self ):
+    return self.readable == 1 and self.error == self.ACK
+
+  def isNAK( self ):
+    return self.readable == 1 and self.error == self.NAK
+
+  def isEmpty( readable ):
+    return len( self.head ) == 0
 
   def reason( self ):
-    return 'UNKNOWN REASON'
+    return self.__reason__
     
 class Reply( object ):
   
@@ -428,7 +452,7 @@ class Reply( object ):
       raise NoReplyException( e )
     #self.readBytesAvailable = self.msg[ 3:4 ]
     self.printable = str( self.msg ).encode( 'string_escape' )
-    log.debug( 'init reply.raw: %s' % self.printable )
+    #log.debug( 'init reply.raw: %s' % self.printable )
 
 
   @staticmethod
