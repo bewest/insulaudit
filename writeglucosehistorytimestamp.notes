@@ -1,0 +1,274 @@
+
+
+deviceportreader/MMX22.java
+defines
+
+    this.m_cmdWriteGlucoseHistoryTimestamp = new MM511.Command(this,
+    40, "Write Glucose History Timestamp", 0);
+
+code, description, ??
+
+
+512's READ_PUMP_MODEL_NUMBER: 141
+
+  this.m_cmdReadPumpModelNumber = new MM511.Command( this, 
+          141, "Read Pump Model" );
+
+Read PUMP_ID = 113
+static final int NAK_NO_HISTORY_DATA = 13;
+
+private static final int KEYPAD_DELAY_MS = 500;
+
+NAK_DESCRIPTIONS_TABLE = [
+  "UNKNOWN NAK DESCRIPTION"
+, "REQUEST PAUSE FOR 3 SECONDS"
+, "REQUEST PAUSE UNTIL ACK RECEIVED"
+, "CRC ERROR"
+, "REFUSE PROGRAM UPLOAD"
+, "TIMEOUT ERROR"
+, "COUNTER SEQUENCE ERROR"
+, "PUMP IN ERROR STATE"
+, "INCONSISTENT COMMAND REQUEST"
+, "DATA OUT OF RANGE"
+, "DATA CONSISTENCY"
+, "ATTEMPT TO ACTIVATE UNUSED PROFILES"
+, "PUMP DELIVERING BOLUS"
+, "REQUESTED HISTORY BLOCK HAS NO DATA"
+, "HARDWARE FAILURE"
+];
+
+//512
+this.m_cmdReadRealTimeClock = new Command( 112
+                            , "Read Real Time Clock");
+
+
+511 Commands
+Command(int code, String description, int[] arguments, int arg5)
+
+Command(int code, String description, int arguments, int paramInt3,
+int ARGC)
+
+
+MMPump.Command
+ static final byte SOH = 1;
+ static final byte BITS_IN_ACCESS_CODE = 6;
+ static final byte REPLY_HELLO = 90;
+ static final byte REPLY_TIMEOUT = -1;
+ static final int SIO_DELAY_MS = 50;
+ int[] m_commandParameters;
+ int m_commandParameterCount;
+ int m_dataCount;
+ int m_commandCode;
+ int[] m_rawData;
+ int m_dataOffset;
+ int m_bytesPerRecord;
+ int m_maxRecords;
+ int m_address;
+ int m_dataPointer;
+ int m_cmdLength;
+ int m_addressLength;
+ int m_commandType;
+ int[] m_packet;
+ int m_numBytesRead = 0;
+ int m_maxRetries;
+ boolean m_useMultiXmitMode;
+
+   Command(int code, String description, int recordLength, int maxRecords, int arg6)
+   {
+     this( code, description, recordLength,
+           maxRecords, 0, 0, i);
+     this.m_dataOffset = 0;
+     this.m_cmdLength  = 2;
+     setUseMultiXmitMode(false);
+   }
+
+   Command( int code,
+            String description,
+            int recordLength,
+            int maxRecords,
+            int address,
+            int addressLength,
+            int arg8 )
+   {
+     super();
+     this.m_commandCode    = code;
+     this.m_bytesPerRecord = recordLength;
+     this.m_maxRecords     = maxRecords;
+     allocateRawData( );
+     this.m_address        = address;
+     this.m_addressLength  = addressLength;
+     this.m_dataOffset     = 2;
+
+     if (addressLength == 1)
+       this.m_cmdLength = (2 + addressLength);
+     else {
+       this.m_cmdLength = (2 + addressLength + 1);
+     }
+
+     this.m_packet = new int[0];
+     int i;
+     this.m_commandType = i;
+     this.m_commandParameterCount = 0;
+     this.m_commandParameters = new int[64];
+     setUseMultiXmitMode(false);
+     this.m_maxRetries = 2;
+   }
+
+
+
+
+
+511 NAK DESCRIPTIONS
+[ "UNKNOWN NAK DESCRIPTION"
+, "REQUEST PAUSE FOR 3 SECONDS"
+, "REQUEST PAUSE UNTIL ACK RECEIVED"
+, "CRC ERROR"
+, "REFUSE PROGRAM UPLOAD"
+, "TIMEOUT ERROR"
+, "COUNTER SEQUENCE ERROR"
+, "PUMP IN ERROR STATE"
+, "INCONSISTENT COMMAND REQUEST"
+, "DATA OUT OF RANGE"
+, "DATA CONSISTENCY"
+, "ATTEMPT TO ACTIVATE UNUSED PROFILES"
+, "PUMP DELIVERING BOLUS"
+, "REQUESTED HISTORY BLOCK HAS NO DATA"
+, "HARDWARE FAILURE" ]
+
+
+######################################
+######################################
+    private int[] buildTransmitPacket()
+    {
+      int i = this.m_deviceCommand.m_commandParameterCount;
+
+      Contract.pre(i <= 1024);
+      Contract.pre(this.m_deviceCommand.m_cmdLength > 0);
+
+      int j = 0;
+      // HEAD len paramCount + 16
+      int[] arrayOfInt1 = new int[i + 16];
+      """"
+ 00    [ 1
+ 01    , 0
+ 02    , 167
+ 03    , 1
+ 04    , serial[ 0 ]
+ 05    , serial[ 1 ]
+ 06    , serial[ 3 ]
+ 07    , 0x80 | HighByte( paramCount )
+ 08    , LowByte( paramCount )
+ 09    , code == 93 ? 85 : 0
+ 10    , maxRetries
+ 11    , pagesSent > 1 ? 2 : pagesSent
+ 12    , 0
+ 14    , code
+ 15    , CRC8( code[ :15 ] )
+ 16    , command parameters....
+ ??    , CRC8( command parameters )
+       ]
+       """
+0 arrayOfInt1[(j++)] = 1;
+
+1     arrayOfInt1[(j++)] = 0;
+
+2     arrayOfInt1[(j++)] = 167;
+
+3     arrayOfInt1[(j++)] = 1;
+
+      int[] arrayOfInt2 = packSerialNumber();
+4     arrayOfInt1[(j++)] = arrayOfInt2[0];
+5     arrayOfInt1[(j++)] = arrayOfInt2[1];
+6     arrayOfInt1[(j++)] = arrayOfInt2[2];
+
+7     arrayOfInt1[(j++)] = (0x80 | MedicalDevice.Util.getHighByte(i));
+8     arrayOfInt1[(j++)] = MedicalDevice.Util.getLowByte(i);
+
+9     arrayOfInt1[(j++)] = (this.m_deviceCommand.m_commandCode == 93 ? 85 : 0);
+
+10    arrayOfInt1[(j++)] = this.m_deviceCommand.m_maxRetries;
+
+      int k = this.this$0.calcRecordsRequired(this.m_deviceCommand.m_rawData.length);
+11    arrayOfInt1[(j++)] = (k > 1 ? 2 : k);
+
+12    arrayOfInt1[(j++)] = 0;
+13    arrayOfInt1[(j++)] = this.m_deviceCommand.m_commandCode;
+
+14    arrayOfInt1[(j++)] = MedicalDevice.Util.computeCRC8(arrayOfInt1, 0, j - 1);
+
+      System.arraycopy(this.m_deviceCommand.m_commandParameters, 0, arrayOfInt1, j, i);
+
+14 + params
+      j += i;
+      BODY: PARAMS
+TAIL = CRC( 
+      arrayOfInt1[(j++)] = MedicalDevice.Util.computeCRC8(this.m_deviceCommand.m_commandParameters, 0, i);
+
+      this.m_deviceCommand.m_packet = arrayOfInt1;
+      return arrayOfInt1;
+    }
+
+    private int[] packSerialNumber()
+    {
+      Contract.pre(this.this$0.getDeviceSerialNumber() != null);
+      Contract.pre(this.this$0.getDeviceSerialNumber().length() == 6);
+
+      return MedicalDevice.Util.makePackedBCD(this.this$0.getDeviceSerialNumber());
+    }
+
+
+######################################
+######################################
+USB 
+ 
+  int IO_DELAY_MS = 100;
+  byte CMD_TRANSMIT_PACKET = 1;
+  byte CMD_READ_STATUS = 3;
+  byte CMD_READ_PRODUCT_INFO = 4;
+  byte CMD_READ_INTERFACE_STATS = 5;
+  byte CMD_READ_SIGNAL_STRENGTH = 6;
+  byte CMD_READ_DATA = 12;
+  int PRODUCT_INFO_REPLY_SW_VER = 16;
+  int PRODUCT_INFO_REPLY_INTERFACE_DATA_INDEX = 19;
+  byte ACK = 85;
+  byte NAK = 102;
+  int INTERNAL_RESPONSE_CODE = 1;
+  int EXTERNAL_RESPONSE_CODE = 2;
+  int INTERFACE_NUMBER_PARADIGM_RF = 0;
+  int INTERFACE_NUMBER_PARADIGM_USB = 1;
+  int REC_SIZE_MIN = 64;
+  String[] COMLINK2_NAK_DESCRIPTIONS_TABLE = [
+             "NO ERROR"
+           , "CRC MISMATCH"
+           , "COMMAND DATA ERROR"
+           , "COMM BUSY AND/OR COMMAND CANNOT BE EXECUTED"
+           , "COMMAND NOT SUPPORTED" ]
+
+
+def computeBCD( src ):
+  result = [ ]
+  src    = src.lower( )
+  for i in xrange( 0, len( src ), 2 ):
+    j,k = i*2, i*2+1
+    result.append( bytearray( ) )
+    
+
+
+  static int[] makePackedBCD(String paramString)
+  {
+    paramString = paramString.toLowerCase();
+    # should be six valid hex digits
+    int[] arrayOfInt1 = makeIntArray(paramString);
+    int[] arrayOfInt2 = new int[arrayOfInt1.length / 2];
+    for (int j = 0; j < arrayOfInt2.length; j++) {
+      char c2 = (char)arrayOfInt1[(j * 2)];
+      char c3 = (char)arrayOfInt1[(j * 2 + 1)];
+      int k = c2 - (Character.isDigit(c2) ? '0' : 'W');
+      int m = c3 - (Character.isDigit(c3) ? '0' : 'W');
+      arrayOfInt2[j] = makeByte(k, m);
+    }
+/*      */ 
+    return arrayOfInt2;
+  }
+
+

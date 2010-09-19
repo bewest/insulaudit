@@ -503,6 +503,29 @@ def getBytesAvailable( carelink ):
 
   return length
 
+def FormatCommand( serial='206525' ):
+
+  """"
+ 00    [ 1
+ 01    , 0
+ 02    , 167
+ 03    , 1
+ 04    , serial[ 0 ]
+ 05    , serial[ 1 ]
+ 06    , serial[ 3 ]
+ 07    , 0x80 | HighByte( paramCount )
+ 08    , LowByte( paramCount )
+ 09    , code == 93 ? 85 : 0
+ 10    , maxRetries
+ 11    , pagesSent > 1 ? 2 : pagesSent
+ 12    , 0
+ 14    , code
+ 15    , CRC8( code[ :15 ] )
+ 16    , command parameters....
+ ??    , CRC8( command parameters )
+       ]
+  """
+  
   
 def loopingRead( carelink ):
   for x in itertools.count( ):
