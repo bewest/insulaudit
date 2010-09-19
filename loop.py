@@ -503,11 +503,6 @@ def getBytesAvailable( carelink ):
 
   return length
 
-def findPageOffset( page ):
-  null   = 0x00
-  octect = [ null ] * 8
-  hextet = [ null ] * 16
-
   
 def loopingRead( carelink ):
   for x in itertools.count( ):
