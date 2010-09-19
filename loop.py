@@ -511,14 +511,26 @@ def findPageOffset( page ):
   
 def loopingRead( carelink ):
   for x in itertools.count( ):
+    print '######### BEGIN LOOP ###########'
     print 'loop:%s' % x
     length = getBytesAvailable( carelink )
     print 'found length %s' % length
     response = readBytes( carelink, length )
     print lib.hexdump( response )
-    print "Read a total of %s bytes" % len( response )
+    print "Read a total of %s bytes / %s requested" % ( len( response), length )
+    if len( response ) < length:
+      remaining = length - len( response )
+      print "Response was less than requested... "
+      print "trying the remainder: %s" % remaining
+      response = readBytes( carelink, remaining + ( remaining % 64 ) )
     pprint( carelink( USBStatus( ) ).info )
     print 'finishing loop:%s' % x
+    print '######### STATS ###########'
+    pprint( carelink( RadioInterfaceStats( ) ).info )
+    pprint( carelink( USBInterfaceStats(   ) ).info )
+    pprint( carelink( USBProductInfo(      ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+    print 
 
 if __name__ == '__main__':
   print 'hello world'
@@ -550,6 +562,7 @@ if __name__ == '__main__':
   pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( RadioInterfaceStats( ) ).info )
+  pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( USBProductInfo(      ) ).info )
   pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBProductInfo(      ) ).info )
