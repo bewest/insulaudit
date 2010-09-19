@@ -475,15 +475,20 @@ class Reply( object ):
 
 def readBytes( carelink, length ):
     remaining = length
-    io.info( 'read total: %s' % length )
+    io.info( 'readBytes requested: %s' % length )
     result    = [ ]
     
-    while remaining > 0:
-      io.info( 'remaining to read: %s' % remaining )
-      response  = carelink.radio( 250 )
+    pages = int( remaining/64 ) + 1
+    #while remaining > 0:
+    for page in xrange( pages ):
+      io.info( 'reading page:%s/%s' % ( page, pages ) )
+      response  = carelink.radio( 64 )
       remaining = remaining - len( response )
       result.append( response )
-    return bytearray( ).join( result )
+      io.info( 'page:%s:len:%s' % ( page, len( response ) ) )
+    result = bytearray( ).join( result )
+    io.info( 'readBytes read: %s' % len( result ) )
+    return result
   
 
 def getBytesAvailable( carelink ):
@@ -492,10 +497,18 @@ def getBytesAvailable( carelink ):
   io.info( 'initial bytes available: %s' % length )
   for x in itertools.takewhile( lambda x: length==0
                               , itertools.count( ) ):
-    info   = carelink( USBStatus( ) ).info
-    length = info[ 'rfBytesAvailable' ]
+    status = carelink( USBStatus( ) )
+    length = status.info[ 'rfBytesAvailable' ]
     io.info( 'x:%s len: %s' % ( x, length ) )
+    if length == 0 and x > 10:
+      io.warning( 'page boundary offset problem? offset by:%s' % '?' )
+
   return length
+
+def findPageOffset( page ):
+  null   = 0x00
+  octect = [ null ] * 8
+  hextet = [ null ] * 16
 
   
 def loopingRead( carelink ):
