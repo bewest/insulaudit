@@ -453,9 +453,7 @@ class Reply( object ):
       self.body = self.msg[ 3: len(self.msg) - 3 ]
     except IndexError, e:
       raise NoReplyException( e )
-    #self.readBytesAvailable = self.msg[ 3:4 ]
     self.printable = str( self.msg ).encode( 'string_escape' )
-    #log.debug( 'init reply.raw: %s' % self.printable )
 
 
   @staticmethod
