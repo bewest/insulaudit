@@ -521,6 +521,8 @@ def loopingRead( carelink ):
     pprint( carelink( USBStatus( ) ).info )
     print 'finishing loop:%s' % x
     print '######### STATS ###########'
+    print 'signal strength: %sdBm' % \
+           carelink( USBSignalStrength( ) ).info
     pprint( carelink( RadioInterfaceStats( ) ).info )
     pprint( carelink( USBInterfaceStats(   ) ).info )
     pprint( carelink( USBProductInfo(      ) ).info )
