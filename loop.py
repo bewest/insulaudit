@@ -533,10 +533,7 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
   """
 
   readable = 0
-  code = [ 1
-         , 0
-         , 167
-         , 1 ] 
+  code = [ 1 , 0 , 167 , 1 ] 
   code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
   code.extend( [ 0x80 | lib.HighByte( len( params ) )
          , lib.LowByte( len( params ) )
@@ -558,7 +555,7 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
 
 def sendOneCommand( carelink ):
   print '######### Send one Command ###########'
-  print '###### READ MODEL NUMBER ( 512 ) #####'
+  print '###### READ PUMP MODEL #####'
   command = FormatCommand( )
   print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
