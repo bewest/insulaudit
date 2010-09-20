@@ -411,12 +411,19 @@ class ACK( object ):
   readable    = -1
   __reason__  = 'UNKNOWN REASON'
   head        = ''
+  REASONS     = [ "NO ERROR"
+                , "CRC MISMATCH"
+                , "COMMAND DATA ERROR"
+                , "COMM BUSY AND/OR COMMAND CANNOT BE EXECUTED"
+                , "COMMAND NOT SUPPORTED" ]
   def __init__( self, head ):
     self.head = head
     try:
       ( self.readable, self.error, self.code ) = head
     except ValueError, e:
       self.__reason__ = '%s:head.length:%s' % ( self.__reason__, len( head ) )
+    print self.code
+    self.__reason__ = '%s:%s' % ( self.error, self.REASONS[ self.code ] )
   
   def __repr__( self ):
     return (     self.readable == 1

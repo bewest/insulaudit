@@ -248,11 +248,21 @@ USB
 def computeBCD( src ):
   result = [ ]
   src    = src.lower( )
-  for i in xrange( 0, len( src ), 2 ):
-    j,k = i*2, i*2+1
-    result.append( bytearray( ) )
-    
 
+  def f( x ):
+    result = x - '0'
+    if 0xa <= x >= 0xf:
+      result = x - 'W'
+    return result
+
+  copy   = src.map( f )
+  for i in xrange( 0, len( src ), 2 ):
+    j,k = copy[ i*2 : i*2+2 ]
+    result.append( lib.BangInt( bytearray( 
+                   [ j, k ] ) ) )
+  return bytearray( ).join( result )
+    
+((Character.isDigit(c1)) || ((c1 >= 'a') && (c1 <= 'f')))
 
   static int[] makePackedBCD(String paramString)
   {
