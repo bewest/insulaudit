@@ -553,19 +553,45 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
   return bytearray( code )
   
 
+def initRadio( carelink ):
+  print "INITIALIZE AND EMPTY RADIO"
+  length = getBytesAvailable( carelink )
+  print 'found length %s' % length
+  response = readBytes( carelink, length )
+  print 'contents of radio:'
+  debug_response( response )
+
 def sendOneCommand( carelink ):
   print '######### Send one Command ###########'
-  print '###### READ PUMP MODEL #####'
-  command = FormatCommand( )
+                            
+  print '###### #####'
+  command = FormatCommand( command=113 )
   print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
   print "### GOT RESPONSE ####"
   print lib.hexdump( bytearray( response ) )
   response = bytearray( response )
-  print "MODEL NUMBER: %s" % ( response[14:17] )
-                            
+  debug_response( response )
+
+def debug_response( response ):
+  header, body = response[ :14 ], response[ 14 : 14+response[13] ]
+  print "HEADER"
+  print "readable 1 == %s" % header[ 0 ]
+  print "success (U) fail (f) == %s (%s)" % ( chr( header[ 1 ] ),
+                                                   header[ 1 ] )
+  print "error code 0 == %s" % header[ 2 ]
+  print "message length: %s" % header[ 13 ]
+  print lib.hexdump( header )
+  print "msg"
+  print lib.hexdump( body )
+
   
+def loopSendComand( carelink ):
+  for x in itertools.count( ):
+    print '######### BEGIN LOOP ###########'
+    print 'loop:%s' % x
+    sendOneCommand( carelink )
 
 
 
@@ -605,7 +631,9 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   try:
+    initRadio( carelink )
     sendOneCommand( carelink )
+    #loopSendComand( carelink )
     #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
