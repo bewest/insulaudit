@@ -510,8 +510,7 @@ def getBytesAvailable( carelink ):
 
   return length
 
-def FormatCommand( serial='206525' ):
-
+def FormatCommand( serial='206525', command=141, params=[ ] ):
   """"
  00    [ 1
  01    , 0
@@ -532,8 +531,47 @@ def FormatCommand( serial='206525' ):
  ??    , CRC8( command parameters )
        ]
   """
+
+  readable = 0
+  code = [ 1
+         , 0
+         , 167
+         , 1 ] 
+  code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
+  code.extend( [ 0x80 | lib.HighByte( len( params ) )
+         , lib.LowByte( len( params ) )
+         , command == 93 and 85 or 0
+         , 2
+         , 1
+         , 0
+         , command
+         ] )
+  io.info( 'crc stuff' )
+  io.info( code )
+  io.info( lib.hexdump( bytearray( code ) ) )
+  code.append( lib.CRC8.compute( code ) )
+  code.append( 0 )
+  code.append( 0 )
+  code.append( lib.CRC8.compute( [ 0 ] ) )
+  return bytearray( code )
   
+
+def sendOneCommand( carelink ):
+  print '######### Send one Command ###########'
+  print '###### READ MODEL NUMBER ( 512 ) #####'
+  command = FormatCommand( )
+  print lib.hexdump( bytearray( command ) )
+  carelink.write( str( bytearray( command ) ) )
+  response = carelink.read( 64 )
+  print "### GOT RESPONSE ####"
+  print lib.hexdump( bytearray( response ) )
+  response = bytearray( response )
+  print "MODEL NUMBER: %s" % ( response[14:17] )
+                            
   
+
+
+
 def loopingRead( carelink ):
   for x in itertools.count( ):
     print '######### BEGIN LOOP ###########'
@@ -559,6 +597,9 @@ def loopingRead( carelink ):
     pprint( carelink( USBStatus(           ) ).info )
     print 
 
+
+
+
 if __name__ == '__main__':
   print 'hello world'
   
@@ -567,7 +608,8 @@ if __name__ == '__main__':
   
   carelink = CarelinkUsb( port )
   try:
-    loopingRead( carelink )
+    sendOneCommand( carelink )
+    #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
 
@@ -575,8 +617,8 @@ if __name__ == '__main__':
   pprint( carelink( USBStatus(           ) ).info )
   print "Try resetting radio?..."
   print lib.hexdump( carelink.radio( 64 ) )
-  print lib.hexdump( carelink.radio( 64, False ) )
-  print lib.hexdump( carelink.radio( 64, False ) )
+  print lib.hexdump( carelink.radio( 64, True ) )
+  print lib.hexdump( carelink.radio( 64, True ) )
   pprint( carelink( USBStatus(           ) ).info )
   print "closing for real now"
   carelink.close( )
