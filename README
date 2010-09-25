@@ -18,6 +18,8 @@ utils/
   sendOneCommand
   loopCommand
 
+  shell/
+
 
 core/
 
@@ -72,6 +74,9 @@ clmm/
         ReadOldTraceAlarm    = 167;
 
       MMPump512/
+        ...
 
+      MMPump522/
+        ...
 
 
