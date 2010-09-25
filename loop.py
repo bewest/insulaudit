@@ -269,6 +269,50 @@ class lib:
         result = klass.lookup[ ( result ^ block[ i ] & 0xFF ) ]
       return result
 
+  @staticmethod
+  def FormatCommand( serial='206525', command=141, params=[ ] ):
+    """"
+   00    [ 1
+   01    , 0
+   02    , 167
+   03    , 1
+   04    , serial[ 0 ]
+   05    , serial[ 1 ]
+   06    , serial[ 3 ]
+   07    , 0x80 | HighByte( paramCount )
+   08    , LowByte( paramCount )
+   09    , code == 93 ? 85 : 0
+   10    , maxRetries
+   11    , pagesSent > 1 ? 2 : pagesSent
+   12    , 0
+   14    , code
+   15    , CRC8( code[ :15 ] )
+   16    , command parameters....
+   ??    , CRC8( command parameters )
+         ]
+    """
+
+    readable = 0
+    code = [ 1 , 0 , 167 , 1 ] 
+    code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
+    code.extend( [ 0x80 | lib.HighByte( len( params ) )
+           , lib.LowByte( len( params ) )
+           , command == 93 and 85 or 0
+           , 2
+           , 1
+           , 0
+           , command
+           ] )
+    io.info( 'crc stuff' )
+    io.info( code )
+    io.info( lib.hexdump( bytearray( code ) ) )
+    code.append( lib.CRC8.compute( code ) )
+    code.append( 0 )
+    code.append( 0 )
+    code.append( lib.CRC8.compute( [ 0 ] ) )
+    return bytearray( code )
+  
+
 class USBReadData( Command ):
   # XXX: !!!!
   code  = [ 12, 0 ]
@@ -510,49 +554,8 @@ def getBytesAvailable( carelink ):
 
   return length
 
-def FormatCommand( serial='206525', command=141, params=[ ] ):
-  """"
- 00    [ 1
- 01    , 0
- 02    , 167
- 03    , 1
- 04    , serial[ 0 ]
- 05    , serial[ 1 ]
- 06    , serial[ 3 ]
- 07    , 0x80 | HighByte( paramCount )
- 08    , LowByte( paramCount )
- 09    , code == 93 ? 85 : 0
- 10    , maxRetries
- 11    , pagesSent > 1 ? 2 : pagesSent
- 12    , 0
- 14    , code
- 15    , CRC8( code[ :15 ] )
- 16    , command parameters....
- ??    , CRC8( command parameters )
-       ]
-  """
 
-  readable = 0
-  code = [ 1 , 0 , 167 , 1 ] 
-  code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
-  code.extend( [ 0x80 | lib.HighByte( len( params ) )
-         , lib.LowByte( len( params ) )
-         , command == 93 and 85 or 0
-         , 2
-         , 1
-         , 0
-         , command
-         ] )
-  io.info( 'crc stuff' )
-  io.info( code )
-  io.info( lib.hexdump( bytearray( code ) ) )
-  code.append( lib.CRC8.compute( code ) )
-  code.append( 0 )
-  code.append( 0 )
-  code.append( lib.CRC8.compute( [ 0 ] ) )
-  return bytearray( code )
-  
-
+# utils
 def initRadio( carelink ):
   print "INITIALIZE AND EMPTY RADIO"
   length = getBytesAvailable( carelink )
@@ -561,11 +564,12 @@ def initRadio( carelink ):
   print 'contents of radio:'
   debug_response( response )
 
-def sendOneCommand( carelink ):
+def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
                             
   print '###### #####'
-  command = FormatCommand( command=113 )
+  #command = lib.FormatCommand( )
+  command = lib.FormatCommand( command=command )
   print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
@@ -573,6 +577,7 @@ def sendOneCommand( carelink ):
   print lib.hexdump( bytearray( response ) )
   response = bytearray( response )
   debug_response( response )
+  return response
 
 def debug_response( response ):
   header, body = response[ :14 ], response[ 14 : 14+response[13] ]
@@ -585,7 +590,11 @@ def debug_response( response ):
   print lib.hexdump( header )
   print "msg"
   print lib.hexdump( body )
+  print "SERIAL: %s" % decodeSerial( str( body ) )
 
+
+def decodeSerial( serial ):
+  return serial.encode( 'hex' )
   
 def loopSendComand( carelink ):
   for x in itertools.count( ):

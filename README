@@ -1,0 +1,77 @@
+
+Author: Ben West
+
+
+This python package provides a toolkit for dealing with data used and
+created by a "modern," circa 2010 insulin therapy regimen.
+
+
+
+lib/
+  BangInt
+  BangLong
+  FormatCommand
+  CRC8
+
+
+utils/
+  sendOneCommand
+  loopCommand
+
+
+core/
+
+  CommBuffer
+  CommCommand
+
+  commands/
+    LoggableCommand
+
+  config/
+    io
+
+
+clmm/
+
+  CLUSBStick
+
+  commands/
+    CLCommand
+      CLUSBCommand
+      StatusCommand
+      ProdInfoCommand
+
+      InterfaceStats
+        RadioDetailsCommand
+        USBDetailsCommmand 
+
+    devices/
+      SyncCommand
+      MMPump511/
+        SuspendResume        = 77;
+        PushKeypad           = 91;
+        PowerCTRL            = 93;
+        ReadRTC              = 112;
+        ReadPumpId           = 113;
+        ReadBatteryStatus    = 114;
+        ReadRemainingInsulin = 115;
+        ReadFirmwareVersion  = 116;
+        ReadErrorStatus      = 117;
+        ReadRadioCtrlACL     = 118;
+        ReadBasalTemp        = 120;
+        ReadTotalsToday      = 121;
+        ReadProfiles_STD     = 122;
+        ReadProfiles_A       = 123;
+        ReadProfiles_B        = 124;
+        ReadSettings         = 127;
+        ReadHistoryData      = 128;
+        ReadPumpStatus       = 131;
+        ReadPumpTrace        = 163;
+        ReadDetailTrace      = 164;
+        ReadNewTraceAlarm    = 166;
+        ReadOldTraceAlarm    = 167;
+
+      MMPump512/
+
+
+
