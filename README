@@ -5,7 +5,7 @@ Author: Ben West
 insulaudit
 
 This python package provides a toolkit for dealing with data used and
-created by a "modern," circa 2010 insulin therapy regimen.
+created by a "modern," circa 2010, insulin therapy regimen.
 
 
 
@@ -65,7 +65,7 @@ clmm/
         ReadTotalsToday      = 121;
         ReadProfiles_STD     = 122;
         ReadProfiles_A       = 123;
-        ReadProfiles_B        = 124;
+        ReadProfiles_B       = 124;
         ReadSettings         = 127;
         ReadHistoryData      = 128;
         ReadPumpStatus       = 131;
@@ -74,10 +74,10 @@ clmm/
         ReadNewTraceAlarm    = 166;
         ReadOldTraceAlarm    = 167;
 
-      MMPump512/
+      MMPump512/ # test pump is a 512
         ...
 
-      MMPump522/
+      MMPump522/ # production pump is a 522
         ...
 
 tests/
