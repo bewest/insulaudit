@@ -2,6 +2,8 @@
 Author: Ben West
 
 
+insulaudit
+
 This python package provides a toolkit for dealing with data used and
 created by a "modern," circa 2010 insulin therapy regimen.
 
@@ -18,19 +20,18 @@ utils/
   sendOneCommand
   loopCommand
 
-  shell/
 
+config/
+  io
+  settings
 
 core/
 
   CommBuffer
   CommCommand
+  LoggableCommand
+  RemoteCommand
 
-  commands/
-    LoggableCommand
-
-  config/
-    io
 
 
 clmm/
@@ -79,4 +80,5 @@ clmm/
       MMPump522/
         ...
 
+tests/
 
