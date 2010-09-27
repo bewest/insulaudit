@@ -3,6 +3,7 @@ Author: Ben West
 
 
 insulaudit
+==========
 
 This python package provides a toolkit for dealing with data used and
 created by a "modern," circa 2010, insulin therapy regimen.

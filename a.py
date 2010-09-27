@@ -133,6 +133,7 @@ class USBProductInfo( Command ):
   SW_VER = 16
   label  = 'usb.productInfo'
   rf_table  = { 001: '868.35Mhz' ,
+                000: '916.5Mhz'  ,
                 255: '916.5Mhz'  }
   iface_key = { 3: 'USB',
                 1: 'Paradigm RF' }
@@ -150,7 +151,8 @@ class USBProductInfo( Command ):
   def __call__( self, reply, device ):
     info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
-    , 'serial'           : sum( reply.body[ 0:3 ] )
+    , 'serial'           : (reply.body[ 0:3 ],
+                           str( reply.body[ 0:3 ]).encode( 'hex'  ) )
     , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
@@ -268,6 +270,50 @@ class lib:
       for i in xrange( len( block ) ):
         result = klass.lookup[ ( result ^ block[ i ] & 0xFF ) ]
       return result
+
+  @staticmethod
+  def FormatCommand( serial='206525', command=141, params=[ ] ):
+    """"
+   00    [ 1
+   01    , 0
+   02    , 167
+   03    , 1
+   04    , serial[ 0 ]
+   05    , serial[ 1 ]
+   06    , serial[ 3 ]
+   07    , 0x80 | HighByte( paramCount )
+   08    , LowByte( paramCount )
+   09    , code == 93 ? 85 : 0
+   10    , maxRetries
+   11    , pagesSent > 1 ? 2 : pagesSent
+   12    , 0
+   14    , code
+   15    , CRC8( code[ :15 ] )
+   16    , command parameters....
+   ??    , CRC8( command parameters )
+         ]
+    """
+
+    readable = 0
+    code = [ 1 , 0 , 167 , 1 ] 
+    code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
+    code.extend( [ 0x80 | lib.HighByte( len( params ) )
+           , lib.LowByte( len( params ) )
+           , command == 93 and 85 or 0
+           , 2
+           , 1
+           , 0
+           , command
+           ] )
+    io.info( 'crc stuff' )
+    io.info( code )
+    io.info( lib.hexdump( bytearray( code ) ) )
+    code.append( lib.CRC8.compute( code ) )
+    code.append( 0 )
+    code.append( 0 )
+    code.append( lib.CRC8.compute( [ 0 ] ) )
+    return bytearray( code )
+  
 
 class USBReadData( Command ):
   # XXX: !!!!
@@ -411,12 +457,19 @@ class ACK( object ):
   readable    = -1
   __reason__  = 'UNKNOWN REASON'
   head        = ''
+  REASONS     = [ "NO ERROR"
+                , "CRC MISMATCH"
+                , "COMMAND DATA ERROR"
+                , "COMM BUSY AND/OR COMMAND CANNOT BE EXECUTED"
+                , "COMMAND NOT SUPPORTED" ]
   def __init__( self, head ):
     self.head = head
     try:
       ( self.readable, self.error, self.code ) = head
     except ValueError, e:
       self.__reason__ = '%s:head.length:%s' % ( self.__reason__, len( head ) )
+    print self.code
+    self.__reason__ = '%s:%s' % ( self.error, self.REASONS[ self.code ] )
   
   def __repr__( self ):
     return (     self.readable == 1
@@ -453,9 +506,7 @@ class Reply( object ):
       self.body = self.msg[ 3: len(self.msg) - 3 ]
     except IndexError, e:
       raise NoReplyException( e )
-    #self.readBytesAvailable = self.msg[ 3:4 ]
     self.printable = str( self.msg ).encode( 'string_escape' )
-    #log.debug( 'init reply.raw: %s' % self.printable )
 
 
   @staticmethod
@@ -505,22 +556,85 @@ def getBytesAvailable( carelink ):
 
   return length
 
-def findPageOffset( page ):
-  null   = 0x00
-  octect = [ null ] * 8
-  hextet = [ null ] * 16
 
+# utils
+def initRadio( carelink ):
+  print "READ AND EMPTY RADIO"
+  length = getBytesAvailable( carelink )
+  print 'found length %s' % length
+  response = readBytes( carelink, length )
+  print 'contents of radio:'
+  debug_response( response )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBSignalStrength(      ) ).info )
+
+def sendOneCommand( carelink, command=141 ):
+  print '######### Send one Command ###########'
+                            
+  print '###### Write Command to Port #####'
+  #command = lib.FormatCommand( )
+  command = lib.FormatCommand( command=command )
+  #print lib.hexdump( bytearray( command ) )
+  carelink.write( str( bytearray( command ) ) )
+  response = carelink.read( 64 )
+  #print "### Read follows write ####"
+  #print lib.hexdump( bytearray( response ) )
+  response = bytearray( response )
+  debug_response( response )
+  return response
+
+def debug_response( response ):
+  header, body = response[ :14 ], response[ 14 : 14+response[13] ]
+  print "HEADER"
+  print "readable 1 == %s" % header[ 0 ]
+  print "success (U) fail (f) == %s (%s)" % ( chr( header[ 1 ] ),
+                                                   header[ 1 ] )
+  print "error code 0 == %s" % header[ 2 ]
+  print "message length: %s" % header[ 13 ]
+  print lib.hexdump( header )
+  print "msg"
+  print lib.hexdump( body )
+  print "msg: %s" % ( str( body ) )
+
+
+def decodeSerial( serial ):
+  return serial.encode( 'hex' )
   
+def loopSendComand( carelink ):
+  for x in itertools.count( ):
+    print '######### BEGIN LOOP ###########'
+    print 'loop:%s' % x
+    sendOneCommand( carelink )
+
+
+
 def loopingRead( carelink ):
   for x in itertools.count( ):
+    print '######### BEGIN LOOP ###########'
     print 'loop:%s' % x
     length = getBytesAvailable( carelink )
     print 'found length %s' % length
     response = readBytes( carelink, length )
     print lib.hexdump( response )
-    print "Read a total of %s bytes" % len( response )
+    print "Read a total of %s bytes / %s requested" % ( len( response), length )
+    if len( response ) < length:
+      remaining = length - len( response )
+      print "Response was less than requested... "
+      print "trying the remainder: %s" % remaining
+      response = readBytes( carelink, remaining + ( remaining % 64 ) )
     pprint( carelink( USBStatus( ) ).info )
     print 'finishing loop:%s' % x
+    print '######### STATS ###########'
+    print 'signal strength: %sdBm' % \
+           carelink( USBSignalStrength( ) ).info
+    pprint( carelink( RadioInterfaceStats( ) ).info )
+    pprint( carelink( USBInterfaceStats(   ) ).info )
+    pprint( carelink( USBProductInfo(      ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+    print 
+
+
+
 
 if __name__ == '__main__':
   print 'hello world'
@@ -529,21 +643,26 @@ if __name__ == '__main__':
   #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
-  try:
-    loopingRead( carelink )
-  except KeyboardInterrupt:
-    print "closing"
-
   print "Checking status first..."
   pprint( carelink( USBStatus(           ) ).info )
-  print "Try resetting radio?..."
-  print lib.hexdump( carelink.radio( 64 ) )
-  print lib.hexdump( carelink.radio( 64, False ) )
-  print lib.hexdump( carelink.radio( 64, False ) )
-  pprint( carelink( USBStatus(           ) ).info )
+  try:
+    sendOneCommand( carelink )
+    #initRadio( carelink )
+    #loopSendComand( carelink )
+    #loopingRead( carelink )
+  except KeyboardInterrupt:
+    print "closing"
+  pprint( carelink( USBProductInfo(      ) ).info )
+
   print "closing for real now"
   carelink.close( )
   sys.exit( 0 )
+
+  print "Try resetting radio?..."
+  print lib.hexdump( carelink.radio( 64 ) )
+  print lib.hexdump( carelink.radio( 64, True ) )
+  print lib.hexdump( carelink.radio( 64, True ) )
+  pprint( carelink( USBStatus(           ) ).info )
 
   info   = carelink( USBStatus( ) ).info
   pprint( info )
@@ -552,6 +671,7 @@ if __name__ == '__main__':
   pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( RadioInterfaceStats( ) ).info )
+  pprint( carelink( USBInterfaceStats(   ) ).info )
   pprint( carelink( USBProductInfo(      ) ).info )
   pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBProductInfo(      ) ).info )
