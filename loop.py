@@ -332,7 +332,7 @@ class CarelinkUsb( object ):
   class ID:
     VENDOR  = 0x0a21
     PRODUCT = 0x8001
-  timeout = .150
+  timeout = .50
   def __init__( self, port, timeout=timeout ):
     self.timeout = timeout
     self.open( port )
@@ -645,6 +645,8 @@ if __name__ == '__main__':
   carelink = CarelinkUsb( port )
   print "Checking status first..."
   pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBSignalStrength( ) ).info )
   try:
     sendOneCommand( carelink )
     #initRadio( carelink )
@@ -652,7 +654,6 @@ if __name__ == '__main__':
     #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
-  pprint( carelink( USBProductInfo(      ) ).info )
 
   print "closing for real now"
   carelink.close( )
