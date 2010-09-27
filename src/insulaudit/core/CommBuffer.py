@@ -5,12 +5,12 @@
 
 import serial 
 from insulaudit.log import io, logger as log
-from insulaudit import lib
+from insulaudit import lib, config
 
 
 # TODO: implement Buffer API and enable context manager.
 class CommBuffer( object ):
-  def __init__( self, port, timeout=timeout ):
+  def __init__( self, port, timeout=config.settings.timeout ):
     self.timeout = timeout
     self.open( port )
 

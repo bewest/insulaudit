@@ -39,7 +39,7 @@ class CarelinkUsb( core.CommBuffer ):
     
 if __name__ == '__main__':
   import doctest
-  doctest.testmost( )
+  doctest.testmod( )
 
 #####
 # EOF
