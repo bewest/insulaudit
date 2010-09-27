@@ -20,6 +20,12 @@ True
 >>> 177 == CRC8.compute( bytearray( [ 0x00, 0xFF, 0x00 ] ) )
 True
 
+>>> BangInt( bytearray( [ 0x02, 0X02 ] ) )
+514
+
+>>> BangLong( bytearray( [ 0x0, 0X0, 0x02, 0x02 ] ) )
+514
+
 """
 
 import doctest
@@ -94,6 +100,16 @@ class CRC8:
       result = klass.lookup[ ( result ^ block[ i ] & 0xFF ) ]
     return result
 
+
+def BangLong( bytez ):
+  ( a, b, c, d ) = bytez
+  l = a << 24 | b << 16 | c << 8 | d;
+  return l
+
+
+def BangInt( ints ):
+  ( x, y ) = ints
+  return ( x & 0xFF ) << 8 | y & 0xFF;
 
 if __name__ == '__main__':
   doctest.testmod( )

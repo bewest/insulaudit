@@ -92,11 +92,6 @@ class Command( object ):
     reply.info = self.info
     return reply
 
-def BangInt( ints ):
-  ( x, y ) = ints
-  return ( x & 0xFF ) << 8 | y & 0xFF;
-  
-
 class USBStatus( Command ):
   """
   """
@@ -110,7 +105,7 @@ class USBStatus( Command ):
              }
 
   def rfByteCount( self, count ):
-    return BangInt( count )
+    return lib.BangInt( count )
 
   def __call__( self, reply, *args ):
     self.info = self.__info__
@@ -164,11 +159,7 @@ class USBProductInfo( Command ):
     reply.command = self
     return reply
 
-def BangLong( bytez ):
-  ( a, b, c, d ) = bytez
-  l = a << 24 | b << 16 | c << 8 | d;
-  return l
-
+  
 
 class InterfaceStats( Command ):
   code          = [ 5 ]
@@ -181,8 +172,8 @@ class InterfaceStats( Command ):
     , 'errors.sequence' : b[ 1 ]
     , 'errors.naks'     : b[ 2 ]
     , 'errors.timeouts' : b[ 3 ]
-    , 'packets.received': BangLong( b[ 4: 8 ] )
-    , 'packets.transmit': BangLong( b[ 8:12 ] )
+    , 'packets.received': lib.BangLong( b[ 4: 8 ] )
+    , 'packets.transmit': lib.BangLong( b[ 8:12 ] )
     }
     return reply
 
