@@ -55,7 +55,7 @@ class Command( object ):
   long.  The first byte should be a 1 and the second byte should be a U if
   everything is ok.
   """
-  label       = 'usb ack'
+  label       = 'abstract command'
   # Default timeout for a read.
   timeout     = 2
   sleep       = 1

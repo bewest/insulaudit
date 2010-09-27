@@ -2,11 +2,6 @@
 This module provides some basic helper/formatting utilities.
 
 
-
-Module functions:
-
-
-
 >>> hexdump( bytearray( [0x00] ) )
 '0000   0x00                       .'
 
@@ -16,15 +11,14 @@ True
 >>> 0x0F == LowByte( 0x0F )
 True
 
-
->>> 177 == CRC8.compute( bytearray( [ 0x00, 0xFF, 0x00 ] ) )
-True
+>>> CRC8.compute( bytearray( [ 0x00, 0xFF, 0x00 ] ) )
+177
 
 >>> BangInt( bytearray( [ 0x02, 0X02 ] ) )
 514
 
 >>> BangLong( bytearray( [ 0x0, 0X0, 0x02, 0x02 ] ) )
-514
+514L
 
 """
 
@@ -104,7 +98,7 @@ class CRC8:
 def BangLong( bytez ):
   ( a, b, c, d ) = bytez
   l = a << 24 | b << 16 | c << 8 | d;
-  return l
+  return long( l )
 
 
 def BangInt( ints ):
