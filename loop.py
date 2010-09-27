@@ -133,6 +133,7 @@ class USBProductInfo( Command ):
   SW_VER = 16
   label  = 'usb.productInfo'
   rf_table  = { 001: '868.35Mhz' ,
+                000: '916.5Mhz'  ,
                 255: '916.5Mhz'  }
   iface_key = { 3: 'USB',
                 1: 'Paradigm RF' }
@@ -150,7 +151,8 @@ class USBProductInfo( Command ):
   def __call__( self, reply, device ):
     info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
-    , 'serial'           : sum( reply.body[ 0:3 ] )
+    , 'serial'           : (reply.body[ 0:3 ],
+                           str( reply.body[ 0:3 ]).encode( 'hex'  ) )
     , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
@@ -557,24 +559,26 @@ def getBytesAvailable( carelink ):
 
 # utils
 def initRadio( carelink ):
-  print "INITIALIZE AND EMPTY RADIO"
+  print "READ AND EMPTY RADIO"
   length = getBytesAvailable( carelink )
   print 'found length %s' % length
   response = readBytes( carelink, length )
   print 'contents of radio:'
   debug_response( response )
+  pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBSignalStrength(      ) ).info )
 
 def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
                             
-  print '###### #####'
+  print '###### Write Command to Port #####'
   #command = lib.FormatCommand( )
   command = lib.FormatCommand( command=command )
-  print lib.hexdump( bytearray( command ) )
+  #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
-  print "### GOT RESPONSE ####"
-  print lib.hexdump( bytearray( response ) )
+  #print "### Read follows write ####"
+  #print lib.hexdump( bytearray( response ) )
   response = bytearray( response )
   debug_response( response )
   return response
@@ -590,7 +594,7 @@ def debug_response( response ):
   print lib.hexdump( header )
   print "msg"
   print lib.hexdump( body )
-  print "SERIAL: %s" % decodeSerial( str( body ) )
+  print "msg: %s" % ( str( body ) )
 
 
 def decodeSerial( serial ):
@@ -639,24 +643,26 @@ if __name__ == '__main__':
   #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
+  print "Checking status first..."
+  pprint( carelink( USBStatus(           ) ).info )
   try:
-    initRadio( carelink )
     sendOneCommand( carelink )
+    #initRadio( carelink )
     #loopSendComand( carelink )
     #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
+  pprint( carelink( USBProductInfo(      ) ).info )
 
-  print "Checking status first..."
-  pprint( carelink( USBStatus(           ) ).info )
+  print "closing for real now"
+  carelink.close( )
+  sys.exit( 0 )
+
   print "Try resetting radio?..."
   print lib.hexdump( carelink.radio( 64 ) )
   print lib.hexdump( carelink.radio( 64, True ) )
   print lib.hexdump( carelink.radio( 64, True ) )
   pprint( carelink( USBStatus(           ) ).info )
-  print "closing for real now"
-  carelink.close( )
-  sys.exit( 0 )
 
   info   = carelink( USBStatus( ) ).info
   pprint( info )
