@@ -1,5 +1,11 @@
 
 
+  UsbStick                         Command
+       write ----- >                 encode
+                                     decode
+
+
+
 deviceportreader/MMX22.java
 defines
 

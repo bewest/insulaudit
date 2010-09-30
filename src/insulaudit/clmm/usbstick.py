@@ -7,6 +7,8 @@ class CarelinkUsb( core.CommBuffer ):
     PRODUCT = 0x8001
   timeout = .150
 
+  __response__ = core.Reply
+
   def radio( self, length, crc=True ):
     code = [ 12, 0 ]
     if crc:

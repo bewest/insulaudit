@@ -42,56 +42,6 @@ ERROR_LOOKUP = [ "NO ERROR",
   "COMM BUSY AND/OR COMMAND CANNOT BE EXECUTED",
   "COMMAND NOT SUPPORTED" ]
 
-class Command( object ):
-  """
-  A code should be an array of ints.
-  These are the messages we'll send to the communications device.
-  """
-  code        = [ 3 ]
-  """
-  """
-  description = """This is the read status command.
-  Issuing this command should result in reading a string 64 characters
-  long.  The first byte should be a 1 and the second byte should be a U if
-  everything is ok.
-  """
-  label       = 'abstract command'
-  # Default timeout for a read.
-  timeout     = 2
-  sleep       = 1
-  info        = None
-
-  min_reply_size  = 64
-  def __init__( self, **kwds ):
-    self.apply_opts( **kwds )
-
-  def apply_opts( self, **kwds ):
-    for i in [ 'code', 'label', 'description', 'timeout', 'sleep' ]:
-      setattr( self, i, kwds.get( i, getattr( self, i ) ) )
-
-  def __str__( self ):
-    x = str( bytearray( self.code ) )
-    #s = '{label}: {msg}'.format( label=self.label, msg=self.info )
-    return x
-
-  def __repr__( self ):
-    return '<{agent}:code={code}, label={label}, info={info}>'\
-           .format( code  =repr( self.code ),
-                    agent =self.__class__.__name__,
-                    label =self.label,
-                    info  =self.info )
-
-  def hexdump( self ):
-    return lib.hexdump( bytearray( self.code ) )
-
-  def bytez( self ):
-    return bytearray( self.code )
-
-  def __call__( self, reply, device=False ):
-    self.last_reply = reply
-    reply.info = self.info
-    return reply
-
 class USBStatus( Command ):
   """
   """
@@ -259,41 +209,6 @@ class USBReadData( Command ):
     self.code.extend( [ lib.HighByte( length )
                       , lib.LowByte( length ) ] )
     self.code.append( lib.CRC8.compute( self.code ) )
-
-class CarelinkComStatus( object ):
-  statmap = {
-      'receiving.complete'      : 0x01,
-      'receiving.progress'      : 0x02,
-      'transmit.progress'       : 0x04,
-      'interface.error'         : 0x08,
-      'error.receiving.overflow': 0x10,
-      'error.transmit.overflow' : 0x20
-  }
-  value = '????'
-  flags = { }
-  def __init__( self, status ):
-    self.raw  = status
-    flags = { }
-    for k,v in self.statmap.iteritems( ):
-      flags[ k ] = status & v
-      if status & v > 0:
-        flags[ k ] = True
-        self.value = status & v
-    self.flags = flags
-
-  def __str__( self ):
-    return '%s:%r' %( self.__class__.__name__, self.flags )
-
-  def __repr__( self ):
-    return ''.join( [
-          '<', '{agent}',
-          ':', 'raw={raw}',
-          ':', 'flags={flags}'
-             , '>' ] ).format(
-                raw   = self.raw,
-                flags = self.flags,
-                agent = self.__class__.__name__
-          )
 
 def readBytes( carelink, length ):
     remaining = length

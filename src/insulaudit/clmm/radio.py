@@ -1,5 +1,6 @@
 
 from insulaudit.log import io, logger as log
+from insulaudit import exceptions
 from pprint import pformat
 import time
 
@@ -47,19 +48,20 @@ class ACK( object ):
     
 class Reply( object ):
   
-  log    = logging.getLogger( 'reply' )
-  ack    = False
-  info   = None
+  log     = logging.getLogger( 'reply' )
+  ack     = False
+  info    = None
+  __ACK__ = ACK
 
   def __init__( self, raw_reply ):
     self.log = logging.getLogger( self.__class__.__name__ )
     self.raw = raw_reply
     self.msg = bytearray( raw_reply )
     try:
-      self.ack  = ACK( self.msg[ 0:3 ] )
+      self.ack  = self.__ACK__( self.msg[ 0:3 ] )
       self.body = self.msg[ 3: len(self.msg) - 3 ]
     except IndexError, e:
-      raise NoReplyException( e )
+      raise exceptions.NoReplyException( e )
     self.printable = str( self.msg ).encode( 'string_escape' )
 
 
@@ -77,6 +79,36 @@ class Reply( object ):
                                    agent=self.__class__.__name__,
                                    ack=self.ack )
 
+
+class StickStatusStruct( object ):
+  statmap = {
+      'receiving.complete'      : 0x01,
+      'receiving.progress'      : 0x02,
+      'transmit.progress'       : 0x04,
+      'interface.error'         : 0x08,
+      'error.receiving.overflow': 0x10,
+      'error.transmit.overflow' : 0x20
+  }
+  value = '????'
+  flags = { }
+  def __init__( self, status ):
+    self.raw  = status
+    flags = { }
+    for k,v in self.statmap.iteritems( ):
+      flags[ k ] = status & v
+      if status & v > 0:
+        flags[ k ] = True
+        self.value = status & v
+    self.flags = flags
+
+  def __str__( self ):
+    return '%s:%r' %( self.__class__.__name__, self.flags )
+
+  def __repr__( self ):
+    return '<{agent}:raw={raw}:flags={flags}>'.format(
+                raw   = self.raw,
+                flags = self.flags,
+                agent = self.__class__.__name__ )
 
 
 #####
