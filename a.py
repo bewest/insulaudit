@@ -179,7 +179,7 @@ class lib:
 
     readable = 0
     code = [ 1 , 0 , 167 , 1 ] 
-    code.extend( list( bytearray( serial.decode( 'hex' ) ) ) )
+    code.extend( list( bytearray( serial.encode( 'hex' ) ) ) )
     code.extend( [ 0x80 | lib.HighByte( len( params ) )
            , lib.LowByte( len( params ) )
            , command == 93 and 85 or 0

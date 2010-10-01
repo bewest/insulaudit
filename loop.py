@@ -581,6 +581,7 @@ def sendOneCommand( carelink, command=141 ):
   #print lib.hexdump( bytearray( response ) )
   response = bytearray( response )
   debug_response( response )
+  print Reply( response )
   return response
 
 def debug_response( response ):
