@@ -300,18 +300,18 @@ class lib:
     code.extend( [ 0x80 | lib.HighByte( len( params ) )
            , lib.LowByte( len( params ) )
            , command == 93 and 85 or 0
-           , 2
-           , 1
-           , 0
+           , 2 # Retries
+           , 1 # 2 or <=1 pages?
+           , 0 # EOH
            , command
            ] )
     io.info( 'crc stuff' )
     io.info( code )
     io.info( lib.hexdump( bytearray( code ) ) )
     code.append( lib.CRC8.compute( code ) )
-    code.append( 0 )
-    code.append( 0 )
-    code.append( lib.CRC8.compute( [ 0 ] ) )
+    #code.append( 0 ) # Command Params
+    code.extend( params ) # Command Params
+    code.append( lib.CRC8.compute( params ) )
     return bytearray( code )
   
 
@@ -576,6 +576,7 @@ def sendOneCommand( carelink, command=141 ):
   command = lib.FormatCommand( command=command )
   #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
+  time.sleep( .250 )
   response = carelink.read( 64 )
   #print "### Read follows write ####"
   #print lib.hexdump( bytearray( response ) )

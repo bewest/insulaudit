@@ -1,9 +1,15 @@
-from insulaudit import core
+from insulaudit.log import io, logger as log
+from insulaudit import lib
+
 
 class Command( object ):
   """
   A code should be an array of ints.
   These are the messages we'll send to the communications device.
+
+
+  Pass an instance of a Command to CommBuffer.
+  ComBuffer expects a callable
   """
   code        = [ 3 ]
   """

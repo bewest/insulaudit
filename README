@@ -8,6 +8,8 @@ insulaudit
 This python package provides a toolkit for dealing with data used and
 created by a "modern," circa 2010, insulin therapy regimen.
 
+sudo modprobe usbserial vendor=0x0a21 product=0x8001
+
 
 
 DONE.

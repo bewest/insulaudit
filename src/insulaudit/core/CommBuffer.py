@@ -24,8 +24,7 @@ class CommBuffer( object ):
     if self.serial.isOpen( ):
       log.info( '{agent} opened serial port: {serial}'\
          .format( serial = repr( self.serial ),
-                  agent  =self.__class__.__name__
-                ) )
+                  agent  =self.__class__.__name__ ) )
 
   def close( self ):
     io.info( 'closing serial port' )
@@ -46,13 +45,13 @@ class CommBuffer( object ):
   def readline( self ):
     r = self.serial.readline( )
     io.info( 'usb.read.len: %s\n%s' % ( len( r ),
-                                          lib.hexdump( r ) ) )
+                                        lib.hexdump( r ) ) )
     return r
       
   def readlines( self ):
     r = self.serial.readlines( )
     io.info( 'usb.read.len: %s\n%s' % ( len( r ),
-                                          lib.hexdump( r ) ) )
+                                        lib.hexdump( r ) ) )
     return r
 
 if __name__ == '__main__':
