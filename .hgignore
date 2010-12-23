@@ -3,6 +3,7 @@ syntax: glob
 
 *.swp
 *.swo
+*.swn
 *.pyc
 *.pyo
 
