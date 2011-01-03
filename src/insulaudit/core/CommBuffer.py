@@ -10,8 +10,10 @@ from insulaudit import lib, config
 
 # TODO: implement Buffer API and enable context manager.
 class CommBuffer( object ):
-  def __init__( self, port, timeout=config.settings.timeout ):
-    self.timeout = timeout
+  __timeout__ = config.settings.timeout
+  def __init__( self, port, timeout=None ):
+    if timeout is not None:
+      self.__timeout__ = timeout
     self.open( port )
 
 
@@ -19,7 +21,7 @@ class CommBuffer( object ):
     if newPort:
       self.port = newPort
 
-    self.serial = serial.Serial( self.port, timeout=self.timeout )
+    self.serial = serial.Serial( self.port, timeout=self.__timeout__ )
 
     if self.serial.isOpen( ):
       log.info( '{agent} opened serial port: {serial}'\
