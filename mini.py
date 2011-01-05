@@ -26,6 +26,8 @@ def init( ):
   print "is open? %s\n timeout: %s" % ( mini.serial.isOpen( ), mini.serial.getTimeout() )
   mini.disconnect( )
   print "Initial DISCONNECT"
+  print "GETTING FIRMWARE INFO"
+  mini.execute( lsultramini.DiscoverFirmware( ) )
   return mini
 
 
