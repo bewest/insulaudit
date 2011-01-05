@@ -67,45 +67,61 @@ class LSUltraMini( core.CommBuffer ):
     crc = lib.CRC16CCITT.compute( msg )
     msg.extend( [ lib.LowByte( crc ), lib.HighByte( crc ) ] )
     io.info( 'disconnect' )
-    self.write( str( bytearray( msg ) ) )
-    self.__requireAck__( )
+    self.__retry_write_with_ack__( msg, RETRIES )
 
+  def __retry_write_with_ack__( self, msg, retries ):
+    try:
+      for i in xrange( RETRIES - 1 ):
+        try:
+          self.write( str( bytearray( msg ) ) )
+          io.info( '__retry_write_with_ack__::%i' % i )
+          self.__ack__ = self.__requireAck__( )
+          return self.__ack__
+        except MissingAck, e:
+          io.info( 'retry:%s:missing ack:%r' % ( i, e ) )
+      self.write( str( bytearray( msg ) ) )
+      self.__ack__ = self.__requireAck__( )
+      return self.__ack__
+    # catch
+    except MissingAck, e:
+      #except Exception, e:
+      io.fatal( 'noticed and uncaught: %r' % e )
+      raise
+
+    
 
   def __requireAck__( self ):
+    """Try to read an ack, raising MissingAck if we don't read it. Returns
+    bytearray ack."""
     ack = None
     for i in xrange( RETRIES ):
       ack = bytearray( self.read( 40 ) )
       if ack == '':
-        io.debug( "NOTHING TRY: %s" % i )
+        io.debug( "empty ack:%s:%s" % ( i, ack ) )
       else:
         break
     io.info( 'ACK: %s' % lib.hexdump( ack ) )
     if ack == '':
-      raise MissingAck()
+      raise MissingAck(i)
     return ack
     
   def __acknowledge__( self ):
-    msg = [ STX, 6, 0x07, ETX ]
+    msg = [ STX, 6, 0x07 | 0x08, ETX ]
     crc = lib.CRC16CCITT.compute( msg )
     msg.extend( [ lib.LowByte( crc ), lib.HighByte( crc ) ] )
     io.info( 'sending ACK' )
     self.write( str( bytearray( msg ) ) )
 
   def __send__require_ack__( self, command ):
+    """sending a command requires an ack from the device every time."""
     io.debug( 'command:\n%s' % command.hexdump( ) )
     # PC sends command
     # meter sends ACK
-    #ack = bytearray( self.read( 40 ) )
-    self.write( str( self.wrap( 2, command.code ) ) )
-    self.__requireAck__( )
-    for i in xrange( 5 ):
-      ack = bytearray( self.read( 40 ) )
-      if ack == '':
-        io.debug( "NOTHING TRY: %s" % i )
-      else:
-        break
-    if ack == '':
-      raise MissingAck()
+    msg = str( self.wrap( 2, command.code ) )
+    return self.__retry_write_with_ack__( msg, RETRIES )
+    # TODO: process ack here?
+    #self.write( msg )
+    # self.__requireAck__( )
     
   def wrap( self, link, data ):
     frame = [ STX, len( data ) + 6, link | Link.ACK ] + data
