@@ -81,12 +81,12 @@ class LSUltraMini( core.CommBuffer ):
           io.info( 'retry:%s:missing ack:%r' % ( i, e ) )
       self.write( str( bytearray( msg ) ) )
       self.__ack__ = self.__requireAck__( )
-      return self.__ack__
     # catch
     except MissingAck, e:
       #except Exception, e:
       io.fatal( 'noticed and uncaught: %r' % e )
       raise
+    return self.__ack__
 
     
 
