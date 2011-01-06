@@ -1,7 +1,8 @@
 
 import logging
 from logging import getLogger
-logging.basicConfig( )
+import sys
+logging.basicConfig( stream=sys.stdout )
 root = logging.getLogger( 'insulaudit' )
 root.setLevel( logging.DEBUG )
 
