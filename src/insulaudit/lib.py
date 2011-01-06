@@ -14,6 +14,13 @@ True
 >>> CRC16CCITT.compute( bytearray( [ 2, 6, 6, 3 ] ) )
 16845
 
+>>> CRC16CCITT.compute( bytearray( [ 0x02, 0x09, 0x00,
+...                                  0x05, 0x0D, 0x02, 0x03 ] ) )
+29146
+
+>>> BangInt( bytearray( [  0x71, 0xDA ] ) )
+29146
+
 >>> BangInt( bytearray( [ 0x62, 0xC2 ] ) ) == CRC16CCITT.compute( bytearray( [ 2, 0x06, 0x08, 3 ] ) )
 True
 

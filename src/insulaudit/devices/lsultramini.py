@@ -60,12 +60,11 @@ class DiscoverFirmware( core.Command ):
 
 class LSUltraMini( core.CommBuffer ):
   __timeout__ = 0.5
+  __pause__   = 02
   __control__ = None
 
   def disconnect( self ):
-    msg = [ STX, 0x06, 0x08, ETX ]
-    crc = lib.CRC16CCITT.compute( msg )
-    msg.extend( [ lib.LowByte( crc ), lib.HighByte( crc ) ] )
+    msg = list( self.wrap( 0x08, [ ] ) )
     io.info( 'disconnect' )
     self.__retry_write_with_ack__( msg, RETRIES )
 
@@ -97,7 +96,8 @@ class LSUltraMini( core.CommBuffer ):
     for i in xrange( RETRIES ):
       ack = bytearray( self.read( 40 ) )
       if ack == '':
-        io.debug( "empty ack:%s:%s" % ( i, ack ) )
+        io.debug( "empty ack:%s:%s:sleeping:%s" % ( i, ack, self.__pause__ ) )
+        time.sleep( self.__pause__ )
       else:
         break
     io.info( 'ACK: %s' % lib.hexdump( ack ) )
@@ -106,7 +106,7 @@ class LSUltraMini( core.CommBuffer ):
     return ack
     
   def __acknowledge__( self ):
-    msg = [ STX, 6, 0x07 | 0x08, ETX ]
+    msg = [ STX, 6, 0x04 | 0x08, ETX ]
     crc = lib.CRC16CCITT.compute( msg )
     msg.extend( [ lib.LowByte( crc ), lib.HighByte( crc ) ] )
     io.info( 'sending ACK' )
@@ -117,16 +117,16 @@ class LSUltraMini( core.CommBuffer ):
     io.debug( 'command:\n%s' % command.hexdump( ) )
     # PC sends command
     # meter sends ACK
-    msg = str( self.wrap( 2, command.code ) )
+    msg = str( self.wrap( 0, command.code ) )
     return self.__retry_write_with_ack__( msg, RETRIES )
     # TODO: process ack here?
     #self.write( msg )
     # self.__requireAck__( )
     
   def wrap( self, link, data ):
-    frame = [ STX, len( data ) + 6, link | Link.ACK ] + data
+    frame = [ STX, len( data ) + 6, link ] + data + [ ETX ]
     crc   = lib.CRC16CCITT.compute( frame )
-    frame.extend( [ ETX, lib.LowByte( crc ), lib.HighByte( crc ) ] )
+    frame.extend( [ lib.LowByte( crc ), lib.HighByte( crc ) ] )
     return bytearray( frame )
 
   def execute( self, command ):
