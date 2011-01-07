@@ -73,10 +73,11 @@ class DiscoverFirmware( core.Command ):
   def decode( self, msg ):
     return str( msg[ 3: len(msg) - 3 ] )
 
+
+
 class LSUltraMini( core.CommBuffer ):
   __timeout__ = 0.5
   __pause__   = 02
-  __control__ = None
 
   def disconnect( self ):
     msg = list( self.wrap( 0x08, [ ] ) )
@@ -108,7 +109,6 @@ class LSUltraMini( core.CommBuffer ):
     """Try to read an ack, raising MissingAck if we don't read it. Returns
     bytearray ack."""
     ack = None
-    rack =  Response( )
     for i in xrange( RETRIES ):
       ack = bytearray( self.read( 6 ) )
       if ack == '':
