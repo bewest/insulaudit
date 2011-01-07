@@ -73,6 +73,12 @@ class DiscoverFirmware( core.Command ):
   def decode( self, msg ):
     return str( msg[ 3: len(msg) - 3 ] )
 
+class ReadSerialNumber( core.Command ):
+  code = [ 0x05, 0x0B, 0x02,
+          0x00, 0x00, 0x00, 0x00,
+          0x84, 0x6A, 0xE8, 0x73, 0x00 ]
+  def decode( self, msg ):
+    return bytearray( msg[ 3: len(msg) - 3 ] )
 
 
 class LSUltraMini( core.CommBuffer ):

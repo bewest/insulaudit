@@ -29,6 +29,9 @@ def init( ):
   print "GETTING FIRMWARE INFO"
   firmware = mini.execute( lsultramini.DiscoverFirmware( ) )
   print "FIRMWARE IS: %s" % firmware 
+  print "read serial number"
+  serial = mini.execute( lsultramini.ReadSerialNumber( ) )
+  print "serial number: %s" % serial 
   return mini
 
 
