@@ -34,6 +34,9 @@ class ReadSerial( OneTouchCommand ):
 class ReadFirmware( OneTouchCommand ):
   code = list( bytearray( b'DM?' ) )
 
+class ReadRFID( OneTouchCommand ):
+  code = list( bytearray( b'DMID' ) )
+
 class ReadGlucose( OneTouchCommand ):
   code = list( bytearray( b'DMP' ) )
 

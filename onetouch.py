@@ -25,8 +25,10 @@ def init( ):
   firmware = mini.execute( onetouch2.ReadFirmware( ) )
   print "firmware: %s" % firmware 
   print ""
-  print "GLUCOSE"
-  print mini.read_glucose( )
+  print "RFID"
+  print mini.execute( onetouch2.ReadRFID( ) )
+  #print "GLUCOSE"
+  #print mini.read_glucose( )
   print
 
   return mini
