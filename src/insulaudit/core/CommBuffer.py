@@ -47,13 +47,13 @@ class CommBuffer( object ):
   def readline( self ):
     r = self.serial.readline( )
     io.info( 'usb.read.len: %s\n%s' % ( len( r ),
-                                        lib.hexdump( r ) ) )
+                                        lib.hexdump( bytearray( r ) ) ) )
     return r
       
   def readlines( self ):
-    r = self.serial.readlines( )
+    r = ''.join( self.serial.readlines( ) )
     io.info( 'usb.read.len: %s\n%s' % ( len( r ),
-                                        lib.hexdump( r ) ) )
+                                        lib.hexdump( bytearray( r ) ) ) )
     return r
 
 if __name__ == '__main__':
