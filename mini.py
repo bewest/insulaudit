@@ -29,9 +29,25 @@ def init( ):
   print "GETTING FIRMWARE INFO"
   firmware = mini.execute( lsultramini.DiscoverFirmware( ) )
   print "FIRMWARE IS: %s" % firmware 
+  print ""
   print "read serial number"
   serial = mini.execute( lsultramini.ReadSerialNumber( ) )
   print "serial number: %s" % serial 
+  print ""
+  print "number of available records:"
+  max_records = mini.execute( lsultramini.ReadAvailableRecords( ) )
+  print "max records: %s" % max_records 
+  print ""
+  print "all records"
+  records = [ ]
+  for x in xrange( 2 ):
+    print 'record: %s' % x
+    r = mini.execute( lsultramini.ReadGlucoseRecord( x ) )
+    print r
+    records.append( x )
+
+  print "total records found:%s" % len(records)
+
   return mini
 
 

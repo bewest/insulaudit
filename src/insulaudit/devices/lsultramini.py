@@ -30,6 +30,14 @@ Bit 0
 
 """
 
+def ls_long( B ):
+  B.reverse( )
+  return lib.BangLong( B )
+  
+def ls_int( B ):
+  B.reverse( )
+  return lib.BangInt( B )
+
 class Link:
   SEND = 0x01
   RECE = 0x01 << 1
@@ -68,18 +76,40 @@ class MissingAck(LSException): pass
 
 class CRCMismatch(LSException): pass
 
-class DiscoverFirmware( core.Command ):
+class AckCommand( core.Command ):
+  code = [ ]
+  def decode( self, msg ):
+    return bytearray( msg[ 3: len(msg) - 3 ] )
+
+class DiscoverFirmware( AckCommand ):
   code = [ 5, 13, 2 ]
   def decode( self, msg ):
     return str( msg[ 3: len(msg) - 3 ] )
 
-class ReadSerialNumber( core.Command ):
+class ReadSerialNumber( DiscoverFirmware ):
   code = [ 0x05, 0x0B, 0x02,
-          0x00, 0x00, 0x00, 0x00,
-          0x84, 0x6A, 0xE8, 0x73, 0x00 ]
-  def decode( self, msg ):
-    return bytearray( msg[ 3: len(msg) - 3 ] )
+           0x00, 0x00, 0x00, 0x00,
+           0x84, 0x6A, 0xE8, 0x73, 0x00 ]
 
+class ReadAvailableRecords( AckCommand ):
+  code = [ 0x05, 0x1F, 0xF5, 0x01 ]
+  def decode( self, msg ):
+    data = bytearray( msg[ 3:len(msg) - 3 ] )
+    return ls_int( data[ 2:4 ] )
+    
+
+class ReadGlucoseRecord( AckCommand ):
+  code = [ 0x05, 0x1F ]
+  def __init__( self, idx=0 ):
+    self.code.extend( [ lib.LowByte( idx ), lib.HighByte( idx ) ] )
+
+  def decode( self, msg ):
+    data = bytearray( msg[ 3: len(msg) - 3 ] )
+    date = time.ctime( ls_long( data[ 2:6 ] ) )
+    io.info( 'relevant message: %s' % lib.hexdump( data ) )
+    io.info( 'glucose: %s' % lib.hexdump( data[ 6:10 ] ) )
+    glucose = ls_long( data[ 6:10 ] )
+    return ( date, glucose )
 
 class LSUltraMini( core.CommBuffer ):
   __timeout__ = 0.5
