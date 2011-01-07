@@ -10,26 +10,6 @@ TIMEOUT = 0.5
 
 RETRIES = 3
 
-"""
-Bit 7
-  Unused
-Bit 6
-  Unused
-Bit 5
-  Unused
-Bit 4
-  More
-Bit 3
-  Disconnect
-Bit 2
-  Acknowledge
-Bit 1
-  E
-Bit 0
-  S
-
-
-"""
 
 def ls_long( B ):
   B.reverse( )
