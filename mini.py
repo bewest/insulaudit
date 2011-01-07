@@ -27,7 +27,8 @@ def init( ):
   mini.disconnect( )
   print "Initial DISCONNECT"
   print "GETTING FIRMWARE INFO"
-  mini.execute( lsultramini.DiscoverFirmware( ) )
+  firmware = mini.execute( lsultramini.DiscoverFirmware( ) )
+  print "FIRMWARE IS: %s" % firmware 
   return mini
 
 

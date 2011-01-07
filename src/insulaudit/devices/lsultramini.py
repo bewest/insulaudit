@@ -37,26 +37,41 @@ class Link:
   DISC = 0x01 << 3
 
 
-class InvalidResponse(Exception): pass
 
 class Response( object ):
-  def __init__( self, raw ):
-    self.raw = raw
-    self.bytez = bytearray( raw )
+  __raw__ = None
+  def __init__( self, raw=None ):
+    self.__raw__ = None
+    if raw is not None:
+      self.__raw__ = raw
+
+  def validate( self ):
+    self.bytez = bytearray( self.__raw__ )
     if self.bytez[ 0 ] != STX:
       raise InvalidResponse(raw)
-    self.length = raw[ 1 ]
+    self.length = self.raw[ 1 ]
+    
+  def incr( self, raw ):
+    if self.__raw__ is None:
+      self.__raw__ = ''
+    self.__raw__ = self.__raw__ + raw
+     
+    msg = self.__raw__[0]
+    if msg != STX:
+      raise InvalidResponse(msg)
+    
 
 
-
-  
-class LSException(Exception): pass
+class LSException(core.CarelinkException): pass
+class InvalidResponse(LSException): pass
 class MissingAck(LSException): pass
 
-class CRCMismatch(Exception): pass
+class CRCMismatch(LSException): pass
 
 class DiscoverFirmware( core.Command ):
   code = [ 5, 13, 2 ]
+  def decode( self, msg ):
+    return str( msg[ 3: len(msg) - 3 ] )
 
 class LSUltraMini( core.CommBuffer ):
   __timeout__ = 0.5
@@ -93,8 +108,9 @@ class LSUltraMini( core.CommBuffer ):
     """Try to read an ack, raising MissingAck if we don't read it. Returns
     bytearray ack."""
     ack = None
+    rack =  Response( )
     for i in xrange( RETRIES ):
-      ack = bytearray( self.read( 40 ) )
+      ack = bytearray( self.read( 6 ) )
       if ack == '':
         io.debug( "empty ack:%s:%s:sleeping:%s" % ( i, ack, self.__pause__ ) )
         time.sleep( self.__pause__ )
@@ -114,7 +130,7 @@ class LSUltraMini( core.CommBuffer ):
 
   def __send__require_ack__( self, command ):
     """sending a command requires an ack from the device every time."""
-    io.debug( 'command:\n%s' % command.hexdump( ) )
+    io.debug( 'command:\n%s' % command )
     # PC sends command
     # meter sends ACK
     msg = str( self.wrap( 0, command.code ) )
@@ -135,12 +151,13 @@ class LSUltraMini( core.CommBuffer ):
     """
     link = 0
     # TODO: validate against CRC/ACK
-    self.__send__require_ack__( command )
+    r = self.__send__require_ack__( command )
     # meter sends DATA
     response = bytearray( self.read( 40 ) )
+    io.info( 'get response:%s' % response );
     # PC sends ACK
     self.__acknowledge__( )
-    return response
+    return command.decode( response )
 
   def __call__( self, command ):
     self.prevCommand = command
