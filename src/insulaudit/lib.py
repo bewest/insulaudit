@@ -37,6 +37,7 @@ True
 """
 
 import doctest
+import dateutil.parser
 
 def _fmt_hex( bytez ):
   return ' '.join( [ '%#04x' % x for x in list( bytez ) ] )
@@ -46,6 +47,28 @@ def _fmt_txt( bytez ):
                     for x in bytez ] )
 
 
+class parse:
+  @staticmethod
+  def date( data ):
+    """
+
+    >>> parse.date( '2010-11-10T01:46:00' ).isoformat( )
+    '2010-11-10T01:46:00'
+
+    >>> parse.date( '2010-11-10 01:46:00' ).isoformat( )
+    '2010-11-10T01:46:00'
+
+    >>> parse.date( '2010-11-10 01:46PM' ).isoformat( )
+    '2010-11-10T13:46:00'
+
+    >>> parse.date( '2010-11-10 13:46' ).isoformat( )
+    '2010-11-10T13:46:00'
+
+    >>> parse.date( '2010-11-10 1:46AM' ).isoformat( )
+    '2010-11-10T01:46:00'
+
+    """
+    return dateutil.parser.parse( data )
 
 def hexdump( src, length=8 ):
   """

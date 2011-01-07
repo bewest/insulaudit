@@ -20,13 +20,40 @@ def ls_int( B ):
   return lib.BangInt( B )
 
 
+def format_glucose( data ):
+  """
+    >>> date, value = format_glucose( '''P "WED","11/10/10","01:46:00   ''' 
+    ...               + '''","  076 ","N","00", 00 099C''' )
+    >>> date.isoformat( )
+    '2010-11-10T01:46:00'
+    >>> value
+    76
+  """
+  try:
+    date = lib.parse.date( 'T'.join(
+                     data.replace( '"', '' ).split( ',' )[ 1:3 ]) )
+    value = int( data.split( '"' )[ 7 ].strip( ) )
+  except IndexError, e:
+    raise InvalidGlucose( data )
+  return date, value
+
 class OneTouch2Exception(core.CarelinkException): pass
+class InvalidResponse(OneTouch2Exception): pass
+class InvalidGlucose(InvalidResponse): pass
 
 class OneTouchCommand( core.Command ):
   code = HEADER
+  response = ''
+
+  def __call__( self, port ):
+    self.response = port.readline( ).strip( )
+    return self.response
 
   def decode( self, msg ):
     return str( msg )
+
+  def isEmpty( self, response ):
+    return response == ''
 
 class ReadSerial( OneTouchCommand ):
   code = list( bytearray( b'DM@' ) )
@@ -39,6 +66,22 @@ class ReadRFID( OneTouchCommand ):
 
 class ReadGlucose( OneTouchCommand ):
   code = list( bytearray( b'DMP' ) )
+  def __call__( self, port ):
+    head = port.readline( ).strip( )
+    body = [ ]
+    for line in port.readlines( ):
+      try:
+        body.append( format_glucose( line ) )
+      except InvalidGlucose, e: pass
+    io.debug ( 'read glucose:head:%s:body.len:%s' % ( head, len(body) ) )
+    self.response = ( head, body )
+    return self.response
+
+  def decode( self, msg ):
+    return msg
+
+  def isEmpty( self, *args ):
+    return self.response[0] == ''
 
 class OneTouchUltra2( core.CommBuffer ):
   __timeout__ = 20
@@ -46,10 +89,8 @@ class OneTouchUltra2( core.CommBuffer ):
 
 
   def read_glucose( self ):
-    header = self.execute( ReadGlucose( ) )
-    length = int( header.split( )[ 1 ][ :3 ] )
-    rows = self.readlines( )
-    return rows
+    header, body = self.execute( ReadGlucose( ) )
+    return header, body
 
   def wrap( self, data ):
     frame = HEADER + data + [ 0x0D ]
@@ -59,27 +100,23 @@ class OneTouchUltra2( core.CommBuffer ):
     """
     """
     msg = self.wrap( command.code )
-    #time.sleep( self.__pause__ * 5 )
-    # meter sends DATA
+    # empty meter's buffer before writing anything
     self.readlines( )
     for x in xrange( RETRIES ):
       self.write( str( msg ) )
       time.sleep( self.__pause__ )
       io.info( 'dm read:%s' % x );
-      response = bytearray( self.readlines( ) )
-      if response != '':
+      response = command( self )
+      if not command.isEmpty( response ):
         break
-    io.info( 'get response:%s' % response );
-    # PC sends ACK
+    io.info( 'get response:%r' % ( repr( response ) ) )
     return command.decode( response )
 
-  def __call__( self, command ):
-    self.prevCommand = command
 
 
 if __name__ == '__main__':
   import doctest
-  doctest.testmost( )
+  doctest.testmod( )
 
 #####
 # EOF

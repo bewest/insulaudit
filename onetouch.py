@@ -27,9 +27,18 @@ def init( ):
   print ""
   print "RFID"
   print mini.execute( onetouch2.ReadRFID( ) )
-  #print "GLUCOSE"
-  #print mini.read_glucose( )
-  print
+  print "GLUCOSE"
+  glucose = mini.read_glucose( )
+  print glucose
+  print "len glucose: %s" % len( glucose )
+  head, body = glucose
+  output = open( 'sugars-debug.txt', 'w' )
+  for record in body:
+    date, value = record
+    output.write( '\t'.join( [ date.isoformat( ), str( value ) ] ) )
+    output.write( '\n' )
+  
+  output.close( )
 
   return mini
 
