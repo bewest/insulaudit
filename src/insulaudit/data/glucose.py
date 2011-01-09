@@ -9,11 +9,19 @@ import time
 """Convert everything in and out of numpy."""
 DTYPES = [( 'time', np.dtype( datetime ) ), ( 'value', np.int) ]
 
-def date2epoch( date ):
+
+def _date2epoch( date ):
   return time.mktime( date.timetuple( ) )
 
 def text2date( a ):
   return dateutil.parser.parse( a )
+
+def get_days( days ):
+  # XXX: missing fill missing days
+  days = np.unique( ( d.date( ) for d in days ) )
+  return days
+
+date2epoch = np.vectorize( _date2epoch,  otypes=[ np.float ] )
 
 def parse_text( text ):
   """
@@ -59,6 +67,7 @@ def parse_text( text ):
   for datum in text.splitlines( ):
     frags = datum.strip( ).split( )
     if frags == [ ]: continue
+    log.info( frags )
     #frags = map( string.strip, datum.strip( ).split( ) )
     value = int( frags[ -1 ] )
     date  = None
