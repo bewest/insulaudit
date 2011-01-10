@@ -63,7 +63,7 @@ def parse_text( text ):
 
   """
   # TODO: sensitivity to timezones!
-  dates = [ ]
+  results = [ ]
   for datum in text.splitlines( ):
     frags = datum.strip( ).split( )
     if frags == [ ]: continue
@@ -73,11 +73,14 @@ def parse_text( text ):
     date  = None
     try:
       date = text2date( ' '.join( frags[ 0:-1 ] ) )
-      dates.append( ( date, value ) )
+      results.append( ( date, value ) )
     except IndexError, e:
       log.error( 'error %s' % ( e ) )
 
-  return np.array( dates, dtype=DTYPES ).view( np.recarray, )
+  return np.array( results, dtype=DTYPES ).view( np.recarray, )
+
+def l2np( L ):
+  return np.array( L, dtype=DTYPES ).view( np.recarray, )
 
 def format_records( records ):
   """
@@ -85,7 +88,7 @@ def format_records( records ):
   """
   text = [ ]
   for ( date, value ) in records:
-    text.append( '\t'.join( [ date.isoformat( ), value ] ) )
+    text.append( '\t'.join( [ date.isoformat( ), str( value ) ] ) )
   return '\n'.join( text )
 
 class DataProvenance( object ):
@@ -104,6 +107,8 @@ class GlucoseRecords( object ):
   >>> (np_file( 'test.txt' ) == load_file( 'test.txt' )).all( )
   True
 """
+
+
 
 def np_file( filename ):
   """

@@ -1,6 +1,7 @@
 
 from insulaudit.log import io, logger as log
 from insulaudit import lib, core
+from insulaudit.data import glucose
 import time
 
 HEADER = [ 0x11, 0x0D ]
@@ -74,7 +75,7 @@ class ReadGlucose( OneTouchCommand ):
         body.append( format_glucose( line ) )
       except InvalidGlucose, e: pass
     io.debug ( 'read glucose:head:%s:body.len:%s' % ( head, len(body) ) )
-    self.response = ( head, body )
+    self.response = ( head, glucose.l2np( body ) )
     return self.response
 
   def decode( self, msg ):

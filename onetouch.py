@@ -4,6 +4,7 @@ import serial
 from pprint import pprint, pformat
 
 import insulaudit
+from insulaudit.data import glucose
 from insulaudit.log import io
 from insulaudit.devices import onetouch2
 
@@ -28,16 +29,13 @@ def init( ):
   print "RFID"
   print mini.execute( onetouch2.ReadRFID( ) )
   print "GLUCOSE"
-  glucose = mini.read_glucose( )
-  print glucose
-  print "len glucose: %s" % len( glucose )
-  head, body = glucose
+  data = mini.read_glucose( )
+  print data
+  print "len glucose: %s" % len( data )
+  head, body = data 
   output = open( 'sugars-debug.txt', 'w' )
-  for record in body:
-    date, value = record
-    output.write( '\t'.join( [ date.isoformat( ), str( value ) ] ) )
-    output.write( '\n' )
-  
+  output.write( glucose.format_records( body ) )
+  output.write( '\n' )
   output.close( )
 
   return mini
