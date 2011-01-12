@@ -7,6 +7,7 @@ import insulaudit
 from insulaudit.data import glucose
 from insulaudit.log import io
 from insulaudit.devices import onetouch2
+import sys
 
 PORT = '/dev/ttyUSB0'
 
@@ -14,13 +15,16 @@ def get_serial( port, timeout=2 ):
   return serial.Serial( port, timeout=timeout )
 
 def init( ):
-  mini = onetouch2.OneTouchUltra2( PORT, 0.5 )
+  mini = onetouch2.OneTouchUltra2( PORT, 5 )
   print "is open? %s\n timeout: %s" % ( mini.serial.isOpen( ), mini.serial.getTimeout() )
   print ""
   print "read serial number"
   serial = mini.execute( onetouch2.ReadSerial( ) )
   print "serial number: %s" % serial 
   print ""
+  if serial == "":
+    print "could not connect"
+    sys.exit(1)
   print ""
   print "read firmware number"
   firmware = mini.execute( onetouch2.ReadFirmware( ) )
