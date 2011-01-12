@@ -124,7 +124,9 @@ def np_file( filename ):
 
 def load_file( filename ):
   records = [ ]
-  F = open( filename, 'r' )
+  F = filename
+  if not hasattr( filename, 'read' ):
+    F = open( filename, 'r' )
   records = parse_text( F.read( ) )
   F.close( )
   return records
