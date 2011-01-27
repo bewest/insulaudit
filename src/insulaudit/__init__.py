@@ -8,6 +8,7 @@ __version__ = '0.01'
 
 
 import lib
+import data
 
 #####
 # EOF
