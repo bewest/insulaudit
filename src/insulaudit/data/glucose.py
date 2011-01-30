@@ -2,13 +2,14 @@
 import dateutil.parser
 import string
 from insulaudit.log import logger as log
-from datetime import datetime
+import datetime
 import numpy as np
 import time
 
 """Convert everything in and out of numpy."""
-DTYPES = [( 'time', np.dtype( datetime ) ), ( 'value', np.int) ]
+DTYPES = [( 'time', np.dtype( datetime.datetime ) ), ( 'value', np.int) ]
 
+oneday = datetime.timedelta( days=1 )
 
 def _date2epoch( date ):
   return time.mktime( date.timetuple( ) )
@@ -16,10 +17,22 @@ def _date2epoch( date ):
 def text2date( a ):
   return dateutil.parser.parse( a )
 
+def midnight( stamp ):
+  if hasattr( stamp, 'date' ):
+    stamp = stamp.date( )
+  return datetime.datetime.combine( stamp, datetime.time( ) )
+
 def get_days( days ):
   # XXX: missing fill missing days
-  days = np.unique( ( d.date( ) for d in days ) )
+  days = np.unique( ( midnight( d ) for d in days ) )
   return days
+
+# TODO range_days
+
+def glucose_for_day( glucose, day ):
+  t0 = midnight( day )
+  t1 = t0 + oneday
+  return glucose[ (glucose.time >= t0) & (glucose.time < t1) ]
 
 date2epoch = np.vectorize( _date2epoch,  otypes=[ np.float ] )
 
