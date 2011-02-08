@@ -34,7 +34,8 @@ def format_glucose( data ):
     date = lib.parse.date( 'T'.join(
                      data.replace( '"', '' ).split( ',' )[ 1:3 ]) )
     value = int( data.split( '"' )[ 7 ].strip( ) )
-  except IndexError, e:
+  except (IndexError, ValueError), e:
+    log.info( data )
     raise InvalidGlucose( data )
   return date, value
 
@@ -104,6 +105,7 @@ class OneTouchUltra2( core.CommBuffer ):
     # empty meter's buffer before writing anything
     self.readlines( )
     for x in xrange( RETRIES ):
+      self.write( str( msg ) )
       self.write( str( msg ) )
       time.sleep( self.__pause__ )
       io.info( 'dm read:%s' % x );

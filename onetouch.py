@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import user
 import serial
 from pprint import pprint, pformat
 
@@ -15,7 +16,7 @@ def get_serial( port, timeout=2 ):
   return serial.Serial( port, timeout=timeout )
 
 def init( ):
-  mini = onetouch2.OneTouchUltra2( PORT, 20 )
+  mini = onetouch2.OneTouchUltra2( PORT, 5 )
   print "is open? %s\n timeout: %s" % ( mini.serial.isOpen( ), mini.serial.getTimeout() )
   print ""
   print "read serial number"
