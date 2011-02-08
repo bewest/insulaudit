@@ -1,0 +1,136 @@
+GET PRODUCT INFO
+** Data **
+04 00 
+
+** Data **
+04 00 
+
+--------- Request # 8 ----[IN]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+USBD Status: USBD_STATUS_SUCCESS (0x0)
+EndpointAddress: 0x82
+PipeHandle: 0x888AE354
+TransferFlags: 0x3 ( USBD_TRANSFER_DIRECTION_IN USBD_SHORT_TRANSFER_OK )
+TransferBufferLength: 0x40
+TransferBuffer: 0xBA7EB5C0
+TransferBufferMDL: 0x88AD9B28
+UrbLink: 0x0
+
+** Data **
+01 55 00 08 1B 00 00 00 00 43 6F 6D 4C 69 6E 6B 20 49 49 01 10 02 00 01 01 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+
+Get USB Signal Strength
+** Data **
+06 00 00 
+
+
+** Data **
+06 00 00 
+
+
+--------- Request # 16 ----[IN]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+USBD Status: USBD_STATUS_SUCCESS (0x0)
+EndpointAddress: 0x82
+PipeHandle: 0x888AE354
+TransferFlags: 0x3 ( USBD_TRANSFER_DIRECTION_IN USBD_SHORT_TRANSFER_OK )
+TransferBufferLength: 0x40
+TransferBuffer: 0xBA6F95C0
+TransferBufferMDL: 0x88AD9B28
+UrbLink: 0x0
+
+** Data **
+01 55 00 C1 1B 00 00 00 00 43 6F 6D 4C 69 6E 6B 20 49 49 01 10 02 00 01 01 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+AGAIN?
+NOTE it's three bytes!
+Get USB Signal Strength
+** Data **
+06 00 00 
+
+
+** Data **
+06 00 00 
+
+
+
+** Data **
+01 55 00 C1 1B 00 00 00 00 43 6F 6D 4C 69 6E 6B 20 49 49 01 10 02 00 01 01 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+Radio Interface Stats NOTICE 3 bytes
+Actually length of message is 64 bytes?
+** Data **
+--------- Request # 25 ----[OUT]----
+05 00 00 
+--------- Request # 32 ----[IN]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+USBD Status: USBD_STATUS_SUCCESS (0x0)
+EndpointAddress: 0x82
+PipeHandle: 0x888AE354
+TransferFlags: 0x3 ( USBD_TRANSFER_DIRECTION_IN USBD_SHORT_TRANSFER_OK )
+TransferBufferLength: 0x40
+TransferBuffer: 0xBA6D05C0
+TransferBufferMDL: 0x887F2E58
+UrbLink: 0x0
+
+** Data **
+01 55 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+
+--------- Request # 33 ----[OUT]----
+
+Length: 0x48
+
+USB Interface Stats
+** Data **
+05 01 00 
+
+--------- Request # 40 ----[IN]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+USBD Status: USBD_STATUS_SUCCESS (0x0)
+EndpointAddress: 0x82
+PipeHandle: 0x888AE354
+TransferFlags: 0x3 ( USBD_TRANSFER_DIRECTION_IN USBD_SHORT_TRANSFER_OK )
+TransferBufferLength: 0x40
+TransferBuffer: 0xBA7BD5C0
+TransferBufferMDL: 0x887FD9A8
+UrbLink: 0x0
+
+** Data **
+01 55 00 00 00 00 00 00 00 00 04 00 00 00 04 00 05 00 08 00 04 04 00 00 05 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+--------- Request # 41 ----[OUT]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+** Data **
+04 00 
+
+--------- Request # 48 ----[IN]----
+
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Length: 0x48
+TransferBufferLength: 0x40
+
+** Data **
+01 55 00 08 1B 00 00 00 00 43 6F 6D 4C 69 6E 6B 20 49 49 01 10 02 00 01 01 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
