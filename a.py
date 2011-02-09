@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 
+import user
 
 import struct
 import sys
@@ -11,6 +12,10 @@ import binascii
 import itertools
 from binascii import b2a_hex as dehex
 from pprint import pprint, pformat
+
+from insulaudit.core import Command
+from insulaudit.clmm import CarelinkUsb, Reply, ACK
+from insulaudit import lib
 
 logging.basicConfig( stream=sys.stdout )
 log = logging.getLogger( 'carelink' )
@@ -42,6 +47,38 @@ ERROR_LOOKUP = [ "NO ERROR",
   "COMM BUSY AND/OR COMMAND CANNOT BE EXECUTED",
   "COMMAND NOT SUPPORTED" ]
 
+class StickStatusStruct( object ):
+  statmap = {
+      'receiving.complete'      : 0x01,
+      'receiving.progress'      : 0x02,
+      'transmit.progress'       : 0x04,
+      'interface.error'         : 0x08,
+      'error.receiving.overflow': 0x10,
+      'error.transmit.overflow' : 0x20
+  }
+  value = '????'
+  flags = { }
+  def __init__( self, status ):
+    self.raw  = status
+    flags = { }
+    for k,v in self.statmap.iteritems( ):
+      flags[ k ] = status & v
+      if status & v > 0:
+        flags[ k ] = True
+        self.value = status & v
+    self.flags = flags
+
+  def __str__( self ):
+    return '%s:%r' %( self.__class__.__name__, self.flags )
+
+  def __repr__( self ):
+    return '<{agent}:raw={raw}:flags={flags}>'.format(
+                raw   = self.raw,
+                flags = self.flags,
+                agent = self.__class__.__name__ )
+
+
+
 class USBStatus( Command ):
   """
   """
@@ -57,11 +94,31 @@ class USBStatus( Command ):
   def rfByteCount( self, count ):
     return lib.BangInt( count )
 
-  def __call__( self, reply, *args ):
+  def decode(self):
+    reply    = Reply( self.response )
     self.info = self.__info__
     if reply.ack.isACK( ):
       info = { 'error.fatal'     : reply.body[ 3 ]
-             , 'status'          : CarelinkComStatus( reply.body[ 5 ] )
+             , 'status'          : StickStatusStruct( reply.body[ 5 ] )
+             , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
+             }
+      self.__dict__.update( info )
+      reply.info = info
+      self.info  = info
+    reply.info = self.info
+
+  def __call__( self, port ):
+    response = port.read( 64 )
+    self.response = response
+    self.decode( )
+    log.debug( 'status reply: %r' % self.info )
+    return self
+
+    reply    = Reply( response )
+    self.info = self.__info__
+    if reply.ack.isACK( ):
+      info = { 'error.fatal'     : reply.body[ 3 ]
+             , 'status'          : StickStatusStruct( reply.body[ 5 ] )
              , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
              }
       self.__dict__.update( info )
@@ -93,8 +150,9 @@ class USBProductInfo( Command ):
       interfaces.append( ( k, klass.iface_key.get( v, 'UNKNOWN'  ) ) )
     return interfaces
 
-  def __call__( self, reply, device ):
-    info = {
+  def decode( self ):
+    reply    = Reply( self.response )
+    self.info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
     , 'serial'           : (reply.body[ 0:3 ],
                            str( reply.body[ 0:3 ]).encode( 'hex'  ) )
@@ -103,11 +161,7 @@ class USBProductInfo( Command ):
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
     , 'interfaces'       : self.decodeInterfaces( reply.body[ 18: ] )
     }
-    log.info( 'usbproductinfo: %r' % info )
-    self.__dict__.update( info )
-    reply.info    = info
-    reply.command = self
-    return reply
+    self.reply = reply
 
   
 
@@ -153,49 +207,50 @@ class USBSignalStrength( Command ):
                     signal = self.value,
                     label  = self.label )
 
-class lib:
-  @staticmethod
-  def FormatCommand( serial='206525', command=141, params=[ ] ):
-    """"
-   00    [ 1
-   01    , 0
-   02    , 167
-   03    , 1
-   04    , serial[ 0 ]
-   05    , serial[ 1 ]
-   06    , serial[ 3 ]
-   07    , 0x80 | HighByte( paramCount )
-   08    , LowByte( paramCount )
-   09    , code == 93 ? 85 : 0
-   10    , maxRetries
-   11    , pagesSent > 1 ? 2 : pagesSent
-   12    , 0
-   14    , code
-   15    , CRC8( code[ :15 ] )
-   16    , command parameters....
-   ??    , CRC8( command parameters )
-         ]
-    """
+# RF SN
+# spare serial(512): 206525
+# 522: 665455
+def FormatCommand( serial='206525', command=141, params=[ ] ):
+  """"
+ 00    [ 1
+ 01    , 0
+ 02    , 167
+ 03    , 1
+ 04    , serial[ 0 ]
+ 05    , serial[ 1 ]
+ 06    , serial[ 3 ]
+ 07    , 0x80 | HighByte( paramCount )
+ 08    , LowByte( paramCount )
+ 09    , code == 93 ? 85 : 0
+ 10    , maxRetries
+ 11    , pagesSent > 1 ? 2 : pagesSent
+ 12    , 0
+ 14    , code
+ 15    , CRC8( code[ :15 ] )
+ 16    , command parameters....
+ ??    , CRC8( command parameters )
+       ]
+  """
 
-    readable = 0
-    code = [ 1 , 0 , 167 , 1 ] 
-    code.extend( list( bytearray( serial.encode( 'hex' ) ) ) )
-    code.extend( [ 0x80 | lib.HighByte( len( params ) )
-           , lib.LowByte( len( params ) )
-           , command == 93 and 85 or 0
-           , 2
-           , 1
-           , 0
-           , command
-           ] )
-    io.info( 'crc stuff' )
-    io.info( code )
-    io.info( lib.hexdump( bytearray( code ) ) )
-    code.append( lib.CRC8.compute( code ) )
-    code.append( 0 )
-    code.append( 0 )
-    code.append( lib.CRC8.compute( [ 0 ] ) )
-    return bytearray( code )
+  readable = 0
+  code = [ 1 , 0 , 167 , 1 ] 
+  code.extend( list( bytearray( serial.encode( 'hex' ) ) ) )
+  code.extend( [ 0x80 | lib.HighByte( len( params ) )
+         , lib.LowByte( len( params ) )
+         , command == 93 and 85 or 0
+         , 2
+         , 1
+         , 0
+         , command
+         ] )
+  io.info( 'crc stuff' )
+  io.info( code )
+  io.info( lib.hexdump( bytearray( code ) ) )
+  code.append( lib.CRC8.compute( code ) )
+  code.append( 0 )
+  code.append( 0 )
+  code.append( lib.CRC8.compute( [ 0 ] ) )
+  return bytearray( code )
   
 
 class USBReadData( Command ):
@@ -258,8 +313,8 @@ def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
                             
   print '###### Write Command to Port #####'
-  #command = lib.FormatCommand( )
-  command = lib.FormatCommand( command=command )
+  #command = FormatCommand( )
+  command = FormatCommand( command=command )
   #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
