@@ -119,6 +119,9 @@ class USBStatus( Command ):
     """Should read from the port as needed by the command, set, self.response,
     call self.decode, and return self.  Callers should expect self.info to be
     set."""
+    #time.sleep( .2 )
+    response = port.read( 0 )
+    response = port.read( 0 )
     response = port.read( 64 )
     self.response = response
     self.decode( )
@@ -382,18 +385,21 @@ if __name__ == '__main__':
   print "Checking status first..."
   pprint( carelink( USBStatus(           ) ).info )
   try:
+    pprint( carelink( USBStatus(           ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+    pprint( carelink( USBProductInfo(      ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+    pprint( carelink( USBInterfaceStats(   ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+    pprint( carelink( RadioInterfaceStats( ) ).info )
+    pprint( carelink( USBStatus(           ) ).info )
+
     sendOneCommand( carelink )
     #initRadio( carelink )
     #loopSendComand( carelink )
     #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
-  pprint( carelink( USBStatus(           ) ).info )
-  pprint( carelink( USBProductInfo(      ) ).info )
-  pprint( carelink( USBStatus(           ) ).info )
-  pprint( carelink( USBInterfaceStats(   ) ).info )
-  pprint( carelink( USBStatus(           ) ).info )
-  pprint( carelink( RadioInterfaceStats( ) ).info )
   pprint( carelink( USBStatus(           ) ).info )
 
   print "closing for real now"
