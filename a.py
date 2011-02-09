@@ -94,44 +94,41 @@ class USBStatus( Command ):
   def rfByteCount( self, count ):
     return lib.BangInt( count )
 
+  def onACK(self):
+    """Called by decode on success."""
+    reply = self.reply
+    info = { 'error.fatal'     : reply.body[ 3 ]
+           , 'status'          : StickStatusStruct( reply.body[ 5 ] )
+           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
+           }
+    self.__dict__.update( info )
+    reply.info = info
+    self.info  = info
+    
   def decode(self):
-    reply    = Reply( self.response )
+    """Should set self.info"""
+    self.reply    = Reply( self.response )
     self.info = self.__info__
-    if reply.ack.isACK( ):
-      info = { 'error.fatal'     : reply.body[ 3 ]
-             , 'status'          : StickStatusStruct( reply.body[ 5 ] )
-             , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
-             }
-      self.__dict__.update( info )
-      reply.info = info
-      self.info  = info
-    reply.info = self.info
+    if self.reply.ack.isACK( ):
+      self.onACK()
+    else:
+      log.info('nonack:%s' % self.reply.ack)
+    self.reply.info = self.info
 
   def __call__( self, port ):
+    """Should read from the port as needed by the command, set, self.response,
+    call self.decode, and return self.  Callers should expect self.info to be
+    set."""
     response = port.read( 64 )
     self.response = response
     self.decode( )
     log.debug( 'status reply: %r' % self.info )
     return self
-
-    reply    = Reply( response )
-    self.info = self.__info__
-    if reply.ack.isACK( ):
-      info = { 'error.fatal'     : reply.body[ 3 ]
-             , 'status'          : StickStatusStruct( reply.body[ 5 ] )
-             , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
-             }
-      self.__dict__.update( info )
-      reply.info = info
-      self.info  = info
-    reply.info = self.info
-    log.debug( 'status reply: %r' % self.info )
-    return reply
    
 
-class USBProductInfo( Command ):
+class USBProductInfo( USBStatus ):
   """Get product info from the usb device."""
-  code   = [ 4 ]
+  code   = [ 4, 0, 0 ]
   SW_VER = 16
   label  = 'usb.productInfo'
   rf_table  = { 001: '868.35Mhz' ,
@@ -150,8 +147,8 @@ class USBProductInfo( Command ):
       interfaces.append( ( k, klass.iface_key.get( v, 'UNKNOWN'  ) ) )
     return interfaces
 
-  def decode( self ):
-    reply    = Reply( self.response )
+  def onACK(self):
+    reply = self.reply
     self.info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
     , 'serial'           : (reply.body[ 0:3 ],
@@ -161,17 +158,16 @@ class USBProductInfo( Command ):
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
     , 'interfaces'       : self.decodeInterfaces( reply.body[ 18: ] )
     }
-    self.reply = reply
 
   
 
-class InterfaceStats( Command ):
+class InterfaceStats( USBStatus ):
   code          = [ 5 ]
   INTERFACE_IDX = 19
   label         = 'usb.interfaceStats'
-  def __call__( self, reply, *args ):
-    b = reply.body
-    reply.info = {
+  def onACK(self):
+    b = self.reply.body
+    self.reply.info = {
       'errors.crc'      : b[ 0 ]
     , 'errors.sequence' : b[ 1 ]
     , 'errors.naks'     : b[ 2 ]
@@ -179,7 +175,6 @@ class InterfaceStats( Command ):
     , 'packets.received': lib.BangLong( b[ 4: 8 ] )
     , 'packets.transmit': lib.BangLong( b[ 8:12 ] )
     }
-    return reply
 
 class USBInterfaceStats( InterfaceStats ):
   code          = [ 5, 1 ]
@@ -194,17 +189,17 @@ class USBSignalStrength( Command ):
   label = 'usb.signalStrength'
   value = '??'
 
-  def __call__( self, reply, *args ):
-    self.value = reply.body[ 0 ]
-    log.info( '{0}: {1}dBm'.format( self.label, self.value ) )
-    reply.info = self.value
-    return reply
+  def decode(self):
+    self.info = self.response[ 0 ]
+    log.info( '{0}: {1}dBm'.format( self.label, self.info ) )
+    reply.info = self.info
+    
 
   def __repr__( self ):
     return '<{agent}:code={code}, label={label} {signal}dBm>'\
            .format( code   = repr( self.code ),
                     agent  = self.__class__.__name__,
-                    signal = self.value,
+                    signal = self.info,
                     label  = self.label )
 
 # RF SN
@@ -393,16 +388,18 @@ if __name__ == '__main__':
     #loopingRead( carelink )
   except KeyboardInterrupt:
     print "closing"
+  pprint( carelink( USBStatus(           ) ).info )
   pprint( carelink( USBProductInfo(      ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( USBInterfaceStats(   ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
+  pprint( carelink( RadioInterfaceStats( ) ).info )
+  pprint( carelink( USBStatus(           ) ).info )
 
   print "closing for real now"
   carelink.close( )
   sys.exit( 0 )
 
-  print "Try resetting radio?..."
-  print lib.hexdump( carelink.radio( 64 ) )
-  print lib.hexdump( carelink.radio( 64, True ) )
-  print lib.hexdump( carelink.radio( 64, True ) )
   pprint( carelink( USBStatus(           ) ).info )
 
   info   = carelink( USBStatus( ) ).info
