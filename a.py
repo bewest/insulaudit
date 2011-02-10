@@ -41,6 +41,10 @@ U
 
 """
 
+class FailedDataRead(Exception):
+  pass
+
+
 ERROR_LOOKUP = [ "NO ERROR",
   "CRC MISMATCH",
   "COMMAND DATA ERROR",
@@ -62,7 +66,7 @@ class StickStatusStruct( object ):
     self.raw  = status
     flags = { }
     for k,v in self.statmap.iteritems( ):
-      flags[ k ] = status & v
+      flags[ k ] = False
       if status & v > 0:
         flags[ k ] = True
         self.value = status & v
@@ -82,6 +86,7 @@ class StickStatusStruct( object ):
 class USBStatus( Command ):
   """
   """
+  __retries__ = 3
   code  = [ 3 ]
   ACK   = 85  # U
   NAK   = 102 # f
@@ -115,15 +120,25 @@ class USBStatus( Command ):
       log.info('nonack:%s' % self.reply.ack)
     self.reply.info = self.info
 
+  def read(self, port):
+    response = None
+    for i in xrange(self.__retries__):
+      io.debug( 'retry %s' % i )
+      port.read(0)
+      #port.write('')
+      #port.read(0)
+      response = port.read( 64 )
+      if len(response) > 0: break;
+    return response
+
   def __call__( self, port ):
     """Should read from the port as needed by the command, set, self.response,
-    call self.decode, and return self.  Callers should expect self.info to be
-    set."""
+    call self.decode, and return self.  Returns an object with an info to be
+    set. (returns self)"""
     #time.sleep( .2 )
-    response = port.read( 0 )
-    response = port.read( 0 )
-    response = port.read( 64 )
-    self.response = response
+    self.response = self.read(port)
+    if self.response == '':
+      raise FailedDataRead(repr(self))
     self.decode( )
     log.debug( 'status reply: %r' % self.info )
     return self
@@ -155,7 +170,7 @@ class USBProductInfo( USBStatus ):
     self.info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
     , 'serial'           : (reply.body[ 0:3 ],
-                           str( reply.body[ 0:3 ]).encode( 'hex'  ) )
+                           str( reply.body[ 0:3 ]).decode( 'hex'  ) )
     , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
@@ -187,7 +202,7 @@ class RadioInterfaceStats( InterfaceStats ):
   code          = [ 5, 0 ]
   label         = 'usb.interfaceStats'
 
-class USBSignalStrength( Command ):
+class USBSignalStrength( USBStatus ):
   code  = [ 6, 0 ]
   label = 'usb.signalStrength'
   value = '??'
@@ -195,7 +210,6 @@ class USBSignalStrength( Command ):
   def decode(self):
     self.info = self.response[ 0 ]
     log.info( '{0}: {1}dBm'.format( self.label, self.info ) )
-    reply.info = self.info
     
 
   def __repr__( self ):
@@ -382,26 +396,30 @@ if __name__ == '__main__':
   #port = '/dev/ttyUSB1'
   
   carelink = CarelinkUsb( port )
-  print "Checking status first..."
-  pprint( carelink( USBStatus(           ) ).info )
   try:
-    pprint( carelink( USBStatus(           ) ).info )
-    pprint( carelink( USBStatus(           ) ).info )
-    pprint( carelink( USBProductInfo(      ) ).info )
-    pprint( carelink( USBStatus(           ) ).info )
-    pprint( carelink( USBInterfaceStats(   ) ).info )
-    pprint( carelink( USBStatus(           ) ).info )
-    pprint( carelink( RadioInterfaceStats( ) ).info )
-    pprint( carelink( USBStatus(           ) ).info )
+    try:
+      pprint( carelink( USBProductInfo(      ) ).info )
+      pprint( carelink( USBSignalStrength(   ) ).info )
+      pprint( carelink( USBSignalStrength(   ) ).info )
+      pprint( carelink( RadioInterfaceStats( ) ).info )
+      pprint( carelink( USBInterfaceStats(   ) ).info )
+      pprint( carelink( USBProductInfo(      ) ).info )
+      pprint( carelink( USBSignalStrength(   ) ).info )
+      pprint( carelink( USBStatus(           ) ).info )
+      pprint( carelink( USBStatus(           ) ).info )
+      pprint( carelink( USBStatus(           ) ).info )
+      pprint( carelink( USBStatus(           ) ).info )
 
-    sendOneCommand( carelink )
-    #initRadio( carelink )
-    #loopSendComand( carelink )
-    #loopingRead( carelink )
-  except KeyboardInterrupt:
-    print "closing"
-  pprint( carelink( USBStatus(           ) ).info )
+      #sendOneCommand( carelink )
+      #initRadio( carelink )
+      #loopSendComand( carelink )
+      #loopingRead( carelink )
+    except KeyboardInterrupt:
+      print "closing"
 
+  except Exception:
+    carelink.close( )
+    raise
   print "closing for real now"
   carelink.close( )
   sys.exit( 0 )
