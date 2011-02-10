@@ -14,7 +14,7 @@ from binascii import b2a_hex as dehex
 from pprint import pprint, pformat
 
 from insulaudit.core import Command
-from insulaudit.clmm import CarelinkUsb, Reply, ACK
+from insulaudit.clmm import CarelinkUsb, Reply
 from insulaudit import lib
 
 logging.basicConfig( stream=sys.stdout )
@@ -24,22 +24,6 @@ log.info( 'hello world' )
 io  = logging.getLogger( 'carelink.io' )
 io.setLevel( logging.DEBUG )
 
-example = '\x01U\x00\x00\x02\x00\x00\x00\x05\x04\x00mLink II\x01\x10\x02\x00\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-
-"""
-
-
-'\x01U\x00\x00\x02\x00\x00\x00\x05\x04\x00mLink II\x01\x10\x02\x00\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-
-
-\x01
-U
-\x00
-
-\x00
-\x02\x00\x00\x00\x05\x04\x00mLink II\x01\x10\x02\x00\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
-
-"""
 
 class FailedDataRead(Exception):
   pass
@@ -170,7 +154,7 @@ class USBProductInfo( USBStatus ):
     self.info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
     , 'serial'           : (reply.body[ 0:3 ],
-                           str( reply.body[ 0:3 ]).decode( 'hex'  ) )
+                           str( reply.body[ 0:3 ]).encode( 'hex'  ) )
     , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
