@@ -72,9 +72,10 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
   return bytearray( code )
   
 
-class USBReadData( Command ):
+class USBRadioCommand( Command ):
   # XXX: !!!!
-  code  = [ 12, 0 ]
+  code = [ 113 ]
+  __reply_header__  = [ 12, 0 ]
   label = 'usb.readdata'
   def __init__( self, length ):
     super( type( self ), self ).__init__( )
