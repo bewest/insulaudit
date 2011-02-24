@@ -22,7 +22,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="insulaudit v0.01 documentation" href="#" /> 
+    <link rel="top" title="insulaudit v0.01 documentation" href="#" />
+    <link rel="next" title="insulaudit" href="insulaudit.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,6 +35,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="insulaudit.html" title="insulaudit"
+             accesskey="N">next</a> |</li>
         <li><a href="#">insulaudit v0.01 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -47,92 +51,24 @@
 <h1>Welcome to insulaudit&#8217;s documentation!<a class="headerlink" href="#welcome-to-insulaudit-s-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
-<ul class="simple">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="insulaudit.html">insulaudit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="insulaudit.html#module-insulaudit.clmm">clmm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lifescan.html">Lifescan</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medtronic.html">Medtronic</a><ul class="simple">
+</ul>
+</li>
 </ul>
 </div>
 </div>
-<div class="section" id="module-insulaudit.clmm">
-<span id="insulaudit"></span><h1>insulaudit<a class="headerlink" href="#module-insulaudit.clmm" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="insulaudit.clmm.CarelinkUsb">
-<em class="property">class </em><tt class="descclassname">insulaudit.clmm.</tt><tt class="descname">CarelinkUsb</tt><big>(</big><em>port</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="class">
-<dt id="insulaudit.clmm.CarelinkUsb.ID">
-<em class="property">class </em><tt class="descname">ID</tt><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.ID" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.close">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.close" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.open">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">open</tt><big>(</big><em>newPort=False</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.open" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.radio">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">radio</tt><big>(</big><em>length</em>, <em>crc=True</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.radio" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.read">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">read</tt><big>(</big><em>c</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.read" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.readline">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">readline</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.readline" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.readlines">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">readlines</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.readlines" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.CarelinkUsb.write">
-<tt class="descclassname">CarelinkUsb.</tt><tt class="descname">write</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.CarelinkUsb.write" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="insulaudit.clmm.Reply">
-<em class="property">class </em><tt class="descclassname">insulaudit.clmm.</tt><tt class="descname">Reply</tt><big>(</big><em>raw_reply</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.Reply" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="staticmethod">
-<dt id="insulaudit.clmm.Reply.dehex">
-<em class="property">static </em><tt class="descname">dehex</tt><big>(</big><em>S</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.Reply.dehex" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="insulaudit.clmm.ACK">
-<em class="property">class </em><tt class="descclassname">insulaudit.clmm.</tt><tt class="descname">ACK</tt><big>(</big><em>head</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.ACK" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="insulaudit.clmm.ACK.isACK">
-<tt class="descname">isACK</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.ACK.isACK" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.ACK.isEmpty">
-<tt class="descname">isEmpty</tt><big>(</big><em>readable</em><big>)</big><a class="headerlink" href="#insulaudit.clmm.ACK.isEmpty" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.ACK.isNAK">
-<tt class="descname">isNAK</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.ACK.isNAK" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="insulaudit.clmm.ACK.reason">
-<tt class="descname">reason</tt><big>(</big><big>)</big><a class="headerlink" href="#insulaudit.clmm.ACK.reason" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="module-insulaudit">
+<span id="insulaudit"></span><h1>insulaudit<a class="headerlink" href="#module-insulaudit" title="Permalink to this headline">¶</a></h1>
+<p>This python package provides a toolkit for dealing with data used and
+created by a &#8220;modern,&#8221; circa 2010, insulin therapy regimen.</p>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -154,10 +90,13 @@
 <li><a class="reference internal" href="#">Welcome to insulaudit&#8217;s documentation!</a><ul>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-insulaudit.clmm">insulaudit</a></li>
+<li><a class="reference internal" href="#module-insulaudit">insulaudit</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="insulaudit.html"
+                        title="next chapter">insulaudit</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -189,6 +128,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="insulaudit.html" title="insulaudit"
+             >next</a> |</li>
         <li><a href="#">insulaudit v0.01 documentation</a> &raquo;</li> 
       </ul>
     </div>

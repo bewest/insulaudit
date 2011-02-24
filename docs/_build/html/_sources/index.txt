@@ -11,12 +11,28 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   insulaudit
+   lifescan
+   medtronic
+
 insulaudit
 ==========
-.. automodule:: insulaudit.clmm
+.. automodule:: insulaudit
   :members:
   :undoc-members:
   :inherited-members:
+
++----------------+----------------+-------------------+
+|   foo          | bar            | test              |
++----------------+----------------+-------------------|
+| +------------------------+------------------------+ |
+| | s      stretch across  | s     like so          | |
+| +------------------------+------------------------+ |
++----------------+----------------+-------------------+
+| s        stretch across          like so            |
+| s        stretch across          like so            |
+| s        stretch across          like so            |
++----------------+----------------+-------------------+
 
 Indices and tables
 ==================

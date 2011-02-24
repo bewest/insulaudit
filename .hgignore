@@ -6,6 +6,7 @@ syntax: glob
 *.swn
 *.pyc
 *.pyo
+docs/_build
 
 #####
 # EOF
