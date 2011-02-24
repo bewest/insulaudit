@@ -1,0 +1,23 @@
+
+Does the usb stick expect an initialization sequence?
+It looks like sending repeated status commands can wedge the usb stick?
+
+How to send messages?
+
+03 Status? - Does this mean different things?
+
+WRITE RADIO COMMAND
+read response from stick
+ACK 03 STATUS to find RF BYTES?
+  * several times?
+WRITE READ RADIO COMMAND
+READ until done?
+
+
+
+Is there
+
+
+initSerial
+initComStation
+initDevic

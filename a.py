@@ -213,10 +213,11 @@ if __name__ == '__main__':
       pprint( carelink( USBInterfaceStats(   ) ).info )
       pprint( carelink( USBProductInfo(      ) ).info )
       pprint( carelink( USBSignalStrength(   ) ).info )
-      pprint( carelink( USBStatus(           ) ).info )
-      pprint( carelink( USBStatus(           ) ).info )
-      pprint( carelink( USBStatus(           ) ).info )
-      pprint( carelink( USBStatus(           ) ).info )
+      ######
+      # pprint( carelink( USBStatus(           ) ).info )
+      # pprint( carelink( USBStatus(           ) ).info )
+      # pprint( carelink( USBStatus(           ) ).info )
+      # pprint( carelink( USBStatus(           ) ).info )
 
       #sendOneCommand( carelink )
       #initRadio( carelink )
