@@ -114,15 +114,6 @@ class CarelinkUsb( core.CommBuffer ):
     time.sleep( command.sleep )
     reply = command( self )
     return reply
-    response = self.read( 64 )
-    # log.debug( 'response: %s' % bytearray( response ) )
-    reply    = command( response )
-    log.debug( 'command {0} inspects ACK{1}'.format(
-                repr( command ),
-                repr( reply.ack ) ) )
-    #if reply.ack.isACK( ) or reply.ack.isNAK( ):
-    reply    = command( reply, self )
-    return reply
 
 
 ERROR_LOOKUP = [ "NO ERROR",

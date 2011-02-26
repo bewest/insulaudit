@@ -29,7 +29,7 @@ io.setLevel( logging.DEBUG )
 # RF SN
 # spare serial(512): 206525
 # 522: 665455
-def FormatCommand( serial='206525', command=141, params=[ ] ):
+def FormatCommand( serial='665455', command=141, params=[ ] ):
   """"
  00    [ 1
  01    , 0
@@ -44,16 +44,16 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
  10    , maxRetries
  11    , pagesSent > 1 ? 2 : pagesSent
  12    , 0
- 14    , code
- 15    , CRC8( code[ :15 ] )
- 16    , command parameters....
+ 13    , code
+ 14    , CRC8( code[ :15 ] )
+ 15    , command parameters....
  ??    , CRC8( command parameters )
        ]
   """
 
   readable = 0
-  code = [ 1 , 0 , 167 , 1 ] 
-  code.extend( list( bytearray( serial.encode( 'hex' ) ) ) )
+  code = [ 1 , 0 , 167 , 1, ] 
+  code.extend( list( bytearray( serial.decode('hex') ) ) )
   code.extend( [ 0x80 | lib.HighByte( len( params ) )
          , lib.LowByte( len( params ) )
          , command == 93 and 85 or 0
@@ -64,11 +64,9 @@ def FormatCommand( serial='206525', command=141, params=[ ] ):
          ] )
   io.info( 'crc stuff' )
   io.info( code )
-  io.info( lib.hexdump( bytearray( code ) ) )
   code.append( lib.CRC8.compute( code ) )
-  code.append( 0 )
-  code.append( 0 )
-  code.append( lib.CRC8.compute( [ 0 ] ) )
+  code.append( lib.CRC8.compute( params ) )
+  io.info( '\n' + lib.hexdump( bytearray( code ) ) )
   return bytearray( code )
   
 
@@ -126,8 +124,8 @@ def initRadio( carelink ):
   response = readBytes( carelink, length )
   print 'contents of radio:'
   debug_response( response )
-  pprint( carelink( USBProductInfo(      ) ).info )
-  pprint( carelink( USBSignalStrength(      ) ).info )
+  pprint( carelink( USBSignalStrength( ) ).info )
+  pprint( carelink( USBProductInfo(    ) ).info )
 
 def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
@@ -138,11 +136,20 @@ def sendOneCommand( carelink, command=141 ):
   #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
+  rfBytes = 0
+  start = time.time()
+  
+  while rfBytes == 0 and time.time() - start < 1:
+    usbstatus = carelink( USBStatus( ) )
+    usbstatus = carelink( USBStatus( ) )
+    rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
+  print "RFBYTES: %s" % rfBytes
+  print lib.hexdump( bytearray( usbstatus.response ) )
+  pprint( usbstatus.info )
   #print "### Read follows write ####"
   #print lib.hexdump( bytearray( response ) )
-  response = bytearray( response )
-  debug_response( response )
-  return response
+  #debug_response( response )
+  return
 
 def debug_response( response ):
   header, body = response[ :14 ], response[ 14 : 14+response[13] ]
@@ -213,6 +220,7 @@ if __name__ == '__main__':
       pprint( carelink( USBInterfaceStats(   ) ).info )
       pprint( carelink( USBProductInfo(      ) ).info )
       pprint( carelink( USBSignalStrength(   ) ).info )
+      sendOneCommand( carelink )
       ######
       # pprint( carelink( USBStatus(           ) ).info )
       # pprint( carelink( USBStatus(           ) ).info )
