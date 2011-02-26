@@ -137,15 +137,17 @@ def sendOneCommand( carelink, command=141 ):
   carelink.write( str( bytearray( command ) ) )
   response = carelink.read( 64 )
   rfBytes = 0
-  start = time.time()
+  usbstatus = carelink( USBStatus( ) )
   
-  while rfBytes == 0 and time.time() - start < 1:
-    usbstatus = carelink( USBStatus( ) )
+  start = time.time()
+  while (rfBytes == 0 and time.time() - start < 5) \
+        or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
     usbstatus = carelink( USBStatus( ) )
     rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
   print "RFBYTES: %s" % rfBytes
-  print lib.hexdump( bytearray( usbstatus.response ) )
   pprint( usbstatus.info )
+  print carelink.radio( rfBytes )
+  #resp = carelink.read( 64 )
   #print "### Read follows write ####"
   #print lib.hexdump( bytearray( response ) )
   #debug_response( response )

@@ -174,8 +174,8 @@ class USBStatus( core.Command ):
     """Called by decode on success."""
     reply = self.reply
     info = { 'error.fatal'     : reply.body[ 3 ]
-           , 'status'          : StickStatusStruct( reply.body[ 5 ] )
-           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 6:8 ] )
+           , 'status'          : StickStatusStruct( reply.body[ 2 ] )
+           , 'rfBytesAvailable': self.rfByteCount( reply.body[ 3:5 ] )
            }
     self.__dict__.update( info )
     reply.info = info
