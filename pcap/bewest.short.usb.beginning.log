@@ -145,8 +145,27 @@ isSignalPresent? USBSignalStrength
 --------- Request # 57 ----[OUT]----
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-SUSPEND PUMP?
+REQUIRED TURNS RF ON
+only needed once?
 5D = 93 POWER_CTL
+2 params:
+0x01, 0x0A
+retries = 0
+EffectTime=1700
+TX PACKET CMD: 01 00 A7 01
+SERIAL       : 66 54 55
+EOD? : 80
+PARAM COUNT: 02
+RFCONTROL: 0x55 85 'U' # SPECIAL
+RETRIES: 00
+pages: 00
+00
+CMD: 5D
+CRC: E6
+PARAMS: 01 0A
+CRC: A2 
+########################
+
 ** Data **
 01 00 A7 01 66 54 55 80
 02 55 00 00 00 5D E6 01
@@ -172,6 +191,16 @@ SUSPEND PUMP?
 --------- Request # 65 ----[OUT]----
 
 0x75 = 117 READ ERROR STATUS
+get current alarm code
+01 00 A7 01
+66 54 55 80
+00 00
+retries: 02
+pages: 01
+00
+CMD: 75
+CRC: D7
+CRC: 00 
 !!!!!!!!!!!!!!!!!!!!!!
 ** Data **
 01 00 A7 01 66 54 55 80

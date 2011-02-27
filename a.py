@@ -31,10 +31,24 @@ io.setLevel( logging.DEBUG )
 # 522: 665455
 def FormatCommand( serial='665455', command=141, params=[ ] ):
   """"
- 00    [ 1
- 01    , 0
- 02    , 167
- 03    , 1
+ Write Radio Buffer Commands look like this.
+ +--------------------------------------------------------------------------+
+ | HEAD                | SERIAL  | OPTIONS | code | CRC | PARAMS |
+ +=====================|=========|------------------------------------------+
+ | 0x01 0x00 0xA7 0x01 | 3 bytes |          --|
+ |      |        |         |      |     |        |       |        |         |
+ |      |        |         |      |     |        |       |        |         |
+ +--------------------------------------------------------------------------+
+ |      |        |         |      |     |        |       |        |         |
+ |      |        |         |      |     |        |       |        |         |
+ |      |        |         |      |     |        |       |        |         |
+ |      |        |         |      |     |        |       |        |         |
+ +--------------------------------------------------------------------------+
+
+ 00    [ 0x01
+ 01    , 0x00
+ 02    , 0xA7 # 167
+ 03    , 0x01
  04    , serial[ 0 ]
  05    , serial[ 1 ]
  06    , serial[ 3 ]
@@ -49,6 +63,9 @@ def FormatCommand( serial='665455', command=141, params=[ ] ):
  15    , command parameters....
  ??    , CRC8( command parameters )
        ]
+  >>> FormatCommand( serial='665455', command=141 )
+  bytearray( [ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+               0x00, 0x00, 0x02, 0x01, 0x00, 0x8D, 0x5B, 0x00 ] )
   """
 
   readable = 0

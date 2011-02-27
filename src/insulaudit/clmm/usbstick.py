@@ -196,8 +196,6 @@ class USBStatus( core.Command ):
     for i in xrange(self.__retries__):
       io.debug( 'retry %s' % i )
       port.read(0)
-      #port.write('')
-      #port.read(0)
       response = port.read( 64 )
       if len(response) > 0: break;
     return response

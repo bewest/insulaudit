@@ -12,6 +12,35 @@ sudo modprobe usbserial vendor=0x0a21 product=0x8001
 
 
 
+clmm pump comms - coms.msc
+Message sizes are always in 64 byte chunks, except
+outgoing messages.
+Use the radio command to send a
+message. Generally write each command twice.
+This is kind of a "send command" command.
+
+               pc      usb     
+               |       |       
+write          |------>|      Hint: code is 14th byte (bytes[13])
+read           |<------|      3 bytes [ 0x01, 0x85 U, ?? ] == success
+               |       |              [ 0x01, 0x85 f, ?? ] == fail
+write          |------>|      code=[ 0x03 ] usb status command
+repeat         |       |<     Continually ask for the usb status until
+               |       |      the stick indicates that we are done receiving and we
+               |       |      have a length.
+read           |<------|      length = bytes[6..8]
+read           |<------|      tx.stats = bytes[5]
+format         |<      |      Then use the length to format the flush 
+               |       |      command, which will give us the
+               |       |      contents of radio buffer.
+write          |------>|      command [ 0x0C, 0x00, 0x00, HighByte(length),
+               |       |                HighByte(length), LowByte(length)  ]
+read           |<------|      read data in 64 byte chunks until we've got
+               |       |      the amount of data we expected
+               |       |       
+
+
+
 DONE.
 lib/
   BangInt
