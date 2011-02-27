@@ -25,11 +25,16 @@ io  = logging.getLogger( 'carelink.io' )
 io.setLevel( logging.DEBUG )
 
 
+def EnablePumpRadioCmd():
+  """
+  """
+  cmd = FormatCommand(command=93, params=[ 0x01, 0x0A ], retries=0, expectedPages=0)
+  return cmd
 
 # RF SN
 # spare serial(512): 206525
 # 522: 665455
-def FormatCommand( serial='665455', command=141, params=[ ] ):
+def FormatCommand( serial='665455', command=141, params=[ ], retries=2, expectedPages=1 ):
   """"
  Write Radio Buffer Commands look like this.
  +--------------------------------------------------------------------------+
@@ -74,14 +79,15 @@ def FormatCommand( serial='665455', command=141, params=[ ] ):
   code.extend( [ 0x80 | lib.HighByte( len( params ) )
          , lib.LowByte( len( params ) )
          , command == 93 and 85 or 0
-         , 2
-         , 1
+         , retries
+         , expectedPages
          , 0
          , command
          ] )
   io.info( 'crc stuff' )
   io.info( code )
   code.append( lib.CRC8.compute( code ) )
+  code.extend( params )
   code.append( lib.CRC8.compute( params ) )
   io.info( '\n' + lib.hexdump( bytearray( code ) ) )
   return bytearray( code )

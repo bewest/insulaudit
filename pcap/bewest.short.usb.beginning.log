@@ -158,7 +158,7 @@ EOD? : 80
 PARAM COUNT: 02
 RFCONTROL: 0x55 85 'U' # SPECIAL
 RETRIES: 00
-pages: 00
+pages: 00 # ???
 00
 CMD: 5D
 CRC: E6
@@ -196,7 +196,8 @@ get current alarm code
 66 54 55 80
 00 00
 retries: 02
-pages: 01
+XXX: not sure about this
+pages: 01 # requires data?
 00
 CMD: 75
 CRC: D7
