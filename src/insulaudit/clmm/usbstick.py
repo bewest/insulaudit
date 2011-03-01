@@ -92,6 +92,18 @@ class CarelinkUsb( core.CommBuffer ):
   #__response__ = core.Reply
 
   def radio( self, length, crc=True ):
+    """ tx.read - read the tx buffer: ::
+        00 [ 0x0C,
+        01   0x00,
+        02   lib.HighByte(length),
+        03   lib.LowByte(length),
+        04   CRC ]
+
+    4 bytes
+    Use to read contents of the radio.
+    XXX: This only returns the first 64 bytes.
+    TODO: Iterate over pages.
+    """
     code = [ 12, 0 ]
     if crc:
       code.extend( [ lib.HighByte( length )
@@ -156,9 +168,10 @@ class StickStatusStruct( object ):
 
 class USBStatus( core.Command ):
   """
+  Get the status of the tx buffer.
   """
   __retries__ = 3
-  code  = [ 3 ]
+  code  = [ 3, 0 ]
   ACK   = 85  # U
   NAK   = 102 # f
   label = 'usb.status'
@@ -248,6 +261,10 @@ class USBProductInfo( USBStatus ):
 
 
 class InterfaceStats( USBStatus ):
+  """
+  Get interface stats.  This command requires an argument selecting the
+  interface. See ::`USBInterfaceStats` and ::`RadioInterfaceStats` for details.
+  """
   code          = [ 5 ]
   INTERFACE_IDX = 19
   label         = 'usb.interfaceStats'

@@ -3,25 +3,26 @@
 # msc - message sequence chart generator
 Title:clmm pump comms
 Tasks:pc,usb
-*Message sizes are always in 64 byte chunks, except
-*outgoing messages.
-*Use the radio command to send a
-*message. Generally write each command twice.
 *This is kind of a "send command" command.
-write:pc:usb:Hint: code is 14th byte (bytes[13])
-read:usb:pc:3 bytes [ 0x01, 0x85 U, ?? ] == success
-:::        [ 0x01, 0x85 f, ?? ] == fail
+write:pc:usb:Hint: code is 14th byte
+:::(bytes[13])
+read:usb:pc: success [ 0x01, 0x85 U, ?? ]
+::: fail [ 0x01, 0x85 f, ?? ]
 write:pc:usb:code=[ 0x03 ] usb status command
-repeat:usb:usb:Continually ask for the usb status until
-:::the stick indicates that we are done receiving and we
-:::have a length.
-read:usb:pc:length = bytes[6..8]
+repeat:usb:usb:Continually ask for the usb
+:::            status until the stick
+:::            indicates that we are done
+:::            receiving and we have a length.
+read:usb:pc:success [ 0x01, 0x85 U, ?? ]
+:::fail    [ 0x01, 0x66 f, ?? ]
 read:usb:pc:tx.stats = bytes[5]
-format:pc:pc:Then use the length to format the flush 
-:::command, which will give us the
-:::contents of radio buffer.
-write:pc:usb:command [ 0x0C, 0x00, 0x00, HighByte(length),
-:::          HighByte(length), LowByte(length)  ]
+read:usb:pc:length = bytes[6..8]
+format:pc:pc:Then use the length to format the
+:::          flush command, which will give us
+:::          the contents of radio buffer.
+write:pc:usb:command [ 0x0C, 0x00, 0x00,
+:::            HighByte(length),
+:::            LowByte(length), CRC ]
 read:usb:pc:read data in 64 byte chunks until we've got
 :::the amount of data we expected
 

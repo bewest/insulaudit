@@ -652,6 +652,8 @@ GOT LENGTH, DO A READ?
 00 00 00 00 00 00 00 00 
 --------- Request # 253 ----[OUT]----
 
+0x75 = 117 READ ERROR STATUS
+!!!!!!!!!!!!! XXX: part of tear down comms?
 ** Data **
 01 00 A7 01 66 54 55 80
 00 00 02 01 00 75 D7 00 

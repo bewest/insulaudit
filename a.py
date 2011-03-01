@@ -37,31 +37,19 @@ def EnablePumpRadioCmd():
 def FormatCommand( serial='665455', command=141, params=[ ], retries=2, expectedPages=1 ):
   """"
  Write Radio Buffer Commands look like this.
- +--------------------------------------------------------------------------+
- | HEAD                | SERIAL  | OPTIONS | code | CRC | PARAMS |
- +=====================|=========|------------------------------------------+
- | 0x01 0x00 0xA7 0x01 | 3 bytes |          --|
- |      |        |         |      |     |        |       |        |         |
- |      |        |         |      |     |        |       |        |         |
- +--------------------------------------------------------------------------+
- |      |        |         |      |     |        |       |        |         |
- |      |        |         |      |     |        |       |        |         |
- |      |        |         |      |     |        |       |        |         |
- |      |        |         |      |     |        |       |        |         |
- +--------------------------------------------------------------------------+
 
  00    [ 0x01
  01    , 0x00
- 02    , 0xA7 # 167
- 03    , 0x01
+ 02    , 0xA7 # 167, tx.packet
+ 03    , 0x01 # ?? potential sequence count?
  04    , serial[ 0 ]
  05    , serial[ 1 ]
  06    , serial[ 3 ]
  07    , 0x80 | HighByte( paramCount )
  08    , LowByte( paramCount )
- 09    , code == 93 ? 85 : 0
- 10    , maxRetries
- 11    , pagesSent > 1 ? 2 : pagesSent
+ 09    , code == 93 ? 85 : 0 # initialize pump rf!!!?
+ 10    , maxRetries # sequence count?
+ 11    , pagesSent > 1 ? 2 : pagesSent # sequence count?
  12    , 0
  13    , code
  14    , CRC8( code[ :15 ] )
@@ -245,7 +233,12 @@ if __name__ == '__main__':
       pprint( carelink( USBInterfaceStats(   ) ).info )
       pprint( carelink( USBProductInfo(      ) ).info )
       pprint( carelink( USBSignalStrength(   ) ).info )
-      sendOneCommand( carelink )
+      carelink.write( str( EnablePumpRadioCmd( ) ) )
+      reply = carelink.read( 64 )
+      sendOneCommand( carelink, command=0x75 )
+      pprint( carelink( RadioInterfaceStats( ) ).info )
+      pprint( carelink( USBInterfaceStats(   ) ).info )
+      #sendOneCommand( command=0x75, carelink )
       ######
       # pprint( carelink( USBStatus(           ) ).info )
       # pprint( carelink( USBStatus(           ) ).info )
