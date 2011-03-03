@@ -166,6 +166,7 @@ class StickStatusStruct( object ):
 
 
 
+class CommErrorException(Exception): pass
 class USBStatus( core.Command ):
   """
   Get the status of the tx buffer.
@@ -186,6 +187,8 @@ class USBStatus( core.Command ):
   def onACK(self):
     """Called by decode on success."""
     reply = self.reply
+    if reply.body[0] != 0x00:
+      raise CommErrorException("read usb status: error set: %s" % reply.body[0])
     info = { 'error.fatal'     : reply.body[ 3 ]
            , 'status'          : StickStatusStruct( reply.body[ 2 ] )
            , 'rfBytesAvailable': self.rfByteCount( reply.body[ 3:5 ] )
@@ -293,7 +296,7 @@ class USBSignalStrength( USBStatus ):
   value = '??'
 
   def decode(self):
-    self.info = self.response[ 0 ]
+    self.info = self.response[ 3 ]
     log.info( '{0}: {1}dBm'.format( self.label, self.info ) )
     
 

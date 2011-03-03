@@ -151,10 +151,13 @@ def sendOneCommand( carelink, command=141 ):
   usbstatus = carelink( USBStatus( ) )
   
   start = time.time()
-  while (rfBytes == 0 and time.time() - start < 2) \
+  while (rfBytes == 0 and time.time() - start < 4) \
         or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
-    usbstatus = carelink( USBStatus( ) )
-    rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
+    try:
+      usbstatus = carelink( USBStatus( ) )
+      rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
+    except CommErrorException, e:
+      io.error(e)
   print "RFBYTES: %s" % rfBytes
   pprint( usbstatus.info )
   print carelink.radio( rfBytes )
