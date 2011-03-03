@@ -151,7 +151,7 @@ def sendOneCommand( carelink, command=141 ):
   usbstatus = carelink( USBStatus( ) )
   
   start = time.time()
-  while (rfBytes == 0 and time.time() - start < 5) \
+  while (rfBytes == 0 and time.time() - start < 2) \
         or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
     usbstatus = carelink( USBStatus( ) )
     rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
@@ -236,8 +236,8 @@ if __name__ == '__main__':
       carelink.write( str( EnablePumpRadioCmd( ) ) )
       reply = carelink.read( 64 )
       sendOneCommand( carelink, command=0x75 )
-      pprint( carelink( RadioInterfaceStats( ) ).info )
-      pprint( carelink( USBInterfaceStats(   ) ).info )
+      #sendOneCommand( carelink, command=141 )
+      pprint( carelink( USBProductInfo(      ) ).info )
       #sendOneCommand( command=0x75, carelink )
       ######
       # pprint( carelink( USBStatus(           ) ).info )
