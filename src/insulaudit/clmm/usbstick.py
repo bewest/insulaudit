@@ -164,9 +164,51 @@ class StickStatusStruct( object ):
                 flags = self.flags,
                 agent = self.__class__.__name__ )
 
-
+class USBError(object):
+  """ Bytes 0, 1 of the body of the usb status response are the usb status
+      error codes.
+  """
+  NAK_DESCRIPTIONS_TABLE = [ "UNKNOWN NAK DESCRIPTION"
+  , "REQUEST PAUSE FOR 3 SECONDS"
+  , "REQUEST PAUSE UNTIL ACK RECEIVED"
+  , "CRC ERROR"
+  , "REFUSE PROGRAM UPLOAD"
+  , "TIMEOUT ERROR"
+  , "COUNTER SEQUENCE ERROR"
+  , "PUMP IN ERROR STATE"
+  , "INCONSISTENT COMMAND REQUEST"
+  , "DATA OUT OF RANGE"
+  , "DATA CONSISTENCY"
+  , "ATTEMPT TO ACTIVATE UNUSED PROFILES"
+  , "PUMP DELIVERING BOLUS"
+  , "REQUESTED HISTORY BLOCK HAS NO DATA"
+  , "HARDWARE FAILURE" ]
+  def __init__(self, raw):
+    self.raw    = bytearray(raw)
+    self.error  = raw[0]
+    self.reason = raw[1]
+    
+  def nak(self):
+    return self.error == 21
+  def __str__(self):
+    return "status:nak:%s:%s:%s:%s" % (self.nak(), self.error, self.reason,
+                                    self.desc())
+  def __repr__(self):
+    return str(self)
+  def desc(self):
+    desc = ""
+    if self.nak() and self.reason:
+      desc = self.NAK_DESCRIPTIONS_TABLE[ self.reason ]
+    return desc
 
 class CommErrorException(Exception): pass
+class USBCommand( core.Command ):
+  sleep = .5
+  ACK   = 85  # U
+  NAK   = 102 # f
+  __retries__ = 3
+  
+
 class USBStatus( core.Command ):
   """
   Get the status of the tx buffer.
@@ -176,6 +218,7 @@ class USBStatus( core.Command ):
   ACK   = 85  # U
   NAK   = 102 # f
   label = 'usb.status'
+  sleep         = .50
   __info__ = { 'error.fatal'     : 0x00
              , 'status'          : 0x00
              , 'rfBytesAvailable': 0x00
@@ -187,9 +230,9 @@ class USBStatus( core.Command ):
   def onACK(self):
     """Called by decode on success."""
     reply = self.reply
-    if reply.body[0] != 0x00:
-      raise CommErrorException("read usb status: error set: %s" % reply.body[0])
-    info = { 'error.fatal'     : reply.body[ 3 ]
+    #if reply.body[0] != 0x00:
+    #  raise CommErrorException("read usb status: error set: %s" % reply.body[0])
+    info = { 'error'           : USBError( reply.body[ 0:2 ] )
            , 'status'          : StickStatusStruct( reply.body[ 2 ] )
            , 'rfBytesAvailable': self.rfByteCount( reply.body[ 3:5 ] )
            }
@@ -254,8 +297,7 @@ class USBProductInfo( USBStatus ):
     reply = self.reply
     self.info = {
       'rf.freq'          : self.rf_table.get( reply.body[ 5 ], 'UNKNOWN' )
-    , 'serial'           : (reply.body[ 0:3 ],
-                           str( reply.body[ 0:3 ]).encode( 'hex'  ) )
+    , 'serial'           : str( reply.body[ 0:3 ]).encode( 'hex' )
     , 'product.version'  : '{0}.{1}'.format( *reply.body[ 3:5 ] )
     , 'description'      : str( reply.body[ 06:16 ] )
     , 'software.version' : '{0}.{1}'.format( *reply.body[ 16:18 ] )
@@ -271,6 +313,8 @@ class InterfaceStats( USBStatus ):
   code          = [ 5 ]
   INTERFACE_IDX = 19
   label         = 'usb.interfaceStats'
+  sleep         = .50
+  timeout       = 1
   def onACK(self):
     b = self.reply.body
     self.reply.info = {
@@ -281,6 +325,7 @@ class InterfaceStats( USBStatus ):
     , 'packets.received': lib.BangLong( b[ 4: 8 ] )
     , 'packets.transmit': lib.BangLong( b[ 8:12 ] )
     }
+    self.info = self.reply.info
 
 class USBInterfaceStats( InterfaceStats ):
   code          = [ 5, 1 ]
@@ -296,7 +341,7 @@ class USBSignalStrength( USBStatus ):
   value = '??'
 
   def decode(self):
-    self.info = self.response[ 3 ]
+    self.info = bytearray(self.response[ 3 ])[0]
     log.info( '{0}: {1}dBm'.format( self.label, self.info ) )
     
 

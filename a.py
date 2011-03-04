@@ -34,9 +34,12 @@ def EnablePumpRadioCmd():
 # RF SN
 # spare serial(512): 206525
 # 522: 665455
-def FormatCommand( serial='665455', command=141, params=[ ], retries=2, expectedPages=1 ):
+def FormatCommand( serial='665455', command=141, params=[ ], retries=0, expectedPages=1 ):
   """"
  Write Radio Buffer Commands look like this.
+ While the formatting of this command seems correct, reads of usb status
+ afterwards should be setting tx indicator and length fields.  Instead we're
+ getting error fields.
 
  00    [ 0x01
  01    , 0x00
@@ -138,6 +141,12 @@ def initRadio( carelink ):
   pprint( carelink( USBSignalStrength( ) ).info )
   pprint( carelink( USBProductInfo(    ) ).info )
 
+def waitForSignal(stick):
+   strength = stick( USBSignalStrength( ) ).info
+   while strength < 1:
+     strength = stick( USBSignalStrength( ) ).info
+   return strength
+
 def getNumBytes(stick):
   io.info( '##get numbytes')
   rfBytes = 0
@@ -165,8 +174,9 @@ def sendOneCommand( carelink, command=141 ):
   command = FormatCommand( command=command )
   #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
-  time.sleep(.1)
+  time.sleep(1.7)
   response = carelink.read( 64 )
+  time.sleep(.5)
   rfBytes = getNumBytes(carelink)
 
   print "RFBYTES: %s" % rfBytes
@@ -174,11 +184,12 @@ def sendOneCommand( carelink, command=141 ):
     print carelink.radio( rfBytes )
   else:
     print "FAILED TO FIND BYTES"
+
+  return
   #resp = carelink.read( 64 )
   #print "### Read follows write ####"
   #print lib.hexdump( bytearray( response ) )
   #debug_response( response )
-  return
 
 def debug_response( response ):
   header, body = response[ :14 ], response[ 14 : 14+response[13] ]
@@ -243,8 +254,7 @@ if __name__ == '__main__':
   try:
     try:
       pprint( carelink( USBProductInfo(      ) ).info )
-      pprint( carelink( USBSignalStrength(   ) ).info )
-      pprint( carelink( USBSignalStrength(   ) ).info )
+      waitForSignal(carelink)
       pprint( carelink( RadioInterfaceStats( ) ).info )
       pprint( carelink( USBInterfaceStats(   ) ).info )
       pprint( carelink( USBProductInfo(      ) ).info )
@@ -254,6 +264,8 @@ if __name__ == '__main__':
       sendOneCommand( carelink, command=0x75 )
       #sendOneCommand( carelink, command=141 )
       pprint( carelink( USBProductInfo(      ) ).info )
+      pprint( carelink( RadioInterfaceStats( ) ).info )
+      pprint( carelink( USBInterfaceStats(   ) ).info )
       #sendOneCommand( command=0x75, carelink )
       ######
       # pprint( carelink( USBStatus(           ) ).info )
