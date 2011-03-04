@@ -138,6 +138,24 @@ def initRadio( carelink ):
   pprint( carelink( USBSignalStrength( ) ).info )
   pprint( carelink( USBProductInfo(    ) ).info )
 
+def getNumBytes(stick):
+  io.info( '##get numbytes')
+  rfBytes = 0
+  usbstatus = stick( USBStatus( ) )
+  
+  start = time.time()
+  while (rfBytes == 0 and time.time() - start < 4) \
+        or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
+    try:
+      usbstatus = stick( USBStatus( ) )
+      time.sleep(.1)
+      rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
+    except CommErrorException, e:
+      io.error(e)
+  print "RFBYTES: %s" % rfBytes
+  return rfBytes
+  
+
 def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
   time.sleep(.1)
@@ -149,21 +167,13 @@ def sendOneCommand( carelink, command=141 ):
   carelink.write( str( bytearray( command ) ) )
   time.sleep(.1)
   response = carelink.read( 64 )
-  rfBytes = 0
-  usbstatus = carelink( USBStatus( ) )
-  
-  start = time.time()
-  while (rfBytes == 0 and time.time() - start < 4) \
-        or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
-    try:
-      usbstatus = carelink( USBStatus( ) )
-      time.sleep(.1)
-      rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
-    except CommErrorException, e:
-      io.error(e)
+  rfBytes = getNumBytes(carelink)
+
   print "RFBYTES: %s" % rfBytes
-  pprint( usbstatus.info )
-  print carelink.radio( rfBytes )
+  if rfBytes > 0:
+    print carelink.radio( rfBytes )
+  else:
+    print "FAILED TO FIND BYTES"
   #resp = carelink.read( 64 )
   #print "### Read follows write ####"
   #print lib.hexdump( bytearray( response ) )
