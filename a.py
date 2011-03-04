@@ -140,12 +140,14 @@ def initRadio( carelink ):
 
 def sendOneCommand( carelink, command=141 ):
   print '######### Send one Command ###########'
+  time.sleep(.1)
                             
   print '###### Write Command to Port #####'
   #command = FormatCommand( )
   command = FormatCommand( command=command )
   #print lib.hexdump( bytearray( command ) )
   carelink.write( str( bytearray( command ) ) )
+  time.sleep(.1)
   response = carelink.read( 64 )
   rfBytes = 0
   usbstatus = carelink( USBStatus( ) )
@@ -155,6 +157,7 @@ def sendOneCommand( carelink, command=141 ):
         or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
     try:
       usbstatus = carelink( USBStatus( ) )
+      time.sleep(.1)
       rfBytes   = usbstatus.info[ 'rfBytesAvailable' ]
     except CommErrorException, e:
       io.error(e)
