@@ -142,9 +142,10 @@ def initRadio( carelink ):
   pprint( carelink( USBProductInfo(    ) ).info )
 
 def waitForSignal(stick):
-   strength = stick( USBSignalStrength( ) ).info
+   strength = 0
    while strength < 1:
      strength = stick( USBSignalStrength( ) ).info
+     io.info( "signal strength: %sdBm" % strength )
    return strength
 
 def getNumBytes(stick):
@@ -176,7 +177,7 @@ def sendOneCommand( carelink, command=141 ):
   carelink.write( str( bytearray( command ) ) )
   time.sleep(1.7)
   response = carelink.read( 64 )
-  time.sleep(.5)
+  time.sleep(1.7)
   rfBytes = getNumBytes(carelink)
 
   print "RFBYTES: %s" % rfBytes
@@ -258,7 +259,7 @@ if __name__ == '__main__':
       pprint( carelink( RadioInterfaceStats( ) ).info )
       pprint( carelink( USBInterfaceStats(   ) ).info )
       pprint( carelink( USBProductInfo(      ) ).info )
-      pprint( carelink( USBSignalStrength(   ) ).info )
+      waitForSignal(carelink)
       carelink.write( str( EnablePumpRadioCmd( ) ) )
       reply = carelink.read( 64 )
       sendOneCommand( carelink, command=0x75 )

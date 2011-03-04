@@ -339,9 +339,10 @@ class USBSignalStrength( USBStatus ):
   code  = [ 6, 0 ]
   label = 'usb.signalStrength'
   value = '??'
+  sleep = 1
 
   def decode(self):
-    self.info = bytearray(self.response[ 3 ])[0]
+    self.info = int(bytearray(self.response[ 3 ])[0])
     log.info( '{0}: {1}dBm'.format( self.label, self.info ) )
     
 
