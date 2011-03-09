@@ -34,7 +34,7 @@ def EnablePumpRadioCmd():
 # RF SN
 # spare serial(512): 206525
 # 522: 665455
-def FormatCommand( serial='665455', command=141, params=[ ], retries=0, expectedPages=1 ):
+def FormatCommand( serial='665455', command=141, params=[ ], retries=2, expectedPages=1 ):
   """"
  Write Radio Buffer Commands look like this.
  While the formatting of this command seems correct, reads of usb status
@@ -154,7 +154,7 @@ def getNumBytes(stick):
   usbstatus = stick( USBStatus( ) )
   
   start = time.time()
-  while (rfBytes == 0 and time.time() - start < 4) \
+  while (rfBytes == 0 and time.time() - start < 3) \
         or usbstatus.info[ 'status' ].flags[ 'receiving.complete' ]:
     try:
       usbstatus = stick( USBStatus( ) )
@@ -182,14 +182,12 @@ def sendOneCommand( carelink, command=141 ):
 
   print "RFBYTES: %s" % rfBytes
   if rfBytes > 0:
+    print "read data"
     print carelink.radio( rfBytes )
   else:
     print "FAILED TO FIND BYTES"
 
   return
-  #resp = carelink.read( 64 )
-  #print "### Read follows write ####"
-  #print lib.hexdump( bytearray( response ) )
   #debug_response( response )
 
 def debug_response( response ):

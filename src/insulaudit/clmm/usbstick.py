@@ -328,14 +328,21 @@ class InterfaceStats( USBStatus ):
     self.info = self.reply.info
 
 class USBInterfaceStats( InterfaceStats ):
+  """
+  Ask the usb side of the interface if it's ok.
+  """
   code          = [ 5, 1 ]
   label         = 'usb.interfaceStats'
 
 class RadioInterfaceStats( InterfaceStats ):
+  """
+  Ask the radio side of the interface if it's ok.
+  """
   code          = [ 5, 0 ]
-  label         = 'usb.interfaceStats'
+  label         = 'radio.interfaceStats'
 
 class USBSignalStrength( USBStatus ):
+  """Get the signal strength of the usb stick."""
   code  = [ 6, 0 ]
   label = 'usb.signalStrength'
   value = '??'
