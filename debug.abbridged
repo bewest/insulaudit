@@ -1,0 +1,157 @@
+INFO:insulaudit.io:carelink.command: <USBProductInfo:code=[4, 0, 0], label=usb.productInfo, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'description': 'ComLink II', 'software.version': '1.16', 'interfaces': [(0, 'Paradigm RF'), (1, 'USB')], 'product.version': '0.0', 'rf.freq': '916.5Mhz', 'serial': '081b00'}
+{'description': 'ComLink II',
+ 'interfaces': [(0, 'Paradigm RF'), (1, 'USB')],
+ 'product.version': '0.0',
+ 'rf.freq': '916.5Mhz',
+ 'serial': '081b00',
+ 'software.version': '1.16'}
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBSignalStrength:code=[6, 0], label=usb.signalStrength NonedBm>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: 8
+INFO:carelink.io:signal strength: 8dBm
+DEBUG:insulaudit.logger:setting timeout: 1
+INFO:insulaudit.io:carelink.command: <RadioInterfaceStats:code=[5, 0], label=radio.interfaceStats, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'errors.timeouts': 0, 'packets.transmit': 1833724270L, 'errors.naks': 0, 'errors.sequence': 27, 'packets.received': 17263L, 'errors.crc': 194}
+{'errors.crc': 194,
+ 'errors.naks': 0,
+ 'errors.sequence': 27,
+ 'errors.timeouts': 0,
+ 'packets.received': 17263L,
+ 'packets.transmit': 1833724270L}
+DEBUG:insulaudit.logger:setting timeout: 1
+INFO:insulaudit.io:carelink.command: <USBInterfaceStats:code=[5, 1], label=usb.interfaceStats, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'errors.timeouts': 0, 'packets.transmit': 1833724270L, 'errors.naks': 0, 'errors.sequence': 27, 'packets.received': 17263L, 'errors.crc': 191}
+{'errors.crc': 191,
+ 'errors.naks': 0,
+ 'errors.sequence': 27,
+ 'errors.timeouts': 0,
+ 'packets.received': 17263L,
+ 'packets.transmit': 1833724270L}
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBProductInfo:code=[4, 0, 0], label=usb.productInfo, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+{'description': '\x00\x02\x00\x00\x00\x02\x00\x00\x00\x01',
+ 'interfaces': [],
+ 'product.version': '0.0',
+ 'rf.freq': '916.5Mhz',
+ 'software.version': '0.2'}
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBSignalStrength:code=[6, 0], label=usb.signalStrength NonedBm>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: 0
+INFO:carelink.io:signal strength: 0dBm
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBSignalStrength:code=[6, 0], label=usb.signalStrength NonedBm>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: 0
+INFO:carelink.io:signal strength: 0dBm
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBSignalStrength:code=[6, 0], label=usb.signalStrength NonedBm>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: 0
+INFO:carelink.io:signal strength: 0dBm
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBSignalStrength:code=[6, 0], label=usb.signalStrength NonedBm>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: 8
+INFO:carelink.io:signal strength: 8dBm
+INFO:carelink.io:crc stuff
+INFO:carelink.io:[1, 0, 167, 1, 102, 84, 85, 128, 2, 85, 0, 0, 0, 93]
+INFO:carelink.io:
+0008   0x02 0x55 0x00 0x00 0x00 0x5d 0xe6 0x01   .U...]..
+0010   0x0a 0xa2                  ..
+0008   0x02 0x55 0x00 0x00 0x00 0x5d 0xe6 0x01   .U...]..
+--
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBStatus:code=[3, 0], label=usb.status, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+RFBYTES: 0
+RFBYTES: 0
+FAILED TO FIND BYTES
+DEBUG:insulaudit.logger:setting timeout: 2
+INFO:insulaudit.io:carelink.command: <USBProductInfo:code=[4, 0, 0], label=usb.productInfo, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'description': 'ComLink II', 'software.version': '1.16', 'interfaces': [(0, 'Paradigm RF'), (1, 'USB')], 'product.version': '0.0', 'rf.freq': '916.5Mhz', 'serial': 'c11b00'}
+{'description': 'ComLink II',
+ 'interfaces': [(0, 'Paradigm RF'), (1, 'USB')],
+ 'product.version': '0.0',
+ 'rf.freq': '916.5Mhz',
+ 'serial': 'c11b00',
+ 'software.version': '1.16'}
+DEBUG:insulaudit.logger:setting timeout: 1
+INFO:insulaudit.io:carelink.command: <RadioInterfaceStats:code=[5, 0], label=radio.interfaceStats, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'errors.timeouts': 0, 'packets.transmit': 1833724270L, 'errors.naks': 0, 'errors.sequence': 27, 'packets.received': 17263L, 'errors.crc': 193}
+{'errors.crc': 193,
+ 'errors.naks': 0,
+ 'errors.sequence': 27,
+ 'errors.timeouts': 0,
+ 'packets.received': 17263L,
+ 'packets.transmit': 1833724270L}
+DEBUG:insulaudit.logger:setting timeout: 1
+INFO:insulaudit.io:carelink.command: <USBInterfaceStats:code=[5, 1], label=usb.interfaceStats, info=None>
+DEBUG:insulaudit.logger:sent command, waiting
+
+--
+DEBUG:insulaudit.logger:status reply: {'errors.timeouts': 0, 'packets.transmit': 39L, 'errors.naks': 0, 'errors.sequence': 0, 'packets.received': 39L, 'errors.crc': 0}
+{'errors.crc': 0,
+ 'errors.naks': 0,
+ 'errors.sequence': 0,
+ 'errors.timeouts': 0,
+ 'packets.received': 39L,
+ 'packets.transmit': 39L}
+closing for real now
+INFO:insulaudit.io:closing serial port
