@@ -64,6 +64,7 @@ makeCommandPacket:
   # which special cases 93
   command = Command(self.code, 0, 0, 0)
   if code == 93 and commandParams[0] == 1:
+    # 
     command.setUseMultiXmitMode(true)
   return command
 
@@ -83,12 +84,15 @@ makeDataPacket(packetNumber, sequenceNumber, paramCount):
 # Pump Stuff
 # (pseudocode analysis of MM512.java)
 sendAck:
-  ack_pack = ACK
+  packet = [ 167 ] + serial + [ 6, 0 ]
+  packet.append(CRC8(packet))
+  packet = encodeDC(packet)
 
-  com_command = [ 5, ack_pack.length ]
-  serial.write(com_command + ack_pack)
-  usb.readAckByte, turn off RF?
-  usb.readReadyByte
+  com_command = [ 5, packet.length ]
+  serial.write(com_command + packet)
+  usb.readAckByte()
+  # turn off RF
+  usb.readReadyByte(false)
 
 checkAck:
   bytesAvail = usb.readStatus( )
@@ -166,11 +170,13 @@ sendAndRead:
 sendCommand
   packet = buildPacket()
   usbCmd = 0
+  # only when cmd ==93 (powerCTRL)
   if isUseMultiXmitMode():
     usbCmd = 10
   elsif paramCount == 0:
     usbCmd = 5
   else:
+    # turn on RFMode, new session
     usbCmd = 4
   usbCmd = [ usbCmd, packet.length ]
   command = usbCmd + packet
