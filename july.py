@@ -20,6 +20,11 @@ io  = logging.getLogger( 'auditor.io' )
 io.setLevel( logging.DEBUG )
 
 """
+
+#####################
+#
+# Pump Stuff
+#
  The Pump Packet looks like this:
  7 bytes with parameters on the end
  00     167
@@ -58,6 +63,103 @@ checkAck:
   ackBytes[4] == 6 # command ACK ok
   error = lookup_error(ackBytes[5])
 
+initDevice:
+  cmdPowerControl.execute()
+  readPumpModelNumber.execute()
+  cmdReadError.execute()
+  cmdReadState.execute()
+  cmdReadTmpBasal.execute()
+  
+initDeviceAfterModelNumberKnown()
+  bolus = detectActiveBolus()
+  if !bolus:
+    cmdSetSuspend.execute()
+
+detectActiveBolus:
+  cmdDetectBolus.execute()
+  # make sure it worked
+
+shutdownPump
+  cmdCancelSuspend.execute()
+
+execute:
+  # retry 3 times
+  # if not ready, do usb.initCommunications
+  executeIO()
+
+executeIO:
+  if paramCount > 0:
+    packet = makeCommandPacket()
+    packet.executeIO()
+  
+  if paramCount > 128:
+    data = makeDataPacket(1, 1, 64)
+    data.sendAndRead()
+
+    data = makeDataPacket(2, 2, 64)
+    data.sendAndRead()
+
+    data = makeDataPacket(3, 131, 16)
+    data.sendAndRead()
+  elsif paramCount > 64:
+    data = makeDataPacket(1, 1, 64)
+    data.sendAndRead()
+
+    data = makeDataPacket(2, 130, 32)
+    data.sendAndRead()
+  else:
+    # special case commandCode == 64
+    sendAndRead()
+
+sendAndRead:
+  sendCommand
+  if expectedLength > 0 and !isHaltRequested():
+    if pages
+      data = readDeviceDataPage(length)
+    else:
+      data = readDeviceData()
+      bytesRead += data.length
+  else
+    if commandParams.length > 0:
+      # setState(7)
+      bytesRead += commandParams.length
+      
+      checkAck()
+
+sendCommand
+  packet = buildPacket()
+  usbCmd = 0
+  if isUseMultiXmitMode():
+    usbCmd = 10
+  elsif paramCount == 0:
+    usbCmd = 5
+  else:
+    usbCmd = 4
+  usbCmd = [ usbCmd, packet.length ]
+  command = usbCmd + packet
+  serial.write(command)
+  usb.readAckByte()
+  # special case command 93 and paramCount == 0
+  # needs to be sensitive to timeout
+  usb.readReadyByte(usbCmd[0] == 4)
+
+checkHeaderAndCRC(deviceData):
+  # check CRC8
+  # check serial number
+
+
+readDeviceDataPage(expectedBytes):
+
+
+"""
+
+"""
+
+##########
+#
+# USB Device
+#
+
 readDeviceData:
   bytesAvail = usb.readStatus( )
   usb.sendTransferDataCommand( ) # exec read data flow on usb
@@ -75,8 +177,8 @@ initUSBComms
   # clear the buffer
   serial.readUntilEmpty( )
   # set RS232 MODE On
-  serial.write(6)
-  # check success, first byte == 51
+  # check success, first byte == 51 READY
+  sendCommandCheckReply(6, 51)
   numOldBytes = readStatus( )
   if numOldBytes > 0:
     sendTransferDataCommand( )
@@ -85,8 +187,8 @@ initUSBComms
   
 readAckByte:
   # retries twice
-  serial.read(1) == 'U'
-  # else NAK == f
+  serial.read(1) == 'U' # 85
+  # else NAK == 'f' # 102
 
 readStatus:
   # sets m_status, used to decode receivedByteCount, hasData, RS232Mode,
@@ -97,7 +199,7 @@ readStatus:
   
 sendCommandGetReply:
   sendCommand(command)
-  return serial.read()
+  return serial.read(1)
 
 sendCommandCheckReply(command, expect):
   # retries twice
