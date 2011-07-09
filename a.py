@@ -27,6 +27,7 @@ io.setLevel( logging.DEBUG )
 
 def EnablePumpRadioCmd():
   """
+    Enables some kind of special multi transmit mode
   """
   cmd = FormatCommand(command=93, params=[ 0x01, 0x0A ], retries=0, expectedPages=0)
   return cmd
@@ -59,6 +60,25 @@ def FormatCommand( serial='665455', command=141, params=[ ], retries=2, expected
  15    , command parameters....
  ??    , CRC8( command parameters )
        ]
+
+ The Pump Packet looks like this:
+ 7 bytes with parameters on the end
+ 00     167
+ 01     serial[ 0 ]
+ 02     serial[ 1 ]
+ 03     serial[ 2 ]
+ 04     commandCode
+ 05     sequenceNumber or paramCount
+ 06     [ parameters ]
+ 06/07  CRC8(packet)
+
+ or:
+ 167, serial, code, seq/param, params, CRC8(packet)
+NB the whole thing is wrapped by encodeDC()
+
+ACK: is:
+
+
   >>> FormatCommand( serial='665455', command=141 )
   bytearray( [ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
                0x00, 0x00, 0x02, 0x01, 0x00, 0x8D, 0x5B, 0x00 ] )
