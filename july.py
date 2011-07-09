@@ -275,6 +275,7 @@ decodeDC(msg):
         nibbleCount = 0
       sixBitValue = 0
       bitCount    = 0
+      bp--
 
   return decoded
 
