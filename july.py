@@ -123,6 +123,9 @@ readReadyByteIO(setRFMode)
   # retries twice
   serial.read(1) == 51
   
+sendDataTransfer:
+  # data transfer command
+  sendCommand(8)
 
 """
 
