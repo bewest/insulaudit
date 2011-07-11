@@ -14,15 +14,12 @@ from insulaudit import lib
 
 logging.basicConfig( stream=sys.stdout )
 log = logging.getLogger( 'auditor' )
-log.setLevel( logging.DEBUG )
+log.setLevel( logging.FATAL )
 log.info( 'hello world' )
 io  = logging.getLogger( 'auditor.io' )
 io.setLevel( logging.DEBUG )
 
 """
-This analysis from 2011-07 looks similar to ComLink1 It doesn't seem to work
-with my White CareLinkUSB Device.  Also, the log of previous runs contains 0x04
-commands (ProductInfo) only found in ComLink2.
 #####################
 #
 # Command Stuff
@@ -230,6 +227,71 @@ readDeviceData:
 packSerial
   return makePackedBCD(serial)
 
+encodeDC(msg):
+  # realign bytes
+  nibbles = [ ]
+  encoded = [ ]
+  # collect nibbles
+  for (b in msg):
+    highNibble = b >> 4 & 0xF
+    lowNibble  = b & 0xF
+    dcValue1   = ENCODE_TABLE[highNibble]
+    dcValue2   = ENCODE_TABLE[lowNibble]
+    nibbles.append(dcValue1 >> 2)
+
+    high2Bits = dcValue1 & 0x3
+    low2Bits  = dcValue2 >> 4 & 0x3
+    nibbles.append( high2Bits << 2 | low2Bits )
+    nibbles.append( dcValue2 & 0xF )
+  
+  for i in nibbles.iter:
+    # last item gets a padding terminator
+    v  = nibbles[i]
+    lb = (v, 5)
+    # most elide the next item
+    if i < nibbles.length - 1:
+      lb = (v, nibbles[i+1])
+    encoded.append(Util.makeByte(lb[0], lb[2]))
+  return encoded
+
+decodeDC(msg):
+  decoded     = [ ]
+  nibbleCount = 0
+  bitCount    = 0
+  sixBitValue = 0
+  highValue   = 0
+  highNibble  = 0
+  # 
+  for B in msg:
+    bP = 7
+    while bP >= 0:
+      bitValue = B >> bP & 0x1
+      sixBitValue = sixBitValue << 1 | bitValue
+      bitCount++
+      if (bitCount !=6)
+        continue; # next
+      nibbleCount++
+      if nibbleCount == 1:
+        highNibble = decodeDCByte(sixBitValue)
+      else
+        lowNibble = decodeDCByte(sixBitValue)
+        byteValue = makeByte(highNibble, lowNibble)
+        # append to result
+        decoded.append(byteValue)
+        nibbleCount = 0
+      sixBitValue = 0
+      bitCount    = 0
+      bp--
+
+  return decoded
+
+decodeDCByte(B):
+  # B should be 0 < B && B < 63
+  # look up in decode table
+  for k, v in ENCODE_TABLE:
+    if V == B
+      return k
+
 set/isUseMultiXmitMode: # simple getter/setter for m_useMultiXmitMode
 
 Command(code, bytesPerRecord, maxRecords, address, addressLength, commandType)
@@ -244,137 +306,76 @@ XXX: acquireDataFromDevice, acquireDataFromDeviceConclusion only have disassembl
 # USB Device
 #
 
+initUSBComms
+  # clear the buffer
+  serial.readUntilEmpty( )
+  # set RS232 MODE On
+  # check success, first byte == 51 READY
+  sendCommandCheckReply(6, 51)
+  numOldBytes = readStatus( )
+  if numOldBytes > 0:
+    sendTransferDataCommand( )
+    message = serial.read( )
+    usb.readAckByte()
+  
+readAckByte:
+  # retries twice
+  serial.read(1) == 'U' # 85
+  # else NAK == 'f' # 102
+
+readStatus:
+  # sets m_status, used to decode receivedByteCount, hasData, RS232Mode,
+  # FilterRepeat, AutoSleep, Status Error, SelfTestError
+  self.status = sendCommandGetReply(2)
+  bytesAvailable = serial.read(1)
+  readAckByte() # serial.read(1) == ACK
+  
+sendCommandGetReply:
+  sendCommand(command)
+  return serial.read(1)
+
+sendCommandCheckReply(command, expect):
+  # retries twice
+  reply = sendCommandGetReply(command)
+  return reply == expect
+
+sendCommand(command):
+  serial.write(command)
+
+setRfMode:
+  sendCommand(7)
+  # sleep
+  readAckByte()
+
+readReadyByte(setRFMode):
+  #retries twice
+  readReadyByteIO(setRFMode)
+  # adjust sleep timing
+
+readReadyByteIO(setRFMode)
+  # for some reason this is tightly coupled
+  if setRfMode: setRfMode
+  # retries twice
+  serial.read(1) == 51
+  
+sendDataTransferCommand:
+  # data transfer command
+  sendCommand(8)
 
 """
 from insulaudit import core, lib
-from insulaudit.clmm import usbstick
-from pprint import pprint, pformat
-
+  
 class Link( core.CommBuffer ):
   class ID:
     VENDOR  = 0x0a21
     PRODUCT = 0x8001
-  timeout = .100
-  def __init__( self, port, timeout=None ):
-    super(type(self), self).__init__(port, timeout)
+  timeout = .150
 
-  def initUSBComms(self):
-    log.info('initUSBComms')
-    log.info('readUntilEmpty')
-    # clear the buffer
-    self.readUntilEmpty( )
-    # set RS232 MODE On
-    # check success, first byte == 51 READY
-    log.info(pformat(self.process( usbstick.USBProductInfo( ) ).info ))
-    log.info('prep for rf comms, turn on RS232 MODE')
-    #assert self.sendCommandCheckReply(6, 51)
-    assert self.sendCommandCheckReply(6, 51)
-    log.info("read status")
-    numOldBytes = self.readStatus( )
-    if numOldBytes > 0:
-      self.serial.setTimeout(10)
-      self.sendTransferDataCommand( )
-      message = self.read( )
-      assert self.readAckByte()
-  
-  def readAckByte(self):
-    # retries twice
-    return self.read(1) == 'U' # 85
-    # else NAK == 'f' # 102
-
-  def readUntilEmpty(self):
-    lines = True
-    while lines:
-      lines = self.readlines( )
-      log.debug('emptying buffer: %s' % lines)
-
-  def readStatus(self):
-    # sets m_status, used to decode receivedByteCount, hasData, RS232Mode,
-    # FilterRepeat, AutoSleep, Status Error, SelfTestError
-    log.info('read Status')
-    self.status = self.sendCommandGetReply(2)
-    time.sleep(2)
-    bytesAvailable = self.read(1)
-    log.info('bytesAvailable: %r' % bytesAvailable)
-    # TODO
-    assert self.readAckByte() # serial.read(1) == ACK
-    return bytesAvailable
-
-  def sendCommandGetReply(self, command):
-    self.sendCommand(command)
-    delay = 2
-    time.sleep(delay)
-    return bytearray(self.read(1))
-
-  def sendCommandCheckReply(self, command, expect):
-    # retries twice
-    reply = None
-    ok    = False
-    for i in xrange(2):
-      reply = self.sendCommandGetReply(command)
-      log.info('sendCommandGetReply:attempt:expect:%r:%s:reply:%s' % (expect, i, reply))
-      if reply == expect: break
-    return reply == expect
-
-  def sendCommand(self, command):
-    self.write(str(bytearray([command, 0])))
-
-  def sendDataTransferCommand(self):
-    # data transfer command
-    self.sendCommand(8)
-
-  def setRfMode(self):
-    self.sendCommand(7)
-    # sleep
-    time.sleep(2)
-    self.readAckByte()
-
-  def readReadyByte(self, setRFMode):
-    #retries twice
-    self.readReadyByteIO(setRFMode)
-    # adjust sleep timing
-
-  def readReadyByteIO(self, setRFMode=False):
-    # for some reason this is tightly coupled
-    if setRfMode:
-      self.setRfMode()
-    # retries twice
-    return self.read(1) == 51
-
-  def process( self, command ):
-    x = str( command )
-    self.serial.setTimeout( command.timeout )
-    log.debug( 'setting timeout: %s' % command.timeout )
-    io.info( 'carelink.command: %r\n%s' % ( command,
-                                            command.hexdump( ) ) )
-    self.write( x )
-    #self.write( x )
-    log.debug( 'sent command, waiting' )
-    time.sleep( command.sleep )
-    reply = command( self )
-    return reply
-
-class Command(object):
-  def __init__(self):
-    pass
-  def format(self):
-    pass
-  def execute(self, link):
-    pass
+  def 
 
 if __name__ == '__main__':
   io.info("hello world")
 
-  port = None
-  try:
-    port = sys.argv[1]
-  except IndexError, e:
-    print "usage:\n%s /dev/ttyUSB0" % sys.argv[0]
-    sys.exit(1)
-    
-  link = Link(port)
-  link.initUSBComms()
-  #pprint( carelink( USBProductInfo(      ) ).info )
 
 
 #####
