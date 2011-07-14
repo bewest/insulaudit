@@ -7,6 +7,7 @@ import serial
 import time
 import logging
 from pprint import pprint, pformat
+import doctest
 
 from insulaudit.core import Command
 from insulaudit.clmm.usbstick import *
@@ -30,116 +31,12 @@ execute(command):
   usbcommand.execute(self)
 
 
-readStatus:
-  result         = sendComLink2Command(3)
-  commStatus     = result[0] # 0 indicates success
-  status         = result[2]
-  lb, hb         = result[3], result[4]
-  bytesAvailable = makeInt(lb, hb)
-  return (status & 0x1) > 0 ? bytesAvailable : 0
-
-calcRecordsRequired(length):
-  if length > 64:
-    return 2
-  return 1
-
 
 ############################
 #
 # USB(Pump) Command Stuff
 #
 
-usbcommand.execute:
-  allocateRawData()
-  sendAndRead()
-
-sendAndRead:
-  sendDeviceCommand()
-  if dataToCollect > 0 && !isHaltRequested():
-    command.data = readDeviceData()
-
-sendDeviceCommand:
-  packet = buildTransmitPacket()
-  serial.write(packet)
-  if code != 93 || params[0] != 0:
-    checkAck()
-
-allocateRawData():
-  bufferSize = bytesPerRecord * maxRecords
-
-readDeviceData():
-  eod     = False
-  results = [ ]
-  while not eod and !isHaltRequested():
-    data = readDeviceDataIO( )
-    results.extend(data)
-  return results
-
-readDeviceDataIO():
-  results = readData()
-  lb, hb  = results[5] & 0x7F, results[6]
-  eod = (results[5] & 0x80) > 0
-  resLength = makeInt(lb, hb)
-  if resLength < 64:
-    # throw error
-  data = result[13:]
-  assert data.length == resLength
-  crc = result[-1]
-  # crc check
-  assert data[0] == CRC8(data)
-  return data
-
-readData():
-  bytesAvailable = getNumBytesAvailable()
-  packet = [12, 0, HighByte(bytesAvailable), LowByte(bytesAvailable)]
-  packet.appcend( CRC8(packet) )
-
-  response = writeAndRead(packet, bytesAvailable)
-  # assert response.length > 14
-  response[0] == 2
-  # response[1] != 0 # interface number !=0
-  # response[2] == 5 # timeout occurred
-  # response[2] == 2 # NAK
-  # response[2] # should be within 0..4
-  return response
-
-getNumBytesAvailable:
-  bytes = readStatus( )
-  timer.start()
-  while bytesa == 0 and timer.length < 1:
-    bytes = readStatus( )
-    time.sleep(.100)
-  return bytes
-
-buildTransmitPacket:
-  # 16 bytes + params
-  # should have > 0 params
-  paramsCount = commParams.length
-  head   = [ 1, 0, 168, 1 ]
-  # serial
-  packet = head + serial
-  # paramCount 2 bytes
-  packet.extend( [ (0x80 | HighByte(paramsCount)), LowByte(paramsCount) ] )
-  # not sure what this byte means
-  button = 0
-  # special case command 93
-  if code == 93:
-    button = 85
-  packet.append(button)
-  packet.append(maxRetries)
-  # how many packets/frames/pages/flows will this take?
-  responseSize = calcRecordsRequired(expectedLength)
-  # really only 1 or 2?
-  pages = responseSize
-  if responseSize > 1:
-    pages = 2
-  packet.append(pages)
-  packet.append(0)
-  # command code goes here
-  packet.append(code)
-  packet.append(CRC8(packet))
-  packet.extend( [ params, CRC8(params) ] )
-  return packet
 
 packSerialNumber:
   return makePackedBCD(serial)
@@ -150,6 +47,10 @@ packSerialNumber:
 #
 # Pump
 #
+
+# every command needs:
+# code, retries, params, length, pages
+
 initDevice:
   # cmdPowerControl Command(93, "rf power on", 2)
   # cmdPowerControl.params = [ 1, 1 ]
@@ -187,12 +88,13 @@ getNAKDescription:
 
 # 2 params
 Command(code, descr)
-  # 5
+  # 5: code, descr, bytesPerRecord, maxRecords, maxRetries
   return Command(code, descr, 64, 1, 0)
 
 # 3 params
 Command(code, descr, paramCount):
   # 5
+  #
   com = Command(code, descr, 0, 1, 11)
   com.paramCount = paramCount
   numblocks = paramCount / 64 + 1
@@ -205,15 +107,15 @@ Command(code, descr, params, tail)
   #com.paramCount
 
 # 5 params
-Command(code, descr, recordSize, maxRecords, arg6):
+Command(code, descr, bytesPerRecord, maxRecords, ??):
   # likely decompile error
   # 7
-  Command(code, descr, recordSize, maxRecords, 0, 0, i)
+  Command(code, descr, bytesPerRecord, maxRecords, 0, 0, paramCount)
   dataOffset = 0
   cmdLength = 2
 
 # 7 params
-Command(code, descr, recordSize, maxRecords, address, addressLength, arg8):
+Command(code, descr, bytesPerRecord, maxRecords, address, addressLength, arg8):
   offset = 2
   if addressLength == 1:
     cmdLength = 2 + addressLength
@@ -246,6 +148,11 @@ class Link( core.CommBuffer ):
   def __init__( self, port, timeout=None ):
     super(type(self), self).__init__(port, timeout)
 
+  def setTimeout(self, timeout):
+    self.serial.setTimeout(timeout)
+  def getTimeout(self):
+    return self.serial.getTimeout()
+
   def initUSBComms(self):
     self.initCommunicationsIO()
     #self.initDevice()
@@ -274,7 +181,7 @@ class Link( core.CommBuffer ):
   def readProductInfo(self):
     result = self.sendComLink2Command(4)
     # 1/0/255
-    log.info('readProductInfo:result:%s' % lib.hexdump(result))
+    log.info('readProductInfo:result')
     freq   = result[5]
     info   = self.decodeProductInfo(result)
     log.info('product info: %s' % pformat(info))
@@ -291,7 +198,7 @@ class Link( core.CommBuffer ):
   def sendComLink2Command(self, msg, a2=0x00, a3=0x00):
     # generally commands are 3 bytes, most often CMD, 0x00, 0x00
     msg = bytearray([ msg, a2, a3 ])
-    io.info('sendComLink2Command:write:%s' % lib.hexdump(msg))
+    io.info('sendComLink2Command:write')
     self.write(msg)
     return self.checkAck()
     # throw local usb exception
@@ -299,7 +206,7 @@ class Link( core.CommBuffer ):
   def checkAck(self):
     time.sleep(.100)
     result     = bytearray(self.read(64))
-    io.info('checkAck:read:%s' % lib.hexdump(result))
+    io.info('checkAck:read')
     commStatus = result[0]
     # usable response
     assert commStatus == 1
@@ -328,9 +235,266 @@ class Link( core.CommBuffer ):
     log.info("read stick Interface Stats: %s" % pformat(info))
 
 
+#######################
+#
+#
+#
+def CRC8(data):
+  return lib.CRC8.compute(data)
+
+################################
+# Remote Stuff
+#
+
+class BaseCommand(object):
+  code    = 0x00
+  descr   = "(error)"
+  retries = 2
+  timeout = 3
+  params  = [ ]
+  phase   = 0
+  bytesPerRecord = 0
+  maxRecords = 0
+  effectTime = 1
+
+  def __init__(self, code, descr, *args):
+    self.code   = code
+    self.descr  = descr
+    self.params = [ ]
+
+  def format(self):
+    pass
+
+  def allocateRawData(self):
+    self.raw = self.bytesPerRecord * self.maxRecords
+
+
+class Device(object):
+  def __init__(self, link):
+    self.link = link
+
+  def execute(self, command):
+    self.command = command
+    self.allocateRawData()
+    self.sendAndRead()
+
+  def sendAndRead(self):
+    self.sendDeviceCommand()
+    time.sleep(self.command.effectTime)
+    if self.expectedLength > 0:
+      # in original code, this modifies the length tested in the previous if
+      # statement
+      self.command.data = self.readDeviceData()
+
+  def sendDeviceCommand(self):
+    packet = self.buildTransmitPacket()
+    io.info('sendDeviceCommand:write:%r' % (self.command))
+    self.link.write(packet)
+    time.sleep(.500)
+    code = self.command.code
+    params = self.command.params
+    if code != 93 or params[0] != 0:
+      self.link.checkAck()
+
+  def allocateRawData(self):
+    self.command.allocateRawData()
+    self.expectedLength = self.command.bytesPerRecord * self.command.maxRecords
+
+  def readDeviceData(self):
+    self.eod = False
+    results  = bytearray( )
+    while not self.eod:
+      data = self.readDeviceDataIO( )
+      results.extend(data)
+    return results
+
+  def readDeviceDataIO(self):
+    results   = self.readData()
+    lb, hb    = results[5] & 0x7F, results[6]
+    self.eod  = (results[5] & 0x80) > 0
+    resLength = lib.BangInt((lb, hb))
+    assert resLength > 63, ("cmd low byte count:\n%s" % lib.hexdump(results))
+
+    data = results[13:13+resLength]
+    assert len(data) == resLength
+    crc = results[-1]
+    # crc check
+    log.info('readDeviceDataIO:msgCRC:%r:expectedCRC:%r:data:%r' % (crc, CRC8(data), data))
+    assert crc == CRC8(data)
+    return data
+
+  def readData(self):
+    bytesAvailable = self.getNumBytesAvailable()
+    packet = [12, 0, lib.HighByte(bytesAvailable), lib.LowByte(bytesAvailable)]
+    packet.append( CRC8(packet) )
+
+    response = self.writeAndRead(packet, bytesAvailable)
+    # assert response.length > 14
+    assert (int(response[0]) == 2), repr(response)
+    # response[1] != 0 # interface number !=0
+    # response[2] == 5 # timeout occurred
+    # response[2] == 2 # NAK
+    # response[2] # should be within 0..4
+    log.info("readData ACK")
+    return response
+
+  def writeAndRead(self, msg, length):
+    io.info("writeAndRead:")
+    self.link.write(bytearray(msg))
+    time.sleep(.300)
+    self.link.setTimeout(self.command.timeout)
+    return bytearray(self.link.read(length))
+
+  def getNumBytesAvailable(self):
+    result = self.readStatus( )
+    start = time.time()
+    i     = 0
+    while result == 0 and time.time() - start < 1:
+      log.debug('%r:getNumBytesAvailable:attempt:%s' % (self, i))
+      result = self.readStatus( )
+      time.sleep(.100)
+      i += 1
+    log.info('getNumBytesAvailable:%s' % result)
+    return result
+
+  def readStatus(self):
+    result         = self.link.sendComLink2Command(3)
+    commStatus     = result[0] # 0 indicates success
+    assert commStatus == 0
+    status         = result[2]
+    lb, hb         = result[3], result[4]
+    bytesAvailable = lib.BangInt((lb, hb))
+    self.status    = status
+
+    if (status & 0x1) > 0:
+      return bytesAvailable
+    return 0
+
+  def buildTransmitPacket(self):
+    return self.command.format( )
+
+class PumpCommand(BaseCommand):
+  serial = '665455'
+  #serial = '206525'
+
+  params = [ ]
+  bytesPerRecord = 64
+  maxRecords = 1
+  retries = 2
+  __fields__ = ['maxRecords', 'code', 'descr',
+                'serial', 'bytesPerRecord', 'params']
+  def __init__(self, **kwds):
+    for k in self.__fields__:
+      value = kwds.get(k, getattr(self, k))
+      setattr(self, k, value)
+
+  def format(self):
+    params = self.params
+    code   = self.code
+    maxRetries = self.retries
+    serial = list(bytearray(self.serial.decode('hex')))
+    paramsCount = len(params)
+    head   = [ 1, 0, 167, 1 ]
+    # serial
+    packet = head + serial
+    # paramCount 2 bytes
+    packet.extend( [ (0x80 | lib.HighByte(paramsCount)),
+                             lib.LowByte(paramsCount) ] )
+    # not sure what this byte means
+    button = 0
+    # special case command 93
+    if code == 93:
+      button = 85
+    packet.append(button)
+    packet.append(maxRetries)
+    # how many packets/frames/pages/flows will this take?
+    responseSize = self.calcRecordsRequired()
+    # really only 1 or 2?
+    pages = responseSize
+    if responseSize > 1:
+      pages = 2
+    packet.append(pages)
+    packet.append(0)
+    # command code goes here
+    packet.append(code)
+    packet.append(CRC8(packet))
+    packet.extend(params)
+    packet.append(CRC8(params))
+    io.info(packet)
+    return bytearray(packet)
+
+  def calcRecordsRequired(self):
+    length = self.bytesPerRecord * self.maxRecords
+    i = length / 64
+    j = length % 64
+    if j > 0:
+      return i + 1
+    return i
+
+class PowerControl(PumpCommand):
+  """
+    >>> PowerControl().format() == PowerControl._test_ok
+    True
+  """
+  _test_ok = bytearray( [ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+                          0x02, 0x55, 0x00, 0x00, 0x00, 0x5D, 0xE6, 0x01,
+                          0x0A, 0xA2 ] )
+  code = 93
+  descr = "RF Power On"
+  params = [ 0x01, 0x0A ]
+  retries = 0
+  maxRecords = 0
+  timeout = 17
+  effectTime = 17
+
+class ReadErrorStatus(PumpCommand):
+  """
+    >>> ReadErrorStatus().format() == ReadErrorStatus._test_ok
+    True
+  """
+  _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+                         0x00, 0x00, 0x02, 0x01, 0x00, 0x75, 0xD7, 0x00 ])
+  code = 117
+  descr = "Read Error Status any current alarms set?"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+class ReadPumpState(PumpCommand):
+  """
+    >>> ReadPumpState().format() == ReadPumpState._test_ok
+    True
+  """
+  _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+                         0x00, 0x00, 0x02, 0x01, 0x00, 0x83, 0x2E, 0x00 ])
+
+  code = 131
+  descr = "Read Pump State"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+def initDevice(link):
+  device = Device(link)
+
+  comm   = PowerControl()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+
+  comm   = ReadErrorStatus()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+
+  comm   = ReadPumpState()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+
+  return device
+
 
 if __name__ == '__main__':
   io.info("hello world")
+  doctest.testmod( )
 
   port = None
   try:
@@ -341,6 +505,7 @@ if __name__ == '__main__':
     
   link = Link(port)
   link.initUSBComms()
+  device = initDevice(link)
   link.endCommunicationsIO()
   #pprint( carelink( USBProductInfo(      ) ).info )
 

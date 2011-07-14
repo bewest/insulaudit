@@ -290,7 +290,12 @@ READ DATA
 00 00 00 00 00 00 
 --------- Request # 101 ----[OUT]----
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 0x83 = 131 READ PUMP STATE
+params = [ ]
+retries = 2
+pages   = 1
+
 ** Data **
 01 00 A7 01 66 54 55 80
 00 00 02 01 00 83 2E 00 
@@ -460,6 +465,10 @@ GOT LENGTH, DO A READ?
 --------- Request # 173 ----[OUT]----
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ???0x8D = 141 (MM512) READ PUMP Model
+code = 0x8D
+params = [ ]
+retries = 2
+pages   = 1
 ** Data **
 01 00 A7 01 66 54 55 80
 00 00 02 01 00 8D 5B 00 
