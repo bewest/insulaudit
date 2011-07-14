@@ -29,41 +29,6 @@ io.setLevel( logging.DEBUG )
 execute(command):
   usbcommand.execute(self)
 
-getSignalStrength:
-  result = readSignalStrength()
-  signal = result[0]
-
-readSignalStrength:
-  result = sendComLink2Command(6, 0)
-  # result[0] is signal strength
-  return result
-
-initCommunicationsIO:
-  # close/open serial
-  readProductInfo( )
-  readSignalStrength()
-
-endCommunicationsIO:
-  readSignalStrength()
-  readInterfaceStatistics()
-  # close port
-
-readProductInfo():
-  result = sendComLink2Command(4)
-  # 1/0/255
-  freq   = result[5]
-  # decodeInterface stats
-
-readInterfaceStatistics:
-  result = sendComLink2Command(5, 0)
-  result = sendComLink2Command(5, 1)
-  # decode and log stats
-
-sendComLink2Command(msg):
-  # generally commands are 3 bytes, most often CMD, 0x00, 0x00
-  serial.write(msg)
-  return checkAck()
-  # throw local usb exception
 
 readStatus:
   result         = sendComLink2Command(3)
@@ -72,17 +37,6 @@ readStatus:
   lb, hb         = result[3], result[4]
   bytesAvailable = makeInt(lb, hb)
   return (status & 0x1) > 0 ? bytesAvailable : 0
-
-checkAck:
-  time.sleep(.100)
-  result     = serial.read(64)
-  commStatus = result[0]
-  # usable response
-  assert commStatus == 1
-  status     = result[1]
-  # status == 102 'f' NAK, look up NAK
-  if status == 85 # 'U'
-    return result[3:]
 
 calcRecordsRequired(length):
   if length > 64:
@@ -143,7 +97,7 @@ readData():
   response = writeAndRead(packet, bytesAvailable)
   # assert response.length > 14
   response[0] == 2
-  # response[1] !=0 # interface number !=0
+  # response[1] != 0 # interface number !=0
   # response[2] == 5 # timeout occurred
   # response[2] == 2 # NAK
   # response[2] # should be within 0..4
@@ -284,6 +238,96 @@ execute:
 """
 
 """
+class Link( core.CommBuffer ):
+  class ID:
+    VENDOR  = 0x0a21
+    PRODUCT = 0x8001
+  timeout = .100
+  def __init__( self, port, timeout=None ):
+    super(type(self), self).__init__(port, timeout)
+
+  def initUSBComms(self):
+    self.initCommunicationsIO()
+    #self.initDevice()
+
+  def getSignalStrength(self):
+    result = self.readSignalStrength()
+    signal = result[0]
+
+  def readSignalStrength(self):
+    result = self.sendComLink2Command(6, 0)
+    # result[0] is signal strength
+    log.info('%r:readSignalStrength:%s' % (self, int(result[0])))
+    return result
+
+  def initCommunicationsIO(self):
+    # close/open serial
+    self.readProductInfo( )
+    self.readSignalStrength()
+
+  def endCommunicationsIO(self):
+    self.readSignalStrength()
+    self.readInterfaceStatistics()
+    # close port
+    self.close()
+
+  def readProductInfo(self):
+    result = self.sendComLink2Command(4)
+    # 1/0/255
+    log.info('readProductInfo:result:%s' % lib.hexdump(result))
+    freq   = result[5]
+    info   = self.decodeProductInfo(result)
+    log.info('product info: %s' % pformat(info))
+    # decodeInterface stats
+      
+  def decodeProductInfo(self, data):
+    class F:
+      body = data
+    comm = USBProductInfo()
+    comm.reply = F()
+    comm.onACK()
+    return comm.info
+
+  def sendComLink2Command(self, msg, a2=0x00, a3=0x00):
+    # generally commands are 3 bytes, most often CMD, 0x00, 0x00
+    msg = bytearray([ msg, a2, a3 ])
+    io.info('sendComLink2Command:write:%s' % lib.hexdump(msg))
+    self.write(msg)
+    return self.checkAck()
+    # throw local usb exception
+
+  def checkAck(self):
+    time.sleep(.100)
+    result     = bytearray(self.read(64))
+    io.info('checkAck:read:%s' % lib.hexdump(result))
+    commStatus = result[0]
+    # usable response
+    assert commStatus == 1
+    status     = result[1]
+    # status == 102 'f' NAK, look up NAK
+    if status == 85: # 'U'
+      log.info('ACK OK')
+      return result[3:]
+    assert False, "NAK!!"
+
+  def decodeIFaceStats(self, data):
+    class F:
+      body = data
+    comm = InterfaceStats()
+    comm.reply = F()
+    comm.onACK()
+    return comm.info
+
+  def readInterfaceStatistics(self):
+    # decode and log stats
+    result = self.sendComLink2Command(5, 0)
+    info   = self.decodeIFaceStats(result)
+    log.info("read radio Interface Stats: %s" % pformat(info))
+    result = self.sendComLink2Command(5, 1)
+    info   = self.decodeIFaceStats(result)
+    log.info("read stick Interface Stats: %s" % pformat(info))
+
+
 
 if __name__ == '__main__':
   io.info("hello world")
@@ -295,8 +339,9 @@ if __name__ == '__main__':
     print "usage:\n%s /dev/ttyUSB0" % sys.argv[0]
     sys.exit(1)
     
-  #link = Link(port)
-  #link.initUSBComms()
+  link = Link(port)
+  link.initUSBComms()
+  link.endCommunicationsIO()
   #pprint( carelink( USBProductInfo(      ) ).info )
 
 
