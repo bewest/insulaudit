@@ -27,7 +27,7 @@ io.setLevel( logging.DEBUG )
 # there is some implicit OO going on
 #
 execute(command):
-  command.execute(self)
+  usbcommand.execute(self)
 
 getSignalStrength:
   result = readSignalStrength()
@@ -95,7 +95,7 @@ calcRecordsRequired(length):
 # USB(Pump) Command Stuff
 #
 
-execute:
+usbcommand.execute:
   allocateRawData()
   sendAndRead()
 
@@ -197,14 +197,18 @@ packSerialNumber:
 # Pump
 #
 initDevice:
-  # cmdPowerControl
-  # cmdReadErrorStatus
-  # cmdReadState
-  # cmdReadTempBasal
+  # cmdPowerControl Command(93, "rf power on", 2)
+  # cmdPowerControl.params = [ 1, 1 ]
+  # cmdPowerControl.retries = 0
+  # cmdReadErrorStatus = Command(117, "read pump error status")
+  # cmdReadState = Command(131, "Read Pump State")
+  # cmdReadTempBasal = Command(152, "Read Temporary Basal")
   initDevice2
 
 iniDevice2:
-  detectActiveBolus
+  detectActiveBolus = Command(76, "set temp basal rate (bolus detection only)", 3)
+  detectActiveBolus.params = [ 0, 0, 0 ]
+  detectActiveBolus.retries = 0
 
 detectActiveBolus:
   # cmdDetectBolus
@@ -227,15 +231,44 @@ shutDownPump2:
 getNAKDescription:
   # pass
 
+# 2 params
 Command(code, descr)
+  # 5
   return Command(code, descr, 64, 1, 0)
 
+# 3 params
+Command(code, descr, paramCount):
+  # 5
+  com = Command(code, descr, 0, 1, 11)
+  com.paramCount = paramCount
+  numblocks = paramCount / 64 + 1
+
+# 4 params
 Command(code, descr, params, tail)
+  # 5
   com =  Command(code, descr, 0, 1, 11)
   com.params = params
   #com.paramCount
 
+# 5 params
+Command(code, descr, recordSize, maxRecords, arg6):
+  # likely decompile error
+  # 7
+  Command(code, descr, recordSize, maxRecords, 0, 0, i)
+  dataOffset = 0
+  cmdLength = 2
 
+# 7 params
+Command(code, descr, recordSize, maxRecords, address, addressLength, arg8):
+  offset = 2
+  if addressLength == 1:
+    cmdLength = 2 + addressLength
+  else:
+    cmdLength = 2 + addressLength + 1
+  retries = 2
+
+
+# 511
 execute:
   result = None
   for i in xrange(maxRetries)
@@ -245,6 +278,10 @@ execute:
     if response: break
   return result
 
+ 
+
+"""
+"""
 
 """
 
