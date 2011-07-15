@@ -388,6 +388,9 @@ class PumpCommand(BaseCommand):
       value = kwds.get(k, getattr(self, k))
       setattr(self, k, value)
 
+  def getData(self):
+    return self.data
+
   def format(self):
     params = self.params
     code   = self.code
@@ -477,6 +480,26 @@ class ReadPumpState(PumpCommand):
   retries = 2
   maxRecords = 1
 
+class ReadPumpModel(PumpCommand):
+  """
+    >>> ReadPumpModel().format() == ReadPumpModel._test_ok
+    True
+  """
+  code = 141
+  descr = "Read Pump Model Number"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+  _test_ok = bytearray[ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+                        0x00, 0x00, 0x02, 0x01, 0x00, 0x8D, 0x5B, 0x00 ])
+
+  def getData(self):
+    data = self.data
+    length = data[0]
+    msg = data[1:1+length]
+    self.model = msg
+    return str(msg)
+
 def initDevice(link):
   device = Device(link)
 
@@ -493,6 +516,12 @@ def initDevice(link):
   log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   return device
+
+def do_commands(device):
+  comm = ReadPumpModel( )
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm.getData( ), 'data', None)))
+  log.info('REMOTE PUMP MODEL NUMBER: %s' % comm.getData( ))
 
 def shutdownDevice(device):
   comm = PowerControlOff()
@@ -514,6 +543,7 @@ if __name__ == '__main__':
   link = Link(port)
   link.initUSBComms()
   device = initDevice(link)
+  do_commands(device)
   #shutdownDevice(device)
   link.endCommunicationsIO()
   #pprint( carelink( USBProductInfo(      ) ).info )
