@@ -447,6 +447,9 @@ class PowerControl(PumpCommand):
   timeout = 17
   effectTime = 17
 
+class PowerControlOff(PowerControl):
+  params = [ 0x00, 0x0A ]
+
 class ReadErrorStatus(PumpCommand):
   """
     >>> ReadErrorStatus().format() == ReadErrorStatus._test_ok
@@ -491,6 +494,11 @@ def initDevice(link):
 
   return device
 
+def shutdownDevice(device):
+  comm = PowerControlOff()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+
 
 if __name__ == '__main__':
   io.info("hello world")
@@ -506,6 +514,7 @@ if __name__ == '__main__':
   link = Link(port)
   link.initUSBComms()
   device = initDevice(link)
+  #shutdownDevice(device)
   link.endCommunicationsIO()
   #pprint( carelink( USBProductInfo(      ) ).info )
 
