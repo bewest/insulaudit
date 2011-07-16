@@ -491,7 +491,7 @@ class ReadPumpModel(PumpCommand):
   retries = 2
   maxRecords = 1
   _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
-                        0x00, 0x00, 0x02, 0x01, 0x00, 0x8D, 0x5B, 0x00 ])
+                         0x00, 0x00, 0x02, 0x01, 0x00, 0x8D, 0x5B, 0x00 ])
 
   def getData(self):
     data = self.data
@@ -502,6 +502,7 @@ class ReadPumpModel(PumpCommand):
 
 def initDevice(link):
   device = Device(link)
+  return device
 
   comm   = PowerControl()
   device.execute(comm)
