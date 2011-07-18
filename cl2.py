@@ -252,7 +252,6 @@ class BaseCommand(object):
   retries = 2
   timeout = 3
   params  = [ ]
-  phase   = 0
   bytesPerRecord = 0
   maxRecords = 0
   effectTime = 1
@@ -502,7 +501,6 @@ class ReadPumpModel(PumpCommand):
 
 def initDevice(link):
   device = Device(link)
-  return device
 
   comm   = PowerControl()
   device.execute(comm)
