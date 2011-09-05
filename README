@@ -8,53 +8,61 @@ insulaudit
 This python package provides a toolkit for dealing with data used and
 created by a "modern," circa 2010, insulin therapy regimen.
 
-sudo modprobe usbserial vendor=0x0a21 product=0x8001
+``sudo modprobe usbserial vendor=0x0a21 product=0x8001``
 
-Meter:
-[201197.513266] usb 2-1: new full speed USB device using uhci_hcd and address 3
-[201197.919110] usb 2-1: configuration #1 chosen from 1 choice
-[201205.729621] usbcore: registered new interface driver usbserial
-[201205.730808] USB Serial support registered for generic
-[201205.731143] usbcore: registered new interface driver usbserial_generic
-[201205.731145] usbserial: USB Serial Driver core
-[201205.806220] USB Serial support registered for pl2303
-[201205.806248] pl2303 2-1:1.0: pl2303 converter detected
-[201208.305166] usb 2-1: pl2303 converter now attached to ttyUSB0
-[201208.305187] usbcore: registered new interface driver pl2303
-[201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
-bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
+Meter Dmesg::
+  
+  [201197.513266] usb 2-1: new full speed USB device using uhci_hcd and address 3
+  [201197.919110] usb 2-1: configuration #1 chosen from 1 choice
+  [201205.729621] usbcore: registered new interface driver usbserial
+  [201205.730808] USB Serial support registered for generic
+  [201205.731143] usbcore: registered new interface driver usbserial_generic
+  [201205.731145] usbserial: USB Serial Driver core
+  [201205.806220] USB Serial support registered for pl2303
+  [201205.806248] pl2303 2-1:1.0: pl2303 converter detected
+  [201208.305166] usb 2-1: pl2303 converter now attached to ttyUSB0
+  [201208.305187] usbcore: registered new interface driver pl2303
+  [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
+  bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
 
 
 clmm pump comms - coms.msc
+__________________________
 Message sizes are always in 64 byte chunks, except
 outgoing messages.
 Use the radio command to send a
 message. Generally write each command twice.
 This is kind of a "send command" command.
 
-               pc      usb     
-               |       |       
-write          |------>|      Hint: code is 14th byte (bytes[13])
-read           |<------|      3 bytes [ 0x01, 0x85 U, ?? ] == success
-               |       |              [ 0x01, 0x85 f, ?? ] == fail
-write          |------>|      code=[ 0x03 ] usb status command
-repeat         |       |<     Continually ask for the usb status until
-               |       |      the stick indicates that we are done receiving and we
-               |       |      have a length.
-read           |<------|      length = bytes[6..8]
-read           |<------|      tx.stats = bytes[5]
-format         |<      |      Then use the length to format the flush 
-               |       |      command, which will give us the
-               |       |      contents of radio buffer.
-write          |------>|      command [ 0x0C, 0x00, 0x00, HighByte(length),
-               |       |                HighByte(length), LowByte(length)  ]
-read           |<------|      read data in 64 byte chunks until we've got
-               |       |      the amount of data we expected
-               |       |       
+::
+  
+                 pc      usb     
+                 |       |       
+  write          |------>|      Hint: code is 14th byte (bytes[13])
+  read           |<------|      3 bytes [ 0x01, 0x85 U, ?? ] == success
+                 |       |              [ 0x01, 0x85 f, ?? ] == fail
+  write          |------>|      code=[ 0x03 ] usb status command
+  repeat         |       |<     Continually ask for the usb status until
+                 |       |      the stick indicates that we are done receiving and we
+                 |       |      have a length.
+  read           |<------|      length = bytes[6..8]
+  read           |<------|      tx.stats = bytes[5]
+  format         |<      |      Then use the length to format the flush 
+                 |       |      command, which will give us the
+                 |       |      contents of radio buffer.
+  write          |------>|      command [ 0x0C, 0x00, 0x00, HighByte(length),
+                 |       |                HighByte(length), LowByte(length)  ]
+  read           |<------|      read data in 64 byte chunks until we've got
+                 |       |      the amount of data we expected
+                 |       |       
 
 
 
+Some Commands
+-------------
+
+::
 
     devices/
       SyncCommand
@@ -87,7 +95,9 @@ read           |<------|      read data in 64 byte chunks until we've got
 
       MMPump522/ # production pump is a 522
         ...
-
+~~~~
+TODO
+~~~~
 
 cli tool insulaudit
 ~~~~~~~~~~~~~~~~~~~
@@ -97,7 +107,11 @@ cli tool insulaudit
     * profile
     * log 
 
+::
+  
   devices/
+    lsultramini
+    onetouch2
     
   core/
     * CommBuffer TODO: rename to SerialLink?
@@ -113,10 +127,15 @@ cli tool insulaudit
     commands
     devices
 
+Usage
+~~~~~
+::
 
-TODO:
   insulaudit [opts] [command]
   insulaudit <device> [opts] [command]
   insulaudit [device] [command] [opts]
+
+  insulaudit 
+
 
 

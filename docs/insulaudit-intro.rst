@@ -5,7 +5,7 @@
 Introducing Insulaudit
 ######################
 
-Blather blather
+.. include:: ../README
 
 .. automodule:: insulaudit.devices
   :members:
