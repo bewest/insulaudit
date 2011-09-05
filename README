@@ -26,7 +26,6 @@ bewest@mimsy:~/Documents/bb/diabetes/src/mock$
 
 
 
-
 clmm pump comms - coms.msc
 Message sizes are always in 64 byte chunks, except
 outgoing messages.
@@ -56,57 +55,6 @@ read           |<------|      read data in 64 byte chunks until we've got
 
 
 
-DONE.
-lib/
-  BangInt
-  BangLong
-  FormatCommand
-  CRC8
-
-
-utils/
-  sendOneCommand
-  loopCommand
-
-
-config/
-  io
-  settings
-
-core/
-
-  CommBuffer
-  CommCommand
-  LoggableCommand
-  RemoteCommand
-  Reply
-
-
-
-clmm/
-
-  CLUSBStick
-
-  utils
-    readRadio
-    debug_response
-
-
-  radio
-    Reply
-    ACK
-    StickStatus
-    
-
-  commands/
-    CLCommand
-      CLUSBCommand
-      StatusCommand
-      ProdInfoCommand
-
-      InterfaceStats
-        RadioDetailsCommand
-        USBDetailsCommmand 
 
     devices/
       SyncCommand
@@ -140,5 +88,35 @@ clmm/
       MMPump522/ # production pump is a 522
         ...
 
-tests/
+
+cli tool insulaudit
+~~~~~~~~~~~~~~~~~~~
+  * init - set up a config, from default
+  * checkPort/scan - scan for a port/device
+  * device
+    * profile
+    * log 
+
+  devices/
+    
+  core/
+    * CommBuffer TODO: rename to SerialLink?
+    * command
+    * exceptions
+    * response
+  data
+  insulaudit.py
+  console/
+    __init__.py
+    cmdutil.py
+    main.py - cli
+    commands
+    devices
+
+
+TODO:
+  insulaudit [opts] [command]
+  insulaudit <device> [opts] [command]
+  insulaudit [device] [command] [opts]
+
 

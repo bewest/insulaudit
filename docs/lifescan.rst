@@ -7,9 +7,22 @@ Lifescan
 .. toctree::
    :maxdepth: 2
 
-   lifescan-intro.rst
-   lifescan-profile.rst
-   lifescan-onetouch.rst
 
 
+Insulaudit Devices
+==================
+
+OneTouch
+~~~~~~~~
+.. automodule:: insulaudit.devices.onetouch2
+  :members:
+  :undoc-members:
+  :inherited-members:
+
+Ultra Mini
+~~~~~~~~~~
+.. automodule:: insulaudit.devices.lsultramini
+  :members:
+  :undoc-members:
+  :inherited-members:
 
