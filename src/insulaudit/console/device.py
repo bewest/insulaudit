@@ -17,6 +17,7 @@ class FlowCommand(Subcommand):
     for F in self.flow( ):
       F(session)
 
+from pprint import pprint
 class LinkCommand(Command):
   """Processes flows."""
   def __init__(self, **kwds):
@@ -35,8 +36,9 @@ class LinkCommand(Command):
     utils.setup_device_options(parser)
 
   def pre_run(self, handler):
-    super(type(self), self).pre_run( )
-    self.command = self.flows[app.params.command]
+    super(LinkCommand, self).pre_run(handler)
+    pprint(handler.params)
+    self.command = self.subcommands[handler.params.command]
     
   def main(self, app):
     self.command.main(self.session)
