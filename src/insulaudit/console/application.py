@@ -3,7 +3,7 @@ from cli.log import LoggingApp
 from utils import GlobalOptions
 import utils
 
-class xxApplication(LoggingApp):
+class Application(LoggingApp):
   """Test Hello World
   """
   name = "insulaudit"
@@ -13,7 +13,7 @@ class xxApplication(LoggingApp):
     # just after wrapping argument during __call__
     #super(type(self), self).setup( )
     #GlobalOptions.setup(self)
-    super(LoggingApp, self).setup( )
+    super(Application, self).setup( )
     #GlobalOptions.setup(self)
     #self.add_param("bar", help="fake option", action='store_true')
     utils.setup_global_options(self.argparser)
@@ -22,7 +22,7 @@ class xxApplication(LoggingApp):
     self.setup_commands( )
   def pre_run(self):
     # called just before main, updates params, parses args
-    super(type(self), self).pre_run()
+    super(Application, self).pre_run()
     #GlobalOptions.pre_run(self)
     #pprint(self.__dict__)
     #LoggingApp.pre_run(self)
