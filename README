@@ -151,6 +151,10 @@ cli tool insulaudit
     * subclass application from console
     * get the list of devices from devices/
     * 
+    Command
+    Subcommand
+    Flow
+    LinkedCommand
 
   core/
     * CommBuffer TODO: rename to SerialLink?
@@ -162,9 +166,6 @@ cli tool insulaudit
   data/
   console/
     __init__.py
-    cmdutil.py
-
-    application.py - cli
     devices
 
 Usage
