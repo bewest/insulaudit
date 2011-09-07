@@ -3,8 +3,8 @@ import logging
 from logging import getLogger
 import sys
 logging.basicConfig( stream=sys.stdout )
-root = logging.getLogger( 'insulaudit' )
-root.setLevel( logging.DEBUG )
+#root = logging.getLogger( 'insulaudit' )
+#root.setLevel( logging.DEBUG )
 
 io     = logging.getLogger( 'insulaudit.io' )
 logger = logging.getLogger( 'insulaudit.logger' )

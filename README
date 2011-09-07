@@ -112,19 +112,57 @@ cli tool insulaudit
   devices/
     lsultramini
     onetouch2
-    
+  --TO--
+  devices/
+    DeviceApp
+    * get_devices
+      * lsultramini
+        ui.py
+        proto.py
+      * onetouch2
+        proto.py
+      * clmm/
+        ui.py - 
+        proto.py - provides protocol utitilities, subclassing 
+          exports classes to use with a core/link
+    base.py
+  
+   
+  profile.py
+    * checked_at
+    * created_at
+    * version? insulaudit vs rep/format
+    * serial
+    * model
+    * manufacturer
+    * drift_t
+    * uri
+
+  ui.py
+    * username, short user, write_err, interactive, flush, edit, traceback,
+      note, debug, prompt, prompt_choice, getpass, log, label, termwidth,
+      expandpath, plain, config stuff, readconfig, has_section, config,
+      setconfig, configsource, configpath, progress,
+
+  commands.py - pulls 
+  main.py - main entry point, configure the system, and run the console
+    * subclass application from console
+    * get the list of devices from devices/
+    * 
+
   core/
     * CommBuffer TODO: rename to SerialLink?
     * command
     * exceptions
     * response
-  data
-  insulaudit.py
+    device
+    link
+  data/
   console/
     __init__.py
     cmdutil.py
-    main.py - cli
-    commands
+
+    application.py - cli
     devices
 
 Usage
@@ -135,7 +173,6 @@ Usage
   insulaudit <device> [opts] [command]
   insulaudit [device] [command] [opts]
 
-  insulaudit 
-
+  insulaudit clmm scan
 
 
