@@ -2,11 +2,12 @@ from command import Command
 from subcommand import Subcommand
 from insulaudit.core import Link
 from insulaudit.core import Session
+import utils
 
 class FlowCommand(Subcommand):
-  def __init__(self, flow, **kwds):
+  def __init__(self, flow, handler, **kwds):
     name = kwds.pop('name', flow.__class__.__name__)
-    super(type(self), self).__init__(**kwds)
+    super(FlowCommand, self).__init__(handler, name=name, **kwds)
     self.Flow = flow
     
   def main(self, app):
@@ -19,7 +20,7 @@ class FlowCommand(Subcommand):
 class LinkCommand(Command):
   """Processes flows."""
   def __init__(self, **kwds):
-    super(type(self), self).__init__( )
+    super(LinkCommand, self).__init__( )
     for Flow in self.getFlows( ):
       self.addFlow(Flow)
 
@@ -28,10 +29,10 @@ class LinkCommand(Command):
     return [ ]
 
   def subcommand_manufacturer(self, flow):
-    return FlowCommand(flow)
+    return FlowCommand(flow, self)
 
   def setup(self, parser):
-    setup_device_options(parser)
+    utils.setup_device_options(parser)
 
   def pre_run(self, handler):
     super(type(self), self).pre_run( )

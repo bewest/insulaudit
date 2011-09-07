@@ -31,7 +31,9 @@ def get_devices():
   devices = [ ]
   a = Command('AAA', [ FuxApp, QuxApp, BuxApp ] )
   b = Command('BBB', [ FuxApp, QuxApp, BuxApp ] )
-  return [ a, b ]
+  fake = [ a, b ]
+  from devices import get_consoles
+  return fake + [ X( ) for X in get_consoles( ) ]
 
 from console.utils import setup_device_options, setup_global_options, GlobalOptions
 
