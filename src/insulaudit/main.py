@@ -36,11 +36,47 @@ class BuxApp(DeviceFlow):
   """Bux seems special, but it's a trick."""
   name = "bux"
 
-class Flow(object):
-  pass
+class Flow(core.Loggable):
+  session = None
+  def __init__(self, session):
+    self.session = session
+    self.getLog( )
 
-class Session(object):
+  def __call__(self):
+    """Execute callable produces an iterable."""
+    yield self.flow
+    raise StopIteration
+
+  def flow(self, req):
+    """
+    Execute this flow.
+    req
+
+    ``req.io`` should be 
+
+
+    """
+    io = req.io
+    self.log.info("hello world")
+
+
+class Link(core.CommBuffer):
   pass
+  
+
+class Session(core.Loggable):
+  """A session with a serial device is composed of a file like processing
+  object (eg a link), and a handler representing the context controlling the
+  link.
+
+  """
+  link   = None
+  handle = None
+  def __init__(self, link, handle):
+    self.link    = link
+    self.handler = handle
+    self.getLog( )
+
 
 class BaseDevice(object):
   "Fake help"
