@@ -5,6 +5,7 @@ from insulaudit.core import Session
 import utils
 
 class FlowCommand(Subcommand):
+  name = None
   def __init__(self, flow, handler, **kwds):
     name = kwds.pop('name', flow.__class__.__name__)
     super(FlowCommand, self).__init__(handler, name=name, **kwds)
@@ -17,7 +18,6 @@ class FlowCommand(Subcommand):
     for F in self.flow( ):
       F(session)
 
-from pprint import pprint
 class LinkCommand(Command):
   """Processes flows."""
   def __init__(self, **kwds):
@@ -34,10 +34,10 @@ class LinkCommand(Command):
 
   def setup(self, parser):
     utils.setup_device_options(parser)
+    super(LinkCommand, self).setup(parser)
 
   def pre_run(self, handler):
     super(LinkCommand, self).pre_run(handler)
-    pprint(handler.params)
     self.command = self.subcommands[handler.params.command]
     
   def main(self, app):

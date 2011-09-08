@@ -1,11 +1,11 @@
 from insulaudit.core import Loggable
 
 class Subcommand(Loggable):
-  name = ''
-  def __init__(self, session, name=None):
+  name = None
+  def __init__(self, handler, name=None):
     if name is not None:
       self.name = name
-    self.session = session
+    self.handler = handler
     self.getLog( )
 
   def options(self):
@@ -20,7 +20,7 @@ class Subcommand(Loggable):
     return self.__doc__
 
   def main(self, app):
-    pprint([self, app])
+    #pprint([self, app])
     print self.name
 
 #####

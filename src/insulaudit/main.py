@@ -22,6 +22,10 @@ class BuxApp(Subcommand):
   """Bux seems special, but it's a trick."""
   name = "bux"
 
+class BaxApp(Subcommand):
+  """Bax seems special, but it's a trick."""
+  name = "bax"
+
 # core
 
 from console import Command
@@ -30,10 +34,10 @@ from console import Command
 def get_devices():
   devices = [ ]
   a = Command('AAA', [ FuxApp, QuxApp, BuxApp ] )
-  b = Command('BBB', [ FuxApp, QuxApp, BuxApp ] )
+  b = Command('BBB', [ FuxApp, BuxApp, BaxApp ] )
   fake = [ a, b ]
   from devices import get_consoles
-  return fake + [ X( ) for X in get_consoles( ) ]
+  return fake + [ ] + [ X( ) for X in get_consoles( ) ]
 
 from console.utils import setup_device_options, setup_global_options, GlobalOptions
 

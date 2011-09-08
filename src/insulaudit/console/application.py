@@ -20,19 +20,20 @@ class Application(LoggingApp):
     self.commands = self.argparser.add_subparsers(dest='device', help='fake help on this command')
 
     self.setup_commands( )
+
   def pre_run(self):
     # called just before main, updates params, parses args
     super(Application, self).pre_run()
-    #GlobalOptions.pre_run(self)
     #pprint(self.__dict__)
-    #LoggingApp.pre_run(self)
-    #super(LoggingApp, self).pre_run( )
     device  = self.devices[self.params.device]
     if callable(device.pre_run):
       device.pre_run(self)
     self.selected = device
     #self.selected = command = device.flows[self.params.command]
     #self.selected = command.main
+
+  def setup_commands( ):
+    pass
 
   def main(self):
     self.log.warn("hello world warn")
@@ -41,7 +42,7 @@ class Application(LoggingApp):
     self.log.error("hello world error")
     self.log.critical("hello world critical")
     self.log.fatal("hello world fatal")
-    pprint(self.params)
+    #pprint(self.params)
     self.selected.main(self)
 
 #####

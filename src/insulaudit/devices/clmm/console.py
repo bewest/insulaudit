@@ -5,6 +5,8 @@ from insulaudit.console import device
 import proto
 
 class CLMMApplication(device.LinkCommand):
+  """Introducing minimed support. :-)
+  """
   name = 'clmm'
 
   def getFlows(self):
