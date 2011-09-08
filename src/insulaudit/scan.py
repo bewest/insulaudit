@@ -34,7 +34,7 @@ def link_usable(candidate):
   except serial.SerialException: pass
   port.close( )
   # clmm requires *at least* 5-6 seconds to recover.
-  time.sleep(6)
+  time.sleep(2)
 
   return usable
 

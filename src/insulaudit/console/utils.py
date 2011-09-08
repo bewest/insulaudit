@@ -2,7 +2,7 @@
 def setup_device_options(parser):
   parser.add_argument("--port",
     help="/dev/ttyUSB0, path to serial port",
-    type=str, default='auto', required=True)
+    type=str, default='auto')
 
 def setup_global_options(parser):
   # Set up global options

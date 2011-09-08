@@ -137,6 +137,20 @@ execute:
 """
 
 """
+class ProtocolError(Exception): pass
+
+class AckError(ProtocolError): pass
+
+def retry(block, retry=3, sleep=0):
+  r = None
+  for i in xrange(retry):
+    log.info('retry:%s:%i' % (block, i))
+    r = block( )
+    if r:
+      return r
+    if sleep:
+      time.sleep(sleep)
+  return r
 class Link( core.CommBuffer ):
   class ID:
     VENDOR  = 0x0a21
@@ -151,7 +165,16 @@ class Link( core.CommBuffer ):
     return self.serial.getTimeout()
 
   def initUSBComms(self):
-    self.initCommunicationsIO()
+    def init( ):
+      init = False
+      try:
+        self.initCommunicationsIO()
+        init = True
+      except ProtocolError, e: pass
+
+      return init
+    if not retry(init):
+      raise ProtocolError("could not init usb module")
     #self.initDevice()
 
   def getSignalStrength(self):
@@ -197,12 +220,14 @@ class Link( core.CommBuffer ):
     msg = bytearray([ msg, a2, a3 ])
     io.info('sendComLink2Command:write')
     self.write(msg)
-    return self.checkAck()
+    return retry(self.checkAck)
     # throw local usb exception
 
   def checkAck(self):
     time.sleep(.100)
     result     = bytearray(self.read(64))
+    if len(result) == 0:
+      raise AckError('checkAck must have a response')
     io.info('checkAck:read')
     commStatus = result[0]
     # usable response
@@ -354,7 +379,15 @@ class Device(object):
     return result
 
   def readStatus(self):
-    result         = self.link.sendComLink2Command(3)
+    result = False
+    def fetch_status( ):
+      result = self.link.sendComLink2Command(3)
+      status = result[0] # 0 indicates success
+      return status == 0
+      
+    if not retry(fetch_status):
+      raise RFFailed("rf read header indicates failure")
+    #result         = self.link.sendComLink2Command(3)
     commStatus     = result[0] # 0 indicates success
     assert commStatus == 0
     status         = result[2]
@@ -368,6 +401,8 @@ class Device(object):
 
   def buildTransmitPacket(self):
     return self.command.format( )
+
+class RFFailed(ProtocolError): pass
 
 class PumpCommand(BaseCommand):
   serial = '665455'
