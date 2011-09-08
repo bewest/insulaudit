@@ -23,12 +23,18 @@ def usable_response(resp):
 
 def link_usable(candidate):
   usable = False
+  port   = serial.Serial( )
   try:
     logger.info("attempting to open %s" % candidate)
-    port = serial.Serial(candidate, timeout=3)
+    port.port = candidate
+    port.open( )
+    port.flush( )
     port.close( )
     usable = True
   except serial.SerialException: pass
+  port.close( )
+  # clmm requires *at least* 5-6 seconds to recover.
+  time.sleep(6)
 
   return usable
 

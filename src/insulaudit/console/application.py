@@ -8,6 +8,10 @@ class Application(LoggingApp):
   """
   name = "insulaudit"
   devices = { }
+
+  def __init__(self):
+    kwds = { 'root': True }
+    super(Application, self).__init__(**kwds)
   
   def setup(self):
     # just after wrapping argument during __call__
@@ -25,21 +29,15 @@ class Application(LoggingApp):
     # called just before main, updates params, parses args
     super(Application, self).pre_run()
     #pprint(self.__dict__)
-    device  = self.devices[self.params.device]
+    device        = self.devices[self.params.device]
+    self.selected = device
     if callable(device.pre_run):
       device.pre_run(self)
-    self.selected = device
 
   def setup_commands( ):
     pass
 
   def main(self):
-    self.log.warn("hello world warn")
-    self.log.debug("hello world debug")
-    self.log.info("hello world info")
-    self.log.error("hello world error")
-    self.log.critical("hello world critical")
-    self.log.fatal("hello world fatal")
     #pprint(self.params)
     self.selected.main(self)
 
