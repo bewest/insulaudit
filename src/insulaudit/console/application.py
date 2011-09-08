@@ -11,13 +11,13 @@ class Application(LoggingApp):
   
   def setup(self):
     # just after wrapping argument during __call__
-    #super(type(self), self).setup( )
-    #GlobalOptions.setup(self)
     super(Application, self).setup( )
-    #GlobalOptions.setup(self)
     #self.add_param("bar", help="fake option", action='store_true')
     utils.setup_global_options(self.argparser)
-    self.commands = self.argparser.add_subparsers(dest='device', help='fake help on this command')
+    self.commands = self.argparser.add_subparsers(dest='device',
+                      description="app subcommand descr",
+                      title="fake title",
+                      help='fake help on this command')
 
     self.setup_commands( )
 
@@ -29,8 +29,6 @@ class Application(LoggingApp):
     if callable(device.pre_run):
       device.pre_run(self)
     self.selected = device
-    #self.selected = command = device.flows[self.params.command]
-    #self.selected = command.main
 
   def setup_commands( ):
     pass
@@ -44,6 +42,7 @@ class Application(LoggingApp):
     self.log.fatal("hello world fatal")
     #pprint(self.params)
     self.selected.main(self)
+
 
 #####
 # EOF

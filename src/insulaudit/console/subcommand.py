@@ -9,6 +9,8 @@ class Subcommand(Loggable):
     self.getLog( )
 
   def options(self):
+    # should return a list of tuples to be passed as *args, **kwds to
+    # argparser's parse.add_argument
     return [ ]
 
   def setup(self, parser):

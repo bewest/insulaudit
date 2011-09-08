@@ -28,14 +28,16 @@ class Command(Loggable):
     return flow(self)
 
   def setup_subparser(self):
-    self.subparser = parser.add_subparsers(dest=self.dest, help=self.help( ))
+    fields = [ 'help', 'title', 'description' ]
+    kwds = dict([ (f, getattr(self, f)( )) for f in fields ])
+    self.subparser = self.parser.add_subparsers(dest=self.dest, **kwds)
 
   def setup(self, parser):
     n = self.name
     self.parser   = parser
-    self.commands = parser.add_subparsers(dest=self.dest, help=self.help( ))
+    self.setup_subparser()
     for flow in self.subcommands.values( ):
-      p = self.commands.add_parser(flow.name, help=flow.help())
+      p = self.subparser.add_parser(flow.name, help=flow.help())
       flow.setup(p)
 
   def pre_run(self, handler):
@@ -47,6 +49,12 @@ class Command(Loggable):
 
   def help(self):
     return self.__doc__
+
+  def title(self):
+    return "%s's command title" % self.name
+
+  def description(self):
+    return "%s's command description" % self.name
 
 #####
 # EOF
