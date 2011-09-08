@@ -14,8 +14,11 @@ class Command(Loggable):
         name = self.__class__.__name__
       self.name  = name
     if subcommands is not None:
-      for flow in subcommands:
-        self.addFlow(flow)
+      self.add_subcommands(subcommands)
+
+  def add_subcommands(self, subcommands):
+    for flow in subcommands:
+      self.addFlow(flow)
 
   def addFlow(self, Flow):
     flow = self.subcommand_manufacturer(Flow)

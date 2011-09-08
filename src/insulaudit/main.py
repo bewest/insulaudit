@@ -56,11 +56,13 @@ class Application(ConsoleApp):
     parser = self.commands.add_parser(device.name, help=device.help())
     device.setup(parser)
 
-    
+def main( ):
+  app = Application( )
+  app.run( )
+  
 
 if __name__ == '__main__':
-  app = Application()
-  app.run( )
+  main( )
 
 #####
 # EOF

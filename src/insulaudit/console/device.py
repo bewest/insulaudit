@@ -4,15 +4,16 @@ from insulaudit.core import Link
 from insulaudit.core import Session
 import utils
 
+from pprint import pprint
 class FlowCommand(Subcommand):
   name = None
   def __init__(self, flow, handler, **kwds):
-    name = kwds.pop('name', flow.__class__.__name__)
+    name = kwds.pop('name', getattr(flow, 'name', flow.__name__))
     super(FlowCommand, self).__init__(handler, name=name, **kwds)
     self.Flow = flow
     
   def main(self, app):
-    link    = Link(app.options.port)
+    link    = Link(app.params.port)
     session = Session(link, self)
     flow    = self.Flow(session)
     for F in self.flow( ):
@@ -41,7 +42,7 @@ class LinkCommand(Command):
     self.command = self.subcommands[handler.params.command]
     
   def main(self, app):
-    self.command.main(self.session)
+    self.command.main(app)
     
 class ScanningDevice(LinkCommand):
   pass

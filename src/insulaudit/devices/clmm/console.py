@@ -14,6 +14,7 @@ class CLMMApplication(device.LinkCommand):
 
 
 class HelloFlow(core.Flow):
+  name = 'hello'
   def flow(self, session):
     link   = session.link
     device = proto.initDevice(link)
