@@ -1,4 +1,5 @@
 
+==========
 insulaudit
 ==========
 
@@ -33,6 +34,7 @@ _______
 In linux, you need to poke the usbserial module with some
 parameters to make it work.  This only needs to be done
 once::
+  
   sudo modprobe usbserial vendor=0x0a21 product=0x8001
   # or
   sudo ./reset.sh
@@ -66,6 +68,7 @@ Installing insulaudit
 There is no release of insulaudit, only somewhat broken
 pieces of code towards establishing a tool.
 :::
+   
   # Download the source
   # https://github.com/bewest/insulaudit
   # or fork it on github
@@ -84,6 +87,7 @@ insulaudit on your system (including the develop version).
 
 Uses port scanning feature to test if we are able to
 talk to a pump.  Exchange a few bytes, nothing more::
+   
   # fails
   PYTHONPATH=src/ python -m insulaudit.main -v clmm   hello
   insulaudit -v clmm hello
@@ -100,7 +104,6 @@ few times. ::
   python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
 
 
-~~~~
 TODO
 ~~~~
 Now that the basic framework is taking shape, the protocol
@@ -116,6 +119,7 @@ addition, the manufacturer seems to have sold out
 temporarily, although some sellers will part with them for
 more than double the usual price, usbstick is the best bet
 for now.
+
   * pyserial in git
   * stabilize runs of both proto.py and hello
   * convert hello to some kind of scan
@@ -208,7 +212,6 @@ Some Commands
 
 
 
--------
 Blather
 -------
 
@@ -272,7 +275,7 @@ Blather
     devices
 
 Usage
-~~~~~
+-----
 ::
 
   insulaudit [opts] [command]
