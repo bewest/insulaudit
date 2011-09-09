@@ -1,5 +1,7 @@
 import os
+import sys
 from setuptools import setup, find_packages
+
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -17,7 +19,10 @@ setup(
     license = "BSD",
     url = "http://github.com/bewest/insulaudit",
     packages=find_packages('src'),
+    package_dir= { '': 'src' },
     long_description=read('README'),
+    entry_points = {
+      'console_scripts': [ 'insulaudit = insulaudit.main:main' ] },
 )
 
 #####
