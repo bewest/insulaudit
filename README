@@ -1,16 +1,52 @@
 
-Author: Ben West
-
-
 insulaudit
 ==========
+
+Homepage: https://github.com/bewest/insulaudit
 
 This python package provides a toolkit for dealing with data used and
 created by a "modern," circa 2010, insulin therapy regimen.
 
-``sudo modprobe usbserial vendor=0x0a21 product=0x8001``
+We provide a command line text based tool to audit
+therapeutic data from a variety of medical devices widely
+used.
 
-Meter Dmesg::
+Target Devices
+--------------
+  * Medtronic Minimed Paradigm Series insulin pumps
+    using the usbstick
+    * observed working with a 522
+  * Lifescan Glucose Meters:
+    * Onetouch series
+    * Mini/Profile
+
+Using the USB Stick
+~~~~~~~~~~~~~~~~~~~
+
+Lifescan
+________
+Nothing special, my system registers a serial device right
+away.
+
+Minimed
+_______
+In linux, you need to poke the usbserial module with some
+parameters to make it work.  This only needs to be done
+once::
+  sudo modprobe usbserial vendor=0x0a21 product=0x8001
+  # or
+  sudo ./reset.sh
+  # which runs ./remove.sh and ./insert.sh, the latter of which does the modprobe.
+
+On mac, I can't recall if this is necessary.  We just need
+a generic usb-serial adapter.  I haven't tried it, but I
+suspect COM1 will likely work on MS, although
+auto-scanning will not detect it.  If your mac inserts the
+device somewhere under /dev/usb.serial* we will likely
+scan it.
+
+In dmesg, you should see a message like this when you
+inser the usb stick::
   
   [201197.513266] usb 2-1: new full speed USB device using uhci_hcd and address 3
   [201197.919110] usb 2-1: configuration #1 chosen from 1 choice
@@ -25,17 +61,80 @@ Meter Dmesg::
   [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
   bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
+Installing insulaudit
+~~~~~~~~~~~~~~~~~~~~~~
+There is no release of insulaudit, only somewhat broken
+pieces of code towards establishing a tool.
+:::
+  # Download the source
+  # https://github.com/bewest/insulaudit
+  # or fork it on github
+  git clone http://github.com/bewest/insulaudit.git
+  # install insulaudit in your python runtime so you can
+  # hack on it from here
+  python setup.py develop
+
+
 How to run
 ~~~~~~~~~~
-:::
+The commands using PYTHONPATH assume you are in the root
+directory of the repo.
+The commands using insulaudit assume you have installed
+insulaudit on your system (including the develop version).
+
+Uses port scanning feature to test if we are able to
+talk to a pump.  Exchange a few bytes, nothing more::
   # fails
   PYTHONPATH=src/ python -m insulaudit.main -v clmm   hello
+  insulaudit -v clmm hello
 
-  # seems to work when retrying:
+Specifying a port seems to work.  If it doesn't, retry a
+few times. ::
+  
+  # using the subcommand stuff:::
   PYTHONPATH=src/ python -m insulaudit.main -v clmm --port /dev/ttyUSB0  hello
+  insulaudit -v clmm --port /dev/ttyUSB0 hello
+  
+  # run the protocol exercise directly
   PYTHONPATH=src/ python src/insulaudit/devices/clmm/proto.py /dev/ttyUSB0
-    
+  python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
 
+
+~~~~
+TODO
+~~~~
+Now that the basic framework is taking shape, the protocol
+support needs to be stabilized and the framework needs to
+continue to gel a bit.  I need a reliable protocol, but
+there is a but demonstrated earlier that prevents very
+clean and repeatable runs.  It is likely a timing issue
+due to the use of select underneath the hood of pyserial.
+
+I'm missing a serial cable for the lifescan meters.  I had
+several at one point, and now cannot find any.  In
+addition, the manufacturer seems to have sold out
+temporarily, although some sellers will part with them for
+more than double the usual price, usbstick is the best bet
+for now.
+  * pyserial in git
+  * stabilize runs of both proto.py and hello
+  * convert hello to some kind of scan
+  * introduce new device flows
+  * introduce device profiles/console flows
+  * record logs
+  * review logs
+  * audit logs
+    * merge logs
+    * search
+    * reformat
+
+cli tool insulaudit
+~~~~~~~~~~~~~~~~~~~
+  * init - set up a config, from default
+  * checkPort/scan - scan for a port/device
+  * device
+    * profile
+    * log 
 
 
 clmm pump comms - coms.msc
@@ -108,17 +207,10 @@ Some Commands
         ...
 
 
-~~~~
-TODO
-~~~~
 
-cli tool insulaudit
-~~~~~~~~~~~~~~~~~~~
-  * init - set up a config, from default
-  * checkPort/scan - scan for a port/device
-  * device
-    * profile
-    * log 
+-------
+Blather
+-------
 
 ::
   
@@ -188,5 +280,7 @@ Usage
   insulaudit [device] [command] [opts]
 
   insulaudit clmm scan
+
+Author: Ben West <bewest+insulaudit@gmail.com>
 
 
