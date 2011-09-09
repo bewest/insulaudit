@@ -25,6 +25,17 @@ Meter Dmesg::
   [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
   bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
+How to run
+~~~~~~~~~~
+:::
+  # fails
+  PYTHONPATH=src/ python -m insulaudit.main -v clmm   hello
+
+  # seems to work when retrying:
+  PYTHONPATH=src/ python -m insulaudit.main -v clmm --port /dev/ttyUSB0  hello
+  PYTHONPATH=src/ python src/insulaudit/devices/clmm/proto.py /dev/ttyUSB0
+    
+
 
 
 clmm pump comms - coms.msc
