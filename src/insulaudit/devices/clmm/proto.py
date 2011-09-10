@@ -139,7 +139,8 @@ execute:
 """
 class ProtocolError(Exception): pass
 
-class AckError(ProtocolError): pass
+class DeviceCommsError(ProtocolError): pass
+class AckError(DeviceCommsError): pass
 
 def retry(block, retry=3, sleep=0):
   r = None
@@ -220,7 +221,7 @@ class Link( core.CommBuffer ):
     msg = bytearray([ msg, a2, a3 ])
     io.info('sendComLink2Command:write')
     self.write(msg)
-    return retry(self.checkAck)
+    return retry(self.checkAck, sleep=.100)
     # throw local usb exception
 
   def checkAck(self):
@@ -231,7 +232,10 @@ class Link( core.CommBuffer ):
     io.info('checkAck:read')
     commStatus = result[0]
     # usable response
-    assert commStatus == 1
+    #assert commStatus == 1
+    if commStatus != 1:
+      raise DeviceCommsError('\n'.join([ "checkAck: bad response code"
+                                       , lib.hexdump(result[0:4]) ]))
     status     = result[1]
     # status == 102 'f' NAK, look up NAK
     if status == 85: # 'U'
@@ -283,6 +287,14 @@ class BaseCommand(object):
     self.descr  = descr
     self.params = [ ]
 
+  def __repr__(self):
+    fields  = [ 'descr', 'timeout', 'effectTime', 'code' ]
+    details = [''] \
+            + [ "\t%8s: %s" % (f, str(getattr(self, f))) for f in fields ]
+    summary = '<{name}:{descr}>'.format(name=self.__class__.__name__,
+                                          descr=self.descr)
+    kwds    = dict(details='\n'.join(map(str, details)), summary=summary)
+    return "{summary}{details}".format(**kwds)
   def format(self):
     pass
 
@@ -312,8 +324,9 @@ class Device(object):
         errors.append(e)
       return False
       
-    if not retry(execute):
-      raise DeviceCommsError("tried a bunch of times and failed: %s" % (errors))
+    if not retry(execute, sleep=.150):
+      raise DeviceCommsError('\n'.join([ "tried executing %s bunch of times and failed"
+                            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
       
 
   def sendAndRead(self):
@@ -375,7 +388,7 @@ class Device(object):
       raise DeviceCommsError('\n'.join([ "readData: insufficientData",
                              lib.hexdump(response) ]))
 
-    if rcode != 2
+    if rcode != 2:
       raise DeviceCommsError("readData: bad response code: %#04x" % rcode)
     # response[1] != 0 # interface number !=0
     # response[2] == 5 # timeout occurred
@@ -392,10 +405,11 @@ class Device(object):
     return bytearray(self.link.read(length))
 
   def getNumBytesAvailable(self):
-    result = self.readStatus( )
+    #result = self.readStatus( )
+    result = 0
     start = time.time()
     i     = 0
-    while result == 0 and time.time() - start < 1:
+    while result == 0 and time.time() - start < 4:
       log.debug('%r:getNumBytesAvailable:attempt:%s' % (self, i))
       result = self.readStatus( )
       time.sleep(.100)
@@ -442,7 +456,6 @@ class Device(object):
   def buildTransmitPacket(self):
     return self.command.format( )
 
-class DeviceCommsError(ProtocolError): pass
 
 class PumpCommand(BaseCommand):
   serial = '665455'
