@@ -16,8 +16,11 @@ Target Devices
 --------------
   * Medtronic Minimed Paradigm Series insulin pumps
     using the usbstick
+
     * observed working with a 522
+
   * Lifescan Glucose Meters:
+
     * Onetouch series
     * Mini/Profile
 
@@ -128,6 +131,7 @@ for now.
   * record logs
   * review logs
   * audit logs
+
     * merge logs
     * search
     * reformat
@@ -137,6 +141,7 @@ cli tool insulaudit
   * init - set up a config, from default
   * checkPort/scan - scan for a port/device
   * device
+
     * profile
     * log 
 

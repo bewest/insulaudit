@@ -45,8 +45,11 @@ from console import Application as ConsoleApp
 
 class Application(ConsoleApp):
   name = "insulaudit"
+  "insulaudit - managing insulin therapy"
+  _description = "commands available"
 
   def setup_commands(self):
+    super(Application, self).setup_commands( )
     for dev in get_devices():
       self.add_device( dev )
     #self.foo = self.commands.add_parser('device', help="foo help")
@@ -60,7 +63,6 @@ def main( ):
   app = Application( )
   app.run( )
   
-
 if __name__ == '__main__':
   main( )
 

@@ -18,10 +18,6 @@ class Application(LoggingApp):
     super(Application, self).setup( )
     #self.add_param("bar", help="fake option", action='store_true')
     utils.setup_global_options(self.argparser)
-    self.commands = self.argparser.add_subparsers(dest='device',
-                      description="app subcommand descr",
-                      title="fake title",
-                      help='fake help on this command')
 
     self.setup_commands( )
 
@@ -34,8 +30,19 @@ class Application(LoggingApp):
     if callable(device.pre_run):
       device.pre_run(self)
 
-  def setup_commands( ):
-    pass
+  def dest(self):
+    return 'device'
+
+  def help(self):
+    return self.__class__.__doc__
+  def title(self):
+    return self.name
+
+  def setup_commands(self):
+    fields = [ 'dest', 'title', 'help' ]
+    kwds = dict((f, getattr(self, f)( )) for f in fields)
+    kwds['description'] = self.description
+    self.commands = self.argparser.add_subparsers(**kwds)
 
   def main(self):
     #pprint(self.params)

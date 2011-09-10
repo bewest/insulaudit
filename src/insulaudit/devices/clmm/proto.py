@@ -11,11 +11,11 @@ from insulaudit.clmm.usbstick import *
 from insulaudit import lib
 
 #logging.basicConfig( stream=sys.stdout )
-log = logging.getLogger( 'auditor' )
-log.setLevel( logging.DEBUG )
+log = logging.getLogger(__name__)
+#log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
-io  = logging.getLogger( 'auditor.io' )
-io.setLevel( logging.DEBUG )
+io  = logging.getLogger('.'.join([ __name__, 'io']))
+#io.setLevel( logging.DEBUG )
 
 """
 ######################
