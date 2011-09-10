@@ -12,6 +12,8 @@ We provide a command line text based tool to audit
 therapeutic data from a variety of medical devices widely
 used.
 
+This is experimental software.
+
 Target Devices
 --------------
   * Medtronic Minimed Paradigm Series insulin pumps
