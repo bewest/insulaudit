@@ -296,8 +296,25 @@ class Device(object):
 
   def execute(self, command):
     self.command = command
-    self.allocateRawData()
-    self.sendAndRead()
+    #try:
+    #  self.allocateRawData()
+    #  self.sendAndRead()
+    #except DeviceCommsError, e:
+    #  raise
+    errors = [ ]
+    that = self
+    def execute( ):
+      try:
+        that.allocateRawData()
+        that.sendAndRead()
+        return True
+      except DeviceCommsError, e:
+        errors.append(e)
+      return False
+      
+    if not retry(execute):
+      raise DeviceCommsError("tried a bunch of times and failed: %s" % (errors))
+      
 
   def sendAndRead(self):
     self.sendDeviceCommand()
@@ -394,9 +411,19 @@ class Device(object):
     """
     result         = self.link.sendComLink2Command(3)
     commStatus     = result[0] # 0 indicates success
-    assert commStatus == 0, ("command status not 0: %s" % (commStatus))
+    
     status         = result[2]
     lb, hb         = result[3], result[4]
+
+    stat = StickStatusStruct(status)
+    header = result[0:3]
+    test = [ StickStatusStruct(s) for s in header ]
+    log.info(test)
+    log.info("HEADER:\n%s" % lib.hexdump(header))
+    if 0 != commStatus:
+      raise DeviceCommsError('\n'.join([ "rf read header indicates failure"
+                                       , "%s" % lib.hexdump(header) ]))
+    assert commStatus == 0, ("command status not 0: %s:%s" % (commStatus, stat))
     bytesAvailable = lib.BangInt((lb, hb))
     self.status    = status
 
@@ -407,7 +434,7 @@ class Device(object):
   def buildTransmitPacket(self):
     return self.command.format( )
 
-class RFFailed(ProtocolError): pass
+class DeviceCommsError(ProtocolError): pass
 
 class PumpCommand(BaseCommand):
   serial = '665455'
