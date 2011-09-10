@@ -33,7 +33,7 @@ class Application(LoggingApp):
     return 'device'
 
   def help(self):
-    return "one line application summary"
+    return getattr(self, '__doc__', '').splitlines( )[0]
 
   def title(self):
     return self.name

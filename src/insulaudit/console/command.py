@@ -54,7 +54,7 @@ class Command(Loggable):
 
   def help(self):
     """More like a one line summary."""
-    return "commands available"
+    return "%s's one line summary" % self.name
 
   def title(self):
     return "%s's command title" % self.name
