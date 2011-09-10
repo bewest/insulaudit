@@ -12,8 +12,6 @@ We provide a command line text based tool to audit
 therapeutic data from a variety of medical devices widely
 used.
 
-This is experimental software.
-
 Target Devices
 --------------
   * Medtronic Minimed Paradigm Series insulin pumps
@@ -291,6 +289,15 @@ Usage
 
   insulaudit clmm scan
 
-Author: Ben West <bewest+insulaudit@gmail.com>
 
+License
+~~~~~~~
+Author
+  Ben West <bewest+insulaudit@gmail.com>
+
+This experimental software is provided under the `MIT
+license`_, so you can do with it whatever you wish except
+hold me responsible if it does something you don't like.
+
+.. _MIT license: http://www.opensource.org/licenses/mit-license.php
 
