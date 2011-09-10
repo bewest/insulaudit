@@ -368,7 +368,15 @@ class Device(object):
 
     response = self.writeAndRead(packet, bytesAvailable)
     # assert response.length > 14
-    assert (int(response[0]) == 2), repr(response)
+    # assert (int(response[0]) == 2), repr(response)
+
+    rcode = response[0]
+    if len(response) < 14:
+      raise DeviceCommsError('\n'.join([ "readData: insufficientData",
+                             lib.hexdump(response) ]))
+
+    if rcode != 2
+      raise DeviceCommsError("readData: bad response code: %#04x" % rcode)
     # response[1] != 0 # interface number !=0
     # response[2] == 5 # timeout occurred
     # response[2] == 2 # NAK
