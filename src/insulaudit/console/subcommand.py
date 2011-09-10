@@ -1,6 +1,7 @@
 from insulaudit.core import Loggable
 
 class Subcommand(Loggable):
+  "I'm a subcommand"
   name = None
   def __init__(self, handler, name=None):
     if name is not None:

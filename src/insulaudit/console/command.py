@@ -27,10 +27,15 @@ class Command(Loggable):
   def subcommand_manufacturer(self, flow):
     return flow(self)
 
+  def get_subparser_kwds(self):
+    fields = [ 'title', 'help', 'description' ]
+    kwds = dict((f, getattr(self, f, None)( )) for f in fields)
+    kwds['dest'] = self.dest
+    return kwds
+
   def setup_subparser(self):
-    fields = [ 'help', 'title', 'description' ]
-    kwds = dict([ (f, getattr(self, f)( )) for f in fields ])
-    self.subparser = self.parser.add_subparsers(dest=self.dest, **kwds)
+    kwds = self.get_subparser_kwds( )
+    self.subparser = self.parser.add_subparsers(**kwds)
 
   def setup(self, parser):
     n = self.name
@@ -48,13 +53,14 @@ class Command(Loggable):
     subcommand.main(app)
 
   def help(self):
-    return self.__doc__
+    """More like a one line summary."""
+    return "commands available"
 
   def title(self):
     return "%s's command title" % self.name
 
   def description(self):
-    return "%s's command description" % self.name
+    return "%s's command description" % self.__doc__
 
 #####
 # EOF

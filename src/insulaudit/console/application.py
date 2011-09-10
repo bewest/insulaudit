@@ -16,7 +16,6 @@ class Application(LoggingApp):
   def setup(self):
     # just after wrapping argument during __call__
     super(Application, self).setup( )
-    #self.add_param("bar", help="fake option", action='store_true')
     utils.setup_global_options(self.argparser)
 
     self.setup_commands( )
@@ -24,8 +23,8 @@ class Application(LoggingApp):
   def pre_run(self):
     # called just before main, updates params, parses args
     super(Application, self).pre_run()
-    #pprint(self.__dict__)
-    device        = self.devices[self.params.device]
+    key           = getattr(self.params, self.dest( ), None)
+    device        = self.devices[key]
     self.selected = device
     if callable(device.pre_run):
       device.pre_run(self)
@@ -34,14 +33,19 @@ class Application(LoggingApp):
     return 'device'
 
   def help(self):
-    return self.__class__.__doc__
+    return "one line application summary"
+
   def title(self):
     return self.name
 
-  def setup_commands(self):
+  def get_command_kwds(self):
     fields = [ 'dest', 'title', 'help' ]
-    kwds = dict((f, getattr(self, f)( )) for f in fields)
+    kwds = dict((f, getattr(self, f, None)( )) for f in fields)
     kwds['description'] = self.description
+    return kwds
+
+  def setup_commands(self):
+    kwds = self.get_command_kwds( )
     self.commands = self.argparser.add_subparsers(**kwds)
 
   def main(self):

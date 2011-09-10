@@ -5,7 +5,7 @@ from insulaudit.console import device
 import proto
 
 class CLMMApplication(device.LinkCommand):
-  """Introducing minimed support. :-)
+  """Documentation for CLMMApplication
   """
   name = 'clmm'
 
@@ -15,8 +15,15 @@ class CLMMApplication(device.LinkCommand):
   def getFlows(self):
     return [ HelloFlow ]
 
+  def title(self):
+    return "clmm - talk with Minimed Paradigm devices"
+  def help(self):
+    return "testing support for paradigm devices"
 
 class HelloFlow(core.Flow):
+  """Hello world for rf comms with MM pumps.
+  Can we reliably exchange bytes?
+  """
   name = 'hello'
   def flow(self, session):
     link   = session.link

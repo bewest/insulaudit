@@ -8,6 +8,7 @@ from insulaudit import scan
 
 from pprint import pprint
 class FlowCommand(Subcommand):
+  """I'm a sub command"""
   name = None
   def __init__(self, flow, handler, **kwds):
     self.name = kwds.pop('name', getattr(flow, 'name', flow.__name__))
@@ -24,6 +25,10 @@ class FlowCommand(Subcommand):
   def setup_link(self, port):
     self.log.info('setting up %s' % port)
     self.link = self.handler.selected.link_factory()(port)
+
+  def help(self):
+    """Use the first line of the Flow's __doc__."""
+    return getattr(self.Flow, '__doc__', '').splitlines( )[0]
 
   def main(self, app):
     link    = self.link

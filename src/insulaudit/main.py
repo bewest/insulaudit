@@ -44,8 +44,11 @@ from console.utils import setup_device_options, setup_global_options, GlobalOpti
 from console import Application as ConsoleApp
 
 class Application(ConsoleApp):
+  """insulaudit - managing insulin therapy
+  
+  I'm a very long description.
+  To tell you about all kinds of things."""
   name = "insulaudit"
-  "insulaudit - managing insulin therapy"
   _description = "commands available"
 
   def setup_commands(self):
