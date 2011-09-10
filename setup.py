@@ -2,6 +2,13 @@ import os
 import sys
 from setuptools import setup, find_packages
 
+"""
+Setup script to install insulaudit.
+
+# sudo python setup.py develop # to hack
+# sudo python setup.py install # permanent
+
+"""
 
 src = 'src'
 sys.path.append(src)
