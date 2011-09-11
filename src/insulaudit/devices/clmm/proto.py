@@ -14,7 +14,7 @@ from insulaudit import lib
 log = logging.getLogger(__name__)
 #log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
-io  = logging.getLogger('.'.join([ __name__, 'io']))
+io  = logging.getLogger('.'.join(['io', __name__]))
 #io.setLevel( logging.DEBUG )
 
 """
@@ -321,12 +321,15 @@ class Device(object):
         that.sendAndRead()
         return True
       except DeviceCommsError, e:
+        log.error('\n'.join(map(str,
+                 [ 'device failed executing', self.command, e ])))
         errors.append(e)
       return False
       
     if not retry(execute, sleep=.150):
-      raise DeviceCommsError('\n'.join([ "tried executing %s bunch of times and failed"
-                            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
+      raise DeviceCommsError('\n'.join(
+            [ "tried executing %s bunch of times and failed"
+            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
       
 
   def sendAndRead(self):
@@ -439,12 +442,14 @@ class Device(object):
 
     stat = StickStatusStruct(status)
     header = result[0:3]
-    test = [ StickStatusStruct(s) for s in header ]
-    log.info(test)
     log.info("HEADER:\n%s" % lib.hexdump(header))
     if 0 != commStatus:
       raise DeviceCommsError('\n'.join([ "rf read header indicates failure"
-                                       , "%s" % lib.hexdump(header) ]))
+                                       , str(stat)
+                                       , "header"
+                                       , lib.hexdump(header)
+                                       , "body"
+                                       , lib.hexdump(result[3:]) ]))
     assert commStatus == 0, ("command status not 0: %s:%s" % (commStatus, stat))
     bytesAvailable = lib.BangInt((lb, hb))
     self.status    = status
@@ -549,6 +554,7 @@ class ReadErrorStatus(PumpCommand):
   params = [ ]
   retries = 2
   maxRecords = 1
+  #effectTime = 3
 
 class ReadPumpState(PumpCommand):
   """

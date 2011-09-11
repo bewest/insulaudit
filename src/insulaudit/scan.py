@@ -23,7 +23,7 @@ def usable_response(resp):
 
 def link_usable(candidate):
   usable = False
-  port   = serial.Serial( )
+  port   = Link( )
   try:
     logger.info("attempting to open %s" % candidate)
     port.port = candidate
