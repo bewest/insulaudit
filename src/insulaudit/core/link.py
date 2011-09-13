@@ -3,6 +3,7 @@
 
 import CommBuffer
 
+
 class Link(CommBuffer.CommBuffer):
   pass
 

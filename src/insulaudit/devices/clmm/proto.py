@@ -14,10 +14,12 @@ from insulaudit import lib
 log = logging.getLogger(__name__)
 #log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
-io  = logging.getLogger('.'.join(['io', __name__]))
+io  = logging.getLogger('.'.join(['auditor', 'io' ]))
+#io = log
 #io.setLevel( logging.DEBUG )
 
 """
+Baud rate: BAUD_57600
 ######################
 #
 # ComLink2
@@ -326,15 +328,16 @@ class Device(object):
         errors.append(e)
       return False
       
-    if not retry(execute, sleep=.150):
+    if not retry(execute, retry=command.retries+1, sleep=2):
       raise DeviceCommsError('\n'.join(
-            [ "tried executing %s bunch of times and failed"
-            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
+            [ "tried executing command %s times and failed\n%s"
+            , "%s" % ('\n\t'.join(map(str, errors)))
+            ]) % (self.command.retries, self.command))
       
 
   def sendAndRead(self):
     self.sendDeviceCommand()
-    time.sleep(self.command.effectTime)
+    #time.sleep(self.command.effectTime)
     if self.expectedLength > 0:
       # in original code, this modifies the length tested in the previous if
       # statement
@@ -344,7 +347,8 @@ class Device(object):
     packet = self.buildTransmitPacket()
     io.info('sendDeviceCommand:write:%r' % (self.command))
     self.link.write(packet)
-    time.sleep(.500)
+    #time.sleep(.100)
+    time.sleep(self.command.effectTime)
     code = self.command.code
     params = self.command.params
     if code != 93 or params[0] != 0:
