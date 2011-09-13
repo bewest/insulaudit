@@ -14,7 +14,7 @@ from insulaudit import lib
 log = logging.getLogger(__name__)
 #log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
-io  = logging.getLogger('.'.join(['auditor', 'io' ]))
+io  = logging.getLogger('.'.join(['io', __name__, 'io' ]))
 #io = log
 #io.setLevel( logging.DEBUG )
 
