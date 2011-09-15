@@ -12,6 +12,8 @@ We provide a command line text based tool to audit
 therapeutic data from a variety of medical devices widely
 used.
 
+
+
 Target Devices
 --------------
   * Medtronic Minimed Paradigm Series insulin pumps
@@ -300,4 +302,61 @@ license`_, so you can do with it whatever you wish except
 hold me responsible if it does something you don't like.
 
 .. _MIT license: http://www.opensource.org/licenses/mit-license.php
+
+Blather
+~~~~~~~
+Diabetes therapy wasteful, unscientific, and dangerous.
+Despite a variety of companies offering software to manage
+the condition, very little data is used to drive real time
+decision making during the course of therapy.  Many users
+take error prone and time consuming handwritten
+transcriptions of their devices, because the software
+provided is incapable of communicating or managing
+therapeutic details in any useful way.  Some users
+actually take pictures, and upload those pictures to
+websites, finding that the easiest way to share critical
+therapy data.
+
+Despite all the hard work diabetics undertake in efforts
+audit and control ongoing therapy, most use a variety of
+mobile devices that automatically log many details.
+In 2011, we have a nascent highly connected world where
+relationships construct a social graphs traverseable on
+the web with enough security to trust these relationships
+for authentication.  Despite all the technical
+advancement in our world, the medical community asks
+diabetic patients to live inhumane lives of maintaining
+open wounds while blaming them for lack of control and
+failing to explain cause and effect.  Insulin is a
+powerful drug best administered by a pancreas.  When we
+use a syringe to inject a large dose all at once, it is no
+surprise to see dangerous consequences.  However, instead
+of developing ever increasingly accurate predictions, the
+use of software in managing diabetes mostly involves
+entering and massaging lots of data.  As a result, many
+diabetics suffer needlessly, blamed for the effect "their
+condition" has on them due to their poor control, even
+though the consequences are likely aggravated or caused by
+the very therapy they are trying to participate in.  This
+is poor fidelity of care.
+
+The only data we should be entering are corrections on
+what we predict will happen.  This is a notion I call
+"fidelity of care." Together, we adjust our expectations
+to match what is possible so that over time, the
+observations of therapy exactly match the expectations we
+recorded as predictions earlier.  By integrating calendar
+data and predictions along side past observations, we get
+a better understanding of causes and effects in the
+outcomes of our own therapy while gaining tools to
+communicate these understandings with our therapeutic
+team.
+
+This meta observation of the delta between hypothesis and
+empirical data is a principle component of the scientific
+method, but entirely absent from therapeutic software,
+leading to a dearth in fidelity of care.  My hope is that
+insulaudit can help to increase the fidelity of care.
+
+
 
