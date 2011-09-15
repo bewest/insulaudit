@@ -20,11 +20,11 @@ class FlowCommand(Subcommand):
     port         = handler.params.port
     if port == 'auto':
       port = scan.best_guess( )
-    self.setup_link(port)
+    self.link = self.setup_link(port)
 
   def setup_link(self, port):
     self.log.info('setting up %s' % port)
-    self.link = self.handler.selected.link_factory()(port)
+    return self.handler.selected.link_factory()(port)
 
   def help(self):
     """Use the first line of the Flow's __doc__."""
