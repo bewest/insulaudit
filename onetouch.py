@@ -10,6 +10,9 @@ from insulaudit.log import io
 from insulaudit.devices import onetouch2
 import sys
 
+import logging
+logging.basicConfig( )
+io.setLevel(logging.INFO)
 PORT = '/dev/ttyUSB0'
 
 def get_serial( port, timeout=2 ):
@@ -50,4 +53,7 @@ def init( ):
 if __name__ == '__main__':
   port = init()
   io.info( port )
+  port.close( )
 
+#####
+# EOF

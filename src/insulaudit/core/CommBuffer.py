@@ -11,6 +11,7 @@ from insulaudit import lib, config
 # TODO: implement Buffer API and enable context manager.
 class CommBuffer( object ):
   __timeout__ = config.settings.timeout
+  port = None
   def __init__( self, port, timeout=None ):
     if timeout is not None:
       self.__timeout__ = timeout
