@@ -75,11 +75,11 @@ class UltraSmartWakeUp2( OneTouchCommand ):
     return True
 
 class UltraSmartWakeUpStage1( OneTouchCommand ):
-  code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08,
-                      0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
+  #code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
+  code  = bytearray( [ 0xB0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x07 ] )
   def __call__(self, port ):
     stuff = port.write("")
-    time.sleep(5)
+    #time.sleep(5)
     stuff = port.readlines( )
     io.info( "RECIEVED HANDSHAKE REPLY: %s bytes" % len(stuff) )
     io.info(lib.hexdump(bytearray( stuff )))
@@ -101,12 +101,6 @@ class UltraSmartWakeUpStage2( OneTouchCommand ):
                       0x4D, 0x53, 0x53, 0x0D, 0x0D, 0x0D, 0x0D,
                       0x11, 0x11, 0x0D, 0x0D, 0x44, 0x44, 0x4D,
                       0x4D, 0x40, 0x40, 0x0D, 0x0D ] )
-
-class UltraSmartWakeUp3( OneTouchCommand ):
-  code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
-  def __call__(self, port ):
-    return True
-
 
 class ReadGlucose( OneTouchCommand ):
   code = list( bytearray( b'DMP' ) )
@@ -131,17 +125,47 @@ class OneTouchUltra2( core.CommBuffer ):
   __timeout__ = 20
   __pause__   = 02
 
+  def stage1_wakeup(self):
+    io.info("wakeup: stage 1")
+    command = UltraSmartWakeUpStage1( )
+    msg = bytearray( command.code )
+    for x in xrange( RETRIES ):
+      self.write( str( msg ) )
+      #self.write( str( msg ) )
+      time.sleep( self.__pause__ )
+      response = command( self )
+      if response:
+        break
+    io.info( 'get response:%s' % ( response ) )
+    if not response:
+      raise OneTouch2Exception("NOT A GOOD START")
 
+  def stage2_wakeup(self):
+    stage2a = [ 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x07 ]
+    stage2b = [ 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 ]
+    stage2c = [ 0x11, 0x0D, 0x44, 0x4D, 0x53, 0x0D, 0x0D ]
+    stage2d = [ 0x11, 0x0D, 0x44, 0x4D, 0x53, 0x0D, 0x0D ]
+    stage2e = [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ]
+    stage2f = [ 0x11, 0x0D, 0x44, 0x4D, 0x53, 0x0D ]
+    stages = [ stage2a, stage2b, stage2c, stage2d, stage2e, stage2f, ]
+    awake = False
+    for stage in stages:
+      msg = bytearray(stage)
+      self.write( str( msg ) )
+      response = self.readlines( )
+      if len(response) > 0:
+        io.info("got a response!!!")
+        io.info(lib.hexdump(bytearray(response)))
+        awake = True
+    return awake
+  
   def wakeup_smart( self ):
     io.info("begin wakeup")
-    stage1 = UltraSmartWakeUpStage1( )
-    self.write( str( stage1.code ) )
-    response = stage1( self )
-    io.info(response)
-    #wake2 = UltraSmartWakeUp2( )
-    stage2 = UltraSmartWakeUpStage2( )
-    self.write( str( stage2.code ) )
-    response_2 = stage2( self )
+    self.stage1_wakeup( )
+    self.stage2_wakeup( )
+    #stage2 = UltraSmartWakeUpStage2( )
+    #self.write( str( stage2.code ) )
+    #response_2 = stage2( self )
     #self.write( str( wake1.code ) )
     time.sleep( self.__pause__ )
     
