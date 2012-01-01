@@ -7,7 +7,7 @@ import insulaudit
 from insulaudit.log import io
 from insulaudit.devices import lsultramini
 
-PORT = '/dev/ttyUSB1'
+PORT = '/dev/ttyACM0'
 
 def format_packet( command ):
   COMMAND = [

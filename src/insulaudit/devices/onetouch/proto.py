@@ -76,7 +76,7 @@ class UltraSmartWakeUp2( OneTouchCommand ):
 
 class UltraSmartWakeUpStage1( OneTouchCommand ):
   #code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
-  code  = bytearray( [ 0xB0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x07 ] )
+  code  = bytearray( [ 0x11, 0x0D, ] )
   def __call__(self, port ):
     stuff = port.write("")
     #time.sleep(5)
