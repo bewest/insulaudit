@@ -18,11 +18,11 @@ class CommBuffer( object ):
     self.open( port )
 
 
-  def open( self, newPort=False ):
+  def open( self, newPort=False, **kwds ):
     if newPort:
       self.port = newPort
 
-    self.serial = serial.Serial( self.port, timeout=self.__timeout__ )
+    self.serial = serial.Serial( self.port, timeout=self.__timeout__, **kwds )
 
     if self.serial.isOpen( ):
       log.info( '{agent} opened serial port: {serial}'\
