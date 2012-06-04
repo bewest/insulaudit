@@ -303,7 +303,7 @@ hold me responsible if it does something you don't like.
 
 Blather
 ~~~~~~~
-Diabetes therapy wasteful, unscientific, and dangerous.
+Diabetes therapy is wasteful, unscientific, and dangerous.
 Despite a variety of companies offering software to manage
 the condition, very little data is used to drive real time
 decision making during the course of therapy.  Many users
@@ -323,38 +323,58 @@ relationships construct a social graphs traverseable on
 the web with enough security to trust these relationships
 for authentication.  Despite all the technical
 advancement in our world, the medical community asks
-diabetic patients to live inhumane lives of maintaining
-open wounds while blaming them for lack of control and
-failing to explain cause and effect.  Insulin is a
-powerful drug best administered by a pancreas.  When we
-use a syringe to inject a large dose all at once, it is no
-surprise to see dangerous consequences.  However, instead
-of developing ever increasingly accurate predictions, the
-use of software in managing diabetes mostly involves
-entering and massaging lots of data.  As a result, many
-diabetics suffer needlessly, blamed for the effect "their
-condition" has on them due to their poor control, even
-though the consequences are likely aggravated or caused by
-the very therapy they are trying to participate in.  This
-is poor fidelity of care.
+diabetic patients to live inhumane lives maintaining open
+wounds while blaming them for lack of control and failing
+to explain cause and effect.
 
-The only data we should be entering are corrections on
-what we predict will happen.  This is a notion I call
-"fidelity of care." Together, we adjust our expectations
-to match what is possible so that over time, the
-observations of therapy exactly match the expectations we
-recorded as predictions earlier.  By integrating calendar
-data and predictions along side past observations, we get
-a better understanding of causes and effects in the
-outcomes of our own therapy while gaining tools to
-communicate these understandings with our therapeutic
-team.
+Insulin is a powerful drug best administered by a
+pancreas.  When we use a syringe to inject a large dose
+all at once, it is no surprise to see dangerous
+consequences.  However, instead of developing ever
+increasingly accurate predictions, the use of software in
+managing diabetes mostly involves entering and massaging
+lots of data.  As a result, many diabetics suffer
+needlessly, blamed for the effect "their condition" has on
+them due to their poor control, even though the
+consequences are likely aggravated or caused by the very
+therapy they are trying to participate in.  This is poor
+fidelity of care.
+
+By applying the fundamentals of the scientific method to
+therapy, and to the application of technology to therapy,
+we get a unique perspective on what the technology should
+do, and the role people have in therapy.
+The only data we should be entering are corrections on what we
+predict will happen.  This is would be the idea
+application of technology to therapy using to a notion I
+call "fidelity of care." Together, we adjust our
+expectations to match what is possible so that over time
+the observations of therapy exactly match the expectations
+we recorded as predictions earlier.
+
+As we integrate calendar data and predictions along side
+past observations, we get a better understanding of causes
+and effects in the outcomes of our own therapy while
+gaining tools to communicate these understandings with our
+therapeutic team, composed of any individual we choose.
+The therapeutic team may well be mostly composed of
+members outside the medical community, because social
+support is often important in maintaining habits and
+lifestyle.
 
 This meta observation of the delta between hypothesis and
 empirical data is a principle component of the scientific
 method, but entirely absent from therapeutic software,
 leading to a dearth in fidelity of care.  My hope is that
-insulaudit can help to increase the fidelity of care.
+insulaudit can help to increase the fidelity of care.  The
+scientific method involves recording high fidelity
+observations, making predictions based on that data,
+performing an experiment, and then analyzing the
+differences between the observations and the expectations.
+Therapy should not be any different.  However, until we
+can get transparent access to audit the raw data produced
+by our therapy, we cannot get an accurate perspective of
+our own health.
 
 
 
