@@ -10,13 +10,13 @@ from insulaudit.core import Command
 from insulaudit.clmm.usbstick import *
 from insulaudit import lib
 
-#logging.basicConfig( stream=sys.stdout )
+logging.basicConfig( stream=sys.stdout )
 log = logging.getLogger(__name__)
-#log.setLevel( logging.DEBUG )
+log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
 io  = logging.getLogger('.'.join(['io', __name__, 'io' ]))
 #io = log
-#io.setLevel( logging.DEBUG )
+io.setLevel( logging.DEBUG )
 
 """
 ######################
