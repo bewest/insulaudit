@@ -114,19 +114,13 @@ TODO
 Now that the basic framework is taking shape, the protocol
 support needs to be stabilized and the framework needs to
 continue to gel a bit.  I need a reliable protocol, but
-there is a but demonstrated earlier that prevents very
-clean and repeatable runs.  It is likely a timing issue
-due to the use of select underneath the hood of pyserial.
+there is a retry bug demonstrated earlier that prevents very
+clean and repeatable runs.
 
-I'm missing a serial cable for the lifescan meters.  I had
-several at one point, and now cannot find any.  In
-addition, the manufacturer seems to have sold out
-temporarily, although some sellers will part with them for
-more than double the usual price, usbstick is the best bet
-for now.
 
-  * pyserial in git
   * stabilize runs of both proto.py and hello
+  * expand protocol: ReadHistoryData 205
+  * pyserial in git
   * convert hello to some kind of scan
   * introduce new device flows
   * introduce device profiles/console flows
