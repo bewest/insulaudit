@@ -1,7 +1,5 @@
 
-==========
-insulaudit
-==========
+# insulaudit
 
 Homepage: https://github.com/bewest/insulaudit
 
@@ -14,8 +12,7 @@ used.
 
 
 
-Target Devices
---------------
+## Target Devices
   * Medtronic Minimed Paradigm Series insulin pumps
     using the usbstick
 
@@ -26,16 +23,13 @@ Target Devices
     * Onetouch series
     * Mini/Profile
 
-Using the USB Stick
-~~~~~~~~~~~~~~~~~~~
+# Using the USB Stick
 
-Lifescan
-________
+## Lifescan
 Nothing special, my system registers a serial device right
 away.
 
-Minimed
-_______
+## Minimed
 In linux, you need to poke the usbserial module with some
 parameters to make it work.  This only needs to be done
 once::
@@ -68,8 +62,7 @@ inser the usb stick::
   [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
   bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
-Installing insulaudit
-~~~~~~~~~~~~~~~~~~~~~~
+# Installing insulaudit
 There is no release of insulaudit, only somewhat broken
 pieces of code towards establishing a tool.
 :::
@@ -83,8 +76,7 @@ pieces of code towards establishing a tool.
   python setup.py develop
 
 
-How to run
-~~~~~~~~~~
+# How to run
 The commands using PYTHONPATH assume you are in the root
 directory of the repo.
 The commands using insulaudit assume you have installed
@@ -113,8 +105,7 @@ few times. ::
     before it starts failing.  stderr and timestamps were
     not capture. :-(
 
-TODO
-~~~~
+# TODO
 Now that the basic framework is taking shape, the protocol
 support needs to be stabilized and the framework needs to
 continue to gel a bit.  I need a reliable protocol, but
@@ -136,8 +127,7 @@ clean and repeatable runs.
     * search
     * reformat
 
-cli tool insulaudit
-~~~~~~~~~~~~~~~~~~~
+##cli tool insulaudit
   * init - set up a config, from default
   * checkPort/scan - scan for a port/device
   * device
@@ -146,8 +136,7 @@ cli tool insulaudit
     * log 
 
 
-clmm pump comms - coms.msc
-__________________________
+## clmm pump comms - coms.msc
 Message sizes are always in 64 byte chunks, except
 outgoing messages.
 Use the radio command to send a
@@ -279,8 +268,7 @@ Blather
     __init__.py
     devices
 
-Usage
------
+# Usage
 ::
 
   insulaudit [opts] [command]
@@ -290,8 +278,7 @@ Usage
   insulaudit clmm scan
 
 
-License
-~~~~~~~
+## License
 Author
   Ben West <bewest+insulaudit@gmail.com>
 
@@ -301,8 +288,8 @@ hold me responsible if it does something you don't like.
 
 .. _MIT license: http://www.opensource.org/licenses/mit-license.php
 
-Blather
-~~~~~~~
+# Fidelity of Care
+
 Diabetes therapy is wasteful, unscientific, and dangerous.
 Despite a variety of companies offering software to manage
 the condition, very little data is used to drive real time
@@ -340,14 +327,26 @@ consequences are likely aggravated or caused by the very
 therapy they are trying to participate in.  This is poor
 fidelity of care.
 
+The best example for this is the NPR obituary for a
+baseball hall of famer who died of diabetic complications.
+While he was praised for his adherence to his regimen, he
+was also praised his tenacity on the field, despite the
+terrible shakes attributed to "his condition."  However,
+they failed to mentioned that the shakes he suffered were
+due to the therapy for his condition; the only way a type
+1 diabetic suffers shakes like that is when too much
+insulin has been delivered, an all too familiar mishap.
+Poor fidelity of care is not knowing what to expect,
+despite adhering to a therapy.
+
 By applying the fundamentals of the scientific method to
 therapy, and to the application of technology to therapy,
 we get a unique perspective on what the technology should
 do, and the role people have in therapy.
 The only data we should be entering are corrections on what we
-predict will happen.  This is would be the idea
-application of technology to therapy using to a notion I
-call "fidelity of care." Together, we adjust our
+predict will happen.  This is would be the ideal
+application of technology to therapy through a lense I
+call high "fidelity of care." Together, we adjust our
 expectations to match what is possible so that over time
 the observations of therapy exactly match the expectations
 we recorded as predictions earlier.
@@ -376,5 +375,29 @@ can get transparent access to audit the raw data produced
 by our therapy, we cannot get an accurate perspective of
 our own health.
 
+Therefore, the first fundamental principle of high
+fidelity care is open access to all the intimate details
+of therapeutic care in as close to the native format as
+possible.  It includes access to the protocols
+transporting the data, so that novel applications can
+augment therapeutic fidelity in ways unforeseen by the
+original makers, for the benefit of the patient, and their
+caregivers.
 
+The second is peer review.  A caregiver may be a friend,
+or even a good samaritan in a time of need, who needs
+instructions on what to do next.  A caregiver may be a
+researcher who needs access to data for simulations.  It
+includes access to the firmware, because it is outrageous
+that the software that governs lives has not gone through
+open source review for bugs and safety.
 
+With these in place, safe and effective from insulaudit,
+SMART, DUBS, GCCS, and many other collaborators can help
+infuse therapeutic practice with high fidelity care.
+The needs of the patient in the practice of high fidelity
+care are not unique to diabetics.  We believe all patients
+will benefit from the application of these principles
+throughout their care.
+
+~ [insulaudit collaborators](https://github.com/bewest/insulaudit/network/members) 
