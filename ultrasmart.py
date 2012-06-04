@@ -7,7 +7,7 @@ from pprint import pprint, pformat
 import insulaudit
 from insulaudit.data import glucose
 from insulaudit.log import io
-from insulaudit.devices import onetouch2
+from insulaudit.devices.onetouch import proto as onetouch
 import sys
 
 import logging
@@ -19,11 +19,15 @@ def get_serial( port, timeout=2 ):
   return serial.Serial( port, timeout=timeout )
 
 def init( ):
-  mini = onetouch2.OneTouchUltra2( PORT, 5 )
+  mini = onetouch.OneTouchUltra2( PORT, 5 )
   print "is open? %s\n timeout: %s" % ( mini.serial.isOpen( ), mini.serial.getTimeout() )
+  print "LISTENING FIRST:"
+  print insulaudit.lib.hexdump( bytearray( mini.readlines( ) ) )
+  print "ATTEMPT wake up 1"
+  wakup = mini.wakeup_smart( )
   print ""
   print "read serial number"
-  serial = mini.execute( onetouch2.ReadSerial( ) )
+  serial = mini.execute( onetouch.ReadSerial( ) )
   print "serial number: %s" % serial 
   print ""
   if serial == "":
@@ -31,11 +35,11 @@ def init( ):
     sys.exit(1)
   print ""
   print "read firmware number"
-  firmware = mini.execute( onetouch2.ReadFirmware( ) )
+  firmware = mini.execute( onetouch.ReadFirmware( ) )
   print "firmware: %s" % firmware 
   print ""
   print "RFID"
-  print mini.execute( onetouch2.ReadRFID( ) )
+  print mini.execute( onetouch.ReadRFID( ) )
   print "GLUCOSE"
   data = mini.read_glucose( )
   print data

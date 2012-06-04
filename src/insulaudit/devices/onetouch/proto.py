@@ -65,6 +65,49 @@ class ReadFirmware( OneTouchCommand ):
 class ReadRFID( OneTouchCommand ):
   code = list( bytearray( b'DMID' ) )
 
+class UltraSmartWakeUp1( OneTouchCommand ):
+  code = bytearray( [ 0xB0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x07 ] )
+
+class UltraSmartWakeUp2( OneTouchCommand ):
+  code = bytearray( [ 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x07,
+                            0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
+  def __call__(self, port ):
+    return True
+
+class UltraSmartWakeUpStage1( OneTouchCommand ):
+  code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08,
+                      0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
+  def __call__(self, port ):
+    stuff = port.write("")
+    time.sleep(5)
+    stuff = port.readlines( )
+    io.info( "RECIEVED HANDSHAKE REPLY: %s bytes" % len(stuff) )
+    io.info(lib.hexdump(bytearray( stuff )))
+    if len(stuff) > 0:
+      return True
+    return False
+
+
+class UltraSmartWakeUpStage2( OneTouchCommand ):
+  code = bytearray( [ 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08,
+                      0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08,
+                      0x11, 0x11, 0x0D, 0x0D, 0x44, 0x44, 0x4D,
+                      0x4D, 0x53, 0x53, 0x0D, 0x0D, 0x0D, 0x0D,
+                      0x11, 0x11, 0x0D, 0x0D, 0x44, 0x44, 0x4D,
+                      0x4D, 0x53, 0x53, 0x0D, 0x0D, 0x0D, 0x0D,
+                      0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08,
+                      0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08,
+                      0x11, 0x11, 0x0D, 0x0D, 0x44, 0x44, 0x4D,
+                      0x4D, 0x53, 0x53, 0x0D, 0x0D, 0x0D, 0x0D,
+                      0x11, 0x11, 0x0D, 0x0D, 0x44, 0x44, 0x4D,
+                      0x4D, 0x40, 0x40, 0x0D, 0x0D ] )
+
+class UltraSmartWakeUp3( OneTouchCommand ):
+  code = bytearray( [ 0x00, 0x96, 0x00, 0x00, 0x00, 0x00, 0x08 ] )
+  def __call__(self, port ):
+    return True
+
+
 class ReadGlucose( OneTouchCommand ):
   code = list( bytearray( b'DMP' ) )
   def __call__( self, port ):
@@ -89,6 +132,19 @@ class OneTouchUltra2( core.CommBuffer ):
   __pause__   = 02
 
 
+  def wakeup_smart( self ):
+    io.info("begin wakeup")
+    stage1 = UltraSmartWakeUpStage1( )
+    self.write( str( stage1.code ) )
+    response = stage1( self )
+    io.info(response)
+    #wake2 = UltraSmartWakeUp2( )
+    stage2 = UltraSmartWakeUpStage2( )
+    self.write( str( stage2.code ) )
+    response_2 = stage2( self )
+    #self.write( str( wake1.code ) )
+    time.sleep( self.__pause__ )
+    
   def read_glucose( self ):
     header, body = self.execute( ReadGlucose( ) )
     return header, body

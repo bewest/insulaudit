@@ -465,6 +465,20 @@ class ReadErrorStatus(PumpCommand):
   retries = 2
   maxRecords = 1
 
+class ReadHistoryData(PumpCommand):
+  """
+    >>> ReadPumpState().format() == ReadPumpState._test_ok
+    True
+  """
+  _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
+                         0x00, 0x00, 0x02, 0x01, 0x00, 0x83, 0x2E, 0x00 ])
+
+  code = 131
+  descr = "Read Pump State"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
 class ReadPumpState(PumpCommand):
   """
     >>> ReadPumpState().format() == ReadPumpState._test_ok

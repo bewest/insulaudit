@@ -15,7 +15,7 @@ class OnetouchApp(device.LinkCommand):
     #return proto.Linonetouch2.OneTouchUltra2( PORT, 5 )
 
   def getFlows(self):
-    return [ HelloFlow ]
+    return [ HelloFlow, sugars ]
 
   def title(self):
     return "onetouch - talk with Lifescan OneTouch compatible devices."
@@ -44,6 +44,24 @@ class HelloFlow(core.Flow):
     print "firmware: %s" % firmware 
     session.log.info("firmware: %s" % firmware)
     session.log.info('done')
+
+class sugars(core.Flow):
+  """Dump the sugars to stdout
+  Can we reliably exchange bytes?
+  """
+  #name = 'sugars'
+  def get_out_file(self):
+    import sys
+    return sys.stdout
+
+  def flow(self, session):
+    link = session.link
+    serial = link.execute( proto.ReadSerial( ) )
+    data = link.read_glucose( )
+    print data
+    print "len glucose: %s" % len( data )
+    head, body = data 
+    print glucose.format_records( body )
 
 #####
 # EOF
