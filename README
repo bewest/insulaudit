@@ -108,6 +108,10 @@ few times. ::
   PYTHONPATH=src/ python src/insulaudit/devices/clmm/proto.py /dev/ttyUSB0
   python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
 
+  # read-pump-model.log - protocol exercise to read pump
+    model number.  Log of it running successfully 5 times
+    before it starts failing.  stderr and timestamps were
+    not capture. :-(
 
 TODO
 ~~~~
