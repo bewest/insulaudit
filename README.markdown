@@ -438,13 +438,12 @@ insulin in ways that can work around bugs, accidental or
 otherwise, that are currently ensuring unsafe dosing for
 pump users.
 
-The manufacturer is content to give me inaccurate dosings
-and mediated access to the logs, but refuses to share
-information about the protocol needed to quickly and
-safely and independently manage my therapy.  As patients
-we need access to all the technology in our therapy so
-that we can have epistemic certainty that our therapy is
-safe.
+The manufacturer is content to give me inaccurate dosings,
+but refuses to share information about the protocol needed
+to quickly and safely and independently manage my therapy.
+As patients we need access to all the technology in our
+therapy so that we can have epistemic certainty that our
+therapy is safe.
 
 We set out to use the protocol in order to audit logs more
 effectively and found out it's possible to generate safer
