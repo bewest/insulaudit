@@ -440,7 +440,7 @@ are currently ensuring unsafe dosing for pump users.
 
 The manufacturer is content to give me inaccurate dosings,
 but refuses to share information about the protocol needed
-to quickly and safely and independently manage my therapy.
+to quickly, safely and independently manage my therapy.
 As patients we need access to all the technology in our
 therapy so that we can have epistemic certainty that it is
 safe.
