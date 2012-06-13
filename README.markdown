@@ -427,17 +427,17 @@ independently verify that pump therapy is safe.
 
 There are many other examples where having direct access
 to all the technology involved in therapy provides an
-epistemic certainty integral to practicing medical
-therapy.  As patients and users of medical technology, we
-want to believe that it is safe.  The only way to do this
-is to independently compare the behavior of their
-technology, with our peers and to study it for bugs and
-safety.  In the process of doing this we discovered that
-the same commands used to audit the native therapeutic
-logs can also be used to reconfigure the device, and
-administer insulin in ways that can work around bugs,
-accidental or otherwise, that are currently ensuring
-unsafe dosing for pump users.
+epistemic certainty integral to basic science.  As
+patients and users of medical technology, we want to
+believe that it is safe.  The only way to do this is to
+independently compare the behavior of their technology,
+with our peers and to study it for bugs and safety.  In
+the process of doing this we discovered that the same
+commands used to audit the native therapeutic logs can
+also be used to reconfigure the device, and administer
+insulin in ways that can work around bugs, accidental or
+otherwise, that are currently ensuring unsafe dosing for
+pump users.
 
 The manufacturer is content to give me inaccurate dosings
 and mediated access to the logs, but refuses to share
