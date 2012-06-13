@@ -73,6 +73,10 @@ pieces of code towards establishing a tool.
   # hack on it from here
   python setup.py develop
 
+# Status quo
+We can say hello to the pump, but it's easier to read
+configuration than historical data.  We are not sure how
+to decode historical data.
 
 # How to run
 The commands using PYTHONPATH assume you are in the root
@@ -395,71 +399,62 @@ hold me responsible if it does something you don't like.
 
 # Fidelity of Care
 
-Insulin pumps are powerful tools to manage diabetes
-therapy.  However, manufacturers are not always
-incentivized to provide the best or safest technology to
-users, they are incentivized to sell more pumps.
+Patients need open access to all the elements of
+technology involved in therapy in order to empirically
+create the epistemic belief that the therapy is safe.
 
 One of many concrete examples involves generating safe
-insulin doses.  The vendor's enthusiasm to produce a
-device to sell led them to hard code the active lifetime
-of insulin into all models earlier than the 522 series.
-This reasonable trade-off guarantees that patients will
-receive the wrong amount of insulin.  The only way to get
-safer doses of insulin is to manually override everything
-the pump does through the tedious UI, or to buy a pump in
-the 522 series or newer.  For users who do choose to buy a
-new pump, you can customize this variable, but the
-variable remains static until you change it.  In reality,
-your sensitivity to insulin varies, and the amount of
-insulin one should receive also varies dramatically
-throughout the day depending on what life throws your way.
+insulin doses.  The vendor hard coded the active lifetime
+of insulin into all models earlier than the 515 series.
+This guarantees that patients receive the wrong amount of
+insulin.  The only feasible way of getting safer doses of
+insulin is to buy a pump in the 515 series or newer.
+Users who do choose to buy a new pump, can customize this
+variable, but the variable remains static until it's
+changed again.  In reality, your sensitivity to insulin
+varies, and the amount of insulin one should receive also
+varies dramatically throughout the day depending on what
+life throws your way.
 
 However, the pump has an administrative protocol that
 allows software to automatically audit logs, reconfigure
-settings, and create dosing schedules.  If users had
-access to this protocol we could use it to work around
-bugs like hard coding the lifetime of active insulin in
-order to better fine tune our doses.  We can also use the
-protocol to audit the logs, allowing us to independently
-verify that pump therapy is safe.
+settings, create and administer dosing schedules.  If
+users had access to this protocol we could use it to work
+around bugs like hard coding the lifetime of active
+insulin in order to better fine tune our doses.  We can
+also use the protocol to audit the logs, allowing us to
+independently verify that pump therapy is safe.
 
 There are many other examples where having direct access
-to the technology involved in therapy provides an
-epistemic certainty that cannot be replaced by vendor
-features.  As patients and users of medical technology, we
+to all the technology involved in therapy provides an
+epistemic certainty integral to practicing medical
+therapy.  As patients and users of medical technology, we
 want to believe that it is safe.  The only way to do this
 is to independently compare the behavior of their
-software, and to study it for bugs.  In the process of
-doing this we discovered that the same commands used to
-audit the native therapeutic logs can also be used to
-reconfigure the device, and administer insulin in ways
-that can work around bugs left into the pump by the
-manufacturer.
+technology, with our peers and to study it for bugs and
+safety.  In the process of doing this we discovered that
+the same commands used to audit the native therapeutic
+logs can also be used to reconfigure the device, and
+administer insulin in ways that can work around bugs,
+accidental or otherwise, that are currently ensuring
+unsafe dosing for pump users.
 
-This is why patients need access to the raw device.
-Without having investigated the technology involved in our
-therapy, we cannot believe it is safe.  Shipping bug free
-code that meets all use cases for all users for all time
-is not a defensible argument.  My worry is that Medtronic
-will co-operate with other industry vendors to create a
-private standard to create filtered feeds for developers
-to audit revised logs, add cryptographic controls to the
-administration protocol, and that no one will know that
-we've lost the ability to learn about and work around
-vendor bugs.
+The manufacturer is content to give me inaccurate dosings
+and mediated access to the logs, but refuses to share
+information about the protocol needed to quickly and
+safely and independently manage my therapy.  As patients
+we need access to all the technology in our therapy so
+that we can have epistemic certainty that our therapy is
+safe.
 
-We need help.  The manufacturer is content to give me
-inaccurate dosings and mediated access to the logs, and
-refuses to share information about the protocol.  As
-patients we need access to all the technology in our
-therapy so that we can have epistemic certainty that our
-therapy is safe.  I believe the vendor refuses to share
-the protocol with me because there is no way for them to
-restrict the commands I use.  If I or anyone else can
-generate safer insulin suggestions, they can no longer
-use safety to force people to buy new pumps.
-
+We set out to use the protocol in order to audit logs more
+effectively and found out it's possible to generate safer
+doses and work around bugs in vendor therapeutic software.
+The protocol is not available for our use, but we need it
+in order to secure safe therapy.  Without having
+investigated the technology involved in our therapy, we
+cannot believe it is safe, and we would not have learned
+about it's true capabilities.
 
 
 
