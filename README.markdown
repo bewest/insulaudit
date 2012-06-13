@@ -408,51 +408,51 @@ of insulin into all models earlier than the 515 series.
 This guarantees that patients receive the wrong amount of
 insulin.  The only feasible way of getting safer doses of
 insulin is to buy a pump in the 515 series or newer.
-Users who do choose to buy a new pump, can customize this
-variable, but the variable remains static until it's
-changed again.  In reality, your sensitivity to insulin
-varies, and the amount of insulin one should receive also
-varies dramatically throughout the day depending on what
-life throws your way.
+Users who do choose to buy a new pump can customize this
+variable but the variable remains static and mostly
+incorrectly calibrated until it's manually changed again.
+In reality, your sensitivity to insulin varies, and the
+amount of insulin one should receive also varies
+dramatically throughout the day depending on what life
+throws your way.
 
 However, the pump has an administrative protocol that
 allows software to automatically audit logs, reconfigure
 settings, create and administer dosing schedules.  If
 users had access to this protocol we could use it to work
-around bugs like hard coding the lifetime of active
-insulin in order to better fine tune our doses.  We can
-also use the protocol to audit the logs, allowing us to
-independently verify that pump therapy is safe.
+around bugs like incorrect insulin calibrations in order
+to tune our doses.  We can also use the protocol to audit
+the logs, allowing us to independently verify that pump
+therapy is safe.
 
 There are many other examples where having direct access
 to all the technology involved in therapy provides an
 epistemic certainty integral to basic science.  As
 patients and users of medical technology, we want to
 believe that it is safe.  The only way to do this is to
-independently compare the behavior of their technology,
-with our peers and to study it for bugs and safety.  In
-the process of doing this we discovered that the same
-commands used to audit the native therapeutic logs can
-also be used to reconfigure the device, and administer
-insulin in ways that can work around bugs, accidental or
-otherwise, that are currently ensuring unsafe dosing for
-pump users.
+empirically study all the relevant details of vendor
+technology with our peers and to study it for bugs and
+safety.  In the process of doing this we discovered that
+the same commands used to audit the native therapeutic
+logs can also be used to reconfigure the device, and
+administer insulin in ways that can work around bugs that
+are currently ensuring unsafe dosing for pump users.
 
 The manufacturer is content to give me inaccurate dosings,
 but refuses to share information about the protocol needed
 to quickly and safely and independently manage my therapy.
 As patients we need access to all the technology in our
-therapy so that we can have epistemic certainty that our
-therapy is safe.
+therapy so that we can have epistemic certainty that it is
+safe.
 
 We set out to use the protocol in order to audit logs more
 effectively and found out it's possible to generate safer
-doses and work around bugs in vendor therapeutic software.
-The protocol is not available for our use, but we need it
-in order to secure safe therapy.  Without having
-investigated the technology involved in our therapy, we
-cannot believe it is safe, and we would not have learned
-about it's true capabilities.
+doses and work around bugs in vendors' therapeutic
+software.  The protocol is actively kept from our use, but
+we need it in order to secure safe therapy.  Without
+having investigated the technology involved in our
+therapy, we cannot believe it is safe, and we would not
+have learned about it's true capabilities.
 
 
 
