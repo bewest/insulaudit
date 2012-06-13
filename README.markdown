@@ -400,8 +400,7 @@ hold me responsible if it does something you don't like.
 # Fidelity of Care
 
 Patients need open access to all the elements of
-technology involved in therapy in order to empirically
-create the epistemic belief that the therapy is safe.
+technology involved in therapy in order to ensure safety.
 
 One of many concrete examples involves generating safe
 insulin doses.  The vendor hard coded the active lifetime
