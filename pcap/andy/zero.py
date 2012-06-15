@@ -51,7 +51,7 @@ class settings:
   PROLOG_SIZE = 0
 
 def get_argparser():
-  
+  """Prepare an argument parser."""
   parser = argparse.ArgumentParser( )
   parser.add_argument(
     '--chunk', dest='chunk', type=int,
@@ -66,15 +66,19 @@ def get_argparser():
   return parser
 
 def get_raw_handle(pathish):
+  """Obtain a file-like handle from something describing access to
+  data."""
   logger.info('opening %s' % (pathish))
   handle = open(pathish)
   return handle
 
 def hex_dump_data(data):
+  """My library has a convenient hexdumper, YMMV."""
   print lib.hexdump(bytearray(data))
 
 def read_chunk(handle):
-  # return a chunk, and normalize it's representation as a bytearray
+  """read a chunk, and normalize it's representation as a
+  bytearray."""
   msg = (settings.CHUNK_SIZE, handle.tell( ))
   logger.info('start reading (bytes %s) from offset %s' % msg)
   return bytearray(handle.read(settings.CHUNK_SIZE))
@@ -83,24 +87,29 @@ def decode_chunk(chunk):
   """
   Experiment: decode a chunk!
   TODO: how do we decode historical data?
-  It's likely composed of regions representing records, either with some kind
-  of delimiter, or with a common header.
+  It's likely composed of regions representing records, either with
+  some kind of delimiter, or with a common header.
 
-  Looking at the hex dump of chunks, it does indeed look like there is some
-  kind of repeating pattern.  But is there an offset to begin?  Is each record
-  the same size, or is there a header describing the record?
+  Looking at the hex dump of chunks, it does indeed look like there
+  is some kind of repeating pattern.  But is there an offset to
+  begin?  Is each record the same size, or is there a header
+  describing the record?
 
   """
   hex_dump_data(chunk)
 
 def do_chunk(handle):
-  # read a chunk, and call decode_chunk
+  """read a chunk, and call decode_chunk"""
   chunk = read_chunk(handle)
   decode_chunk(chunk)
 
 def do_input(pathish):
-  # given something that looks like a file path, try to get data and
-  # decode it
+  """given something that looks like a file path, try to get data
+  and decode it.
+  
+  # first fast forward into some offset.
+  # then report on how many chunks we read.
+  """
   handle = get_raw_handle(pathish)
   pos  = handle.tell( )
   size = getsize(pathish)
@@ -120,8 +129,9 @@ def do_input(pathish):
       break
 
 def main(*args):
-  # some boiler plate to set up logging, reproducible runs, and get
-  # our little decoder's IO up and running.
+  """ some boiler plate to set up logging, reproducible runs, and
+  get our little decoder's IO up and running.
+  """
   global settings
   settings.CHUNK_SIZE, settings.PROLOG_SIZE
   parser = get_argparser( )
