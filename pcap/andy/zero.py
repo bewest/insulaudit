@@ -13,7 +13,7 @@ logger.setLevel(logging.DEBUG)
 from pprint import pprint, pformat
 
 CHUNK_SIZE = 32
-PROLOG_SIZE = 192 + 64 - 24 + 4
+PROLOG_SIZE = 0
 
 def get_opts():
   parser = argparse.ArgumentParser( )
