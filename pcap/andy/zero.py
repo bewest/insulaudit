@@ -63,13 +63,15 @@ def do_input(pathish):
 def main(*args):
   global CHUNK_SIZE, PROLOG_SIZE
   parser = get_opts( )
-  opts = parser.parse_args( )
-  #logger.info('opts: %s' % (pformat(sys.argv)))
+  args = list(args)
+  cmd, args = args[0], args[1:]
+  opts = parser.parse_args((args))
+  #logger.info('opts: %s' % (pformat(args)))
   CHUNK_SIZE = opts.chunk
   PROLOG_SIZE = opts.prolog
   cmdline = [ sys.argv[0],
     '--chunk %s' % (CHUNK_SIZE),
-    '--prolog %s' % (PROLOG_SIZE) ]
+    '--prolog %s' % (PROLOG_SIZE) ] + opts.input
   print ' '.join(cmdline)
 
   logger.info('opening %s' % (opts.input))
@@ -78,7 +80,7 @@ def main(*args):
     do_input(item)
 
 if __name__ == '__main__':
-  main(sys.argv )
+  main(*sys.argv)
 
 #####
 # EOF
