@@ -12,10 +12,17 @@ logger.setLevel(logging.DEBUG)
 
 from pprint import pprint, pformat
 
-CHUNK_SIZE = 64
+CHUNK_SIZE = 32
+PROLOG_SIZE = 192 + 64 - 24 + 4
 
 def get_opts():
   parser = argparse.ArgumentParser( )
+  parser.add_argument(
+    '--chunk', dest='chunk', type=int,
+    default=CHUNK_SIZE, help="Default chunksize: %s" % CHUNK_SIZE)
+  parser.add_argument(
+    '--prolog', dest='prolog', type=int,
+    default=PROLOG_SIZE, help="Default prologue size: %s" % PROLOG_SIZE)
   parser.add_argument(
     'input', nargs='+', help="Input files")
   return parser
@@ -29,8 +36,8 @@ def hex_dump_data(data):
   print lib.hexdump(bytearray(data))
 
 def read_chunk(handle):
-  logger.info('start reading: %s' % handle.tell( ))
-  return bytearray(handle.read(64))
+  logger.info('start reading (bytes %s) from offset %s' % (CHUNK_SIZE, handle.tell( )))
+  return bytearray(handle.read(CHUNK_SIZE))
 
 def do_chunk(handle):
   chunk = read_chunk(handle)
@@ -42,6 +49,9 @@ def do_input(pathish):
   size = getsize(pathish)
   logger.info('opening %s (%s bytes)' % (pathish, size))
 
+  logger.info('reading prologue (%s bytes)' % (PROLOG_SIZE))
+  prolog = handle.read(PROLOG_SIZE)
+
   for i in itertools.count( ):
     if pos < size:
       logger.info('chunk: %s' % i)
@@ -50,21 +60,25 @@ def do_input(pathish):
     else:
       break
 
-
-
-
 def main(*args):
+  global CHUNK_SIZE, PROLOG_SIZE
   parser = get_opts( )
   opts = parser.parse_args( )
+  #logger.info('opts: %s' % (pformat(sys.argv)))
+  CHUNK_SIZE = opts.chunk
+  PROLOG_SIZE = opts.prolog
+  cmdline = [ sys.argv[0],
+    '--chunk %s' % (CHUNK_SIZE),
+    '--prolog %s' % (PROLOG_SIZE) ]
+  print ' '.join(cmdline)
+
   logger.info('opening %s' % (opts.input))
 
   for item in opts.input:
     do_input(item)
 
-
-  
-
-
 if __name__ == '__main__':
   main(sys.argv )
 
+#####
+# EOF
