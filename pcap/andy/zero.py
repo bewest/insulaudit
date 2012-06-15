@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """
-zero.py - Analyze clmm data history segments.
+zero.py - Analyze raw data history segments read from an insulin
+pump.
 Right now this is really just a hexdumper that can iterate through a
 data page in chunks of a given size, and can begin at a given
 offset.  See --help for information.  The script prints information
