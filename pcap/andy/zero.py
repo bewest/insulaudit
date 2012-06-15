@@ -69,7 +69,7 @@ def main(*args):
   #logger.info('opts: %s' % (pformat(args)))
   CHUNK_SIZE = opts.chunk
   PROLOG_SIZE = opts.prolog
-  cmdline = [ sys.argv[0],
+  cmdline = [ cmd,
     '--chunk %s' % (CHUNK_SIZE),
     '--prolog %s' % (PROLOG_SIZE) ] + opts.input
   print ' '.join(cmdline)
