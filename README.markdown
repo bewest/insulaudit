@@ -530,8 +530,8 @@ therapy, and to the application of technology to therapy,
 we get a unique perspective on what the technology should
 do, and the role people have in therapy.
 The only data we should be entering are corrections on what we
-predict will happen.  This is would be the ideal
-application of technology to therapy through a lense I
+predict will happen.  This is  be one of the ideal
+applications of technology to therapy through a lense I
 call high "fidelity of care." Together, we adjust our
 expectations to match what is possible so that over time
 the observations of therapy exactly match the expectations
