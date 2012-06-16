@@ -117,9 +117,9 @@ few times. ::
     python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
 
     # read-pump-model.log - protocol exercise to read pump
-      model number.  Log of it running successfully 5 times
-      before it starts failing.  stderr and timestamps were
-      not capture. :-(
+    model number.  Log of it running successfully 5 times
+    before it starts failing.  stderr and timestamps were
+    not capture. :-(
 
 # TODO
 Now that the basic framework is taking shape, the protocol
