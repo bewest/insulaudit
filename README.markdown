@@ -461,20 +461,28 @@ have learned about it's true capabilities.
 ### Thought exercises
 If a doctor approached you with a syringe, said you needed
 some of it but wasn't personally sure a.) how much was in
-the syringe, that the b.) syringe sometimes injects the
-wrong amount, and c.) what the contents of the syringe
-might do but that someone told him this would probably be
-"ok" would you allow yourself to be injected?
+the syringe, that b.) the syringe sometimes injects the
+wrong amount, and c.) what contents of the syringe might
+due to the way the syringe performs, but that someone told
+him this would probably be "ok" would you allow yourself
+to be injected?  What if the consequences for refusing the
+syringe was death?  What if the reason for the uncertainty
+was because someone had wiped off most of the calibration
+markings before giving it to the doctor to fill?  What if
+the person who had wiped off the markings was the same
+person insisting it was safe and selling you the syringes,
+and no one else makes syringes?
 
 For the argument "Most users won't need access to
 technology to get what they need."  This isn't an argument
-to prevent patients from accessing critical parts of their
+for preventing patients from accessing critical parts of their
 own therapy.  This is like arguing no one would need to do
 anything more than borrow a book from a library shortly
 after the printing press because the population was
 unlettered and homes lacked bookshelves to house the
 books.
 ### Blather
+"Blah blah blah."
 
 Diabetes therapy is wasteful, unscientific, and dangerous.
 Despite a variety of companies offering software to manage
