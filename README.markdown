@@ -87,9 +87,9 @@ As [Thucydides said](http://en.wikipedia.org/wiki/Thucydides)
 > equals in power, while the strong do what they can and
 > the weak suffer what they must.
 
-When vendors offering medical equipment fail to offer
-safe therapy to satisfy their own priorities, it's time to
-put on the
+When vendors offering medical equipment put their own
+priorities ahead of safe therapy, and then prevent access
+to making it safer, it's time to put on the
 [black hat for science](https://github.com/bewest/insulaudit/blob/master/pcap/andy/zero.py).
 
 # How to run
@@ -491,8 +491,8 @@ anything more than borrow a book from a library shortly
 after the printing press because the population was
 unlettered and homes lacked bookshelves to house the
 books.
-### Blather
-"Blah blah blah."
+# Blather
+## "Blah blah blah."
 
 Diabetes therapy is wasteful, unscientific, and dangerous.
 Despite a variety of companies offering software to manage
