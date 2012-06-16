@@ -38,7 +38,7 @@ once::
     # which runs ./remove.sh and ./insert.sh, the latter
     # of which does the modprobe for you.
 
-I've observed runs working up to 15 times in a row, at
+I've observed runs working up to 5 times in a row, at
 which point I needed to reset the usbstick by removing it
 and re-inserting into the PC.
 On mac, I can't recall if this is necessary.  We just need
