@@ -51,18 +51,18 @@ scan it.
 In dmesg, you should see a message like this when you
 inser the usb stick::
   
-  [201197.513266] usb 2-1: new full speed USB device using uhci_hcd and address 3
-  [201197.919110] usb 2-1: configuration #1 chosen from 1 choice
-  [201205.729621] usbcore: registered new interface driver usbserial
-  [201205.730808] USB Serial support registered for generic
-  [201205.731143] usbcore: registered new interface driver usbserial_generic
-  [201205.731145] usbserial: USB Serial Driver core
-  [201205.806220] USB Serial support registered for pl2303
-  [201205.806248] pl2303 2-1:1.0: pl2303 converter detected
-  [201208.305166] usb 2-1: pl2303 converter now attached to ttyUSB0
-  [201208.305187] usbcore: registered new interface driver pl2303
-  [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
-  bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
+    [201197.513266] usb 2-1: new full speed USB device using uhci_hcd and address 3
+    [201197.919110] usb 2-1: configuration #1 chosen from 1 choice
+    [201205.729621] usbcore: registered new interface driver usbserial
+    [201205.730808] USB Serial support registered for generic
+    [201205.731143] usbcore: registered new interface driver usbserial_generic
+    [201205.731145] usbserial: USB Serial Driver core
+    [201205.806220] USB Serial support registered for pl2303
+    [201205.806248] pl2303 2-1:1.0: pl2303 converter detected
+    [201208.305166] usb 2-1: pl2303 converter now attached to ttyUSB0
+    [201208.305187] usbcore: registered new interface driver pl2303
+    [201208.305189] pl2303: Prolific PL2303 USB to serial adaptor driver
+    bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
 # Installing insulaudit
 There is no release of insulaudit, only somewhat broken
