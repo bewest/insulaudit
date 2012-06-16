@@ -88,28 +88,28 @@ directory of the repo.
 The commands using insulaudit assume you have installed
 insulaudit on your system (including the develop version).
 
-Uses port scanning feature to test if we are able to
+Uses flaky port scanning feature to test if we are able to
 talk to a pump.  Exchange a few bytes, nothing more::
-   
-  # fails
-  PYTHONPATH=src/ python -m insulaudit.main -v clmm   hello
-  insulaudit -v clmm hello
+     
+    # fails
+    PYTHONPATH=src/ python -m insulaudit.main -v clmm   hello
+    insulaudit -v clmm hello
 
 Specifying a port seems to work.  If it doesn't, retry a
 few times. ::
-  
-  # using the subcommand stuff:::
-  PYTHONPATH=src/ python -m insulaudit.main -v clmm --port /dev/ttyUSB0  hello
-  insulaudit -v clmm --port /dev/ttyUSB0 hello
-  
-  # run the protocol exercise directly
-  PYTHONPATH=src/ python src/insulaudit/devices/clmm/proto.py /dev/ttyUSB0
-  python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
+    
+    # using the subcommand stuff:::
+    PYTHONPATH=src/ python -m insulaudit.main -v clmm --port /dev/ttyUSB0  hello
+    insulaudit -v clmm --port /dev/ttyUSB0 hello
+    
+    # run the protocol exercise directly
+    PYTHONPATH=src/ python src/insulaudit/devices/clmm/proto.py /dev/ttyUSB0
+    python -m insulaudit.devices.clmm.proto.py /dev/ttyUSB0
 
-  # read-pump-model.log - protocol exercise to read pump
-    model number.  Log of it running successfully 5 times
-    before it starts failing.  stderr and timestamps were
-    not capture. :-(
+    # read-pump-model.log - protocol exercise to read pump
+      model number.  Log of it running successfully 5 times
+      before it starts failing.  stderr and timestamps were
+      not capture. :-(
 
 # TODO
 Now that the basic framework is taking shape, the protocol
