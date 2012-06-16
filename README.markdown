@@ -492,7 +492,7 @@ Despite all the hard work diabetics undertake in efforts
 audit and control ongoing therapy, most use a variety of
 mobile devices that automatically log many details.
 In 2011, we have a nascent highly connected world where
-relationships construct a social graphs traverseable on
+relationships construct a social graphs traversable on
 the web with enough security to trust these relationships
 for authentication.  Despite all the technical
 advancement in our world, the medical community asks
