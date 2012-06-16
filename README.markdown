@@ -32,11 +32,15 @@ In linux, you need to poke the usbserial module with some
 parameters to make it work.  This only needs to be done
 once::
   
-  sudo modprobe usbserial vendor=0x0a21 product=0x8001
-  # or
-  sudo ./reset.sh
-  # which runs ./remove.sh and ./insert.sh, the latter of which does the modprobe.
+    sudo modprobe usbserial vendor=0x0a21 product=0x8001
+    # or
+    sudo ./reset.sh
+    # which runs ./remove.sh and ./insert.sh, the latter
+    # of which does the modprobe for you.
 
+I've observed runs working up to 15 times in a row, at
+which point I needed to reset the usbstick by removing it
+and re-inserting into the PC.
 On mac, I can't recall if this is necessary.  We just need
 a generic usb-serial adapter.  I haven't tried it, but I
 suspect COM1 will likely work on MS, although
@@ -65,13 +69,13 @@ There is no release of insulaudit, only somewhat broken
 pieces of code towards establishing a tool.
 :::
    
-  # Download the source
-  # https://github.com/bewest/insulaudit
-  # or fork it on github
-  git clone http://github.com/bewest/insulaudit.git
-  # install insulaudit in your python runtime so you can
-  # hack on it from here
-  python setup.py develop
+    # Download the source
+    # https://github.com/bewest/insulaudit
+    # or fork it on github
+    git clone http://github.com/bewest/insulaudit.git
+    # install insulaudit in your python runtime so you can
+    # hack on it from here
+    python setup.py develop
 
 # Status quo
 We can say hello to the pump, but it's easier to read
@@ -453,8 +457,6 @@ we need it in order to secure safe therapy.  Without
 having investigated the technology involved in our
 therapy, we cannot believe it is safe, and we would not
 have learned about it's true capabilities.
-
-
 
 ### Thought exercises
 If a doctor approached you with a syringe, said you needed

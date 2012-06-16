@@ -12,13 +12,13 @@ set expandtab
 set fileencodings=ucs-bom,utf-8,default,latin1
 set helplang=en
 set history=50
-set nomodeline
 set printoptions=paper:letter
 set ruler
-set runtimepath=~/.vim,/var/lib/vim/addons,/usr/share/vim/vimfiles,/usr/share/vim/vim72,/usr/share/vim/vimfiles/after,/var/lib/vim/addons/after,~/.vim/after,/usr/share/lilypond/2.12.3/vim/
+set runtimepath=~/.vim,~/.vim/bundle/vim-coffee-script,~/.vim/bundle/vim-colors-solarized,~/.vim/bundle/vim-haml,~/.vim/bundle/vim-less,/var/lib/vim/addons,/usr/share/vim/vimfiles,/usr/share/vim/vim72,/usr/share/vim/vimfiles/after,/var/lib/vim/addons/after,~/.vim/bundle/vim-coffee-script/after,~/.vim/after,~/.vim/autoload,~/.vim/bundle/,/usr/share/lilypond/2.12.3/vim/
 set shiftwidth=2
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
 set tabstop=2
+set textwidth=58
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -27,65 +27,22 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +1 ./src/insulaudit/lib.py
-badd +0 ./src/insulaudit/clmm/radio.py
-badd +0 ./src/insulaudit/clmm/usbstick.py
-badd +0 ./src/insulaudit/clmm/__init__.py
-badd +0 ./src/insulaudit/main.py
-badd +0 ./src/insulaudit/config.py
-badd +0 ./src/insulaudit/console/subcommand.py
-badd +0 ./src/insulaudit/console/device.py
-badd +0 ./src/insulaudit/console/application.py
-badd +0 ./src/insulaudit/console/utils.py
-badd +0 ./src/insulaudit/console/command.py
-badd +0 ./src/insulaudit/console/__init__.py
-badd +0 ./src/insulaudit/log.py
-badd +0 ./src/insulaudit/data/glucose.py
-badd +0 ./src/insulaudit/data/__init__.py
-badd +0 ./src/insulaudit/core/command.py
-badd +0 ./src/insulaudit/core/loggable.py
-badd +0 ./src/insulaudit/core/response.py
-badd +0 ./src/insulaudit/core/session.py
-badd +0 ./src/insulaudit/core/CommBuffer.py
-badd +0 ./src/insulaudit/core/__init__.py
-badd +0 ./src/insulaudit/core/flow.py
-badd +0 ./src/insulaudit/core/link.py
-badd +0 ./src/insulaudit/core/exceptions.py
-badd +0 ./src/insulaudit/scan.py
-badd +0 ./src/insulaudit/__init__.py
-badd +0 ./src/insulaudit/devices/clmm/console.py
-badd +0 ./src/insulaudit/devices/clmm/proto.py
-badd +0 ./src/insulaudit/devices/clmm/__init__.py
-badd +0 ./src/insulaudit/devices/lsultramini.py
-badd +0 ./src/insulaudit/devices/onetouch2.py
-badd +0 ./src/insulaudit/devices/__init__.py
-badd +0 ./a.py
-badd +0 ./docs/conf.py
-badd +0 ./loop.py
-badd +0 ./pseudocode.py
-badd +0 ./mini.py
-badd +0 ./get-pip.py
-badd +0 ./onetouch.py
-badd +0 ./cl2.py
-badd +0 ./july.py
-badd +1 docs/clmm.rst
-badd +0 docs/foobar.rst
-badd +0 docs/index.rst
-badd +0 docs/insulaudit-intro.rst
-badd +0 docs/insulaudit.rst
-badd +0 docs/lifescan.rst
-badd +0 docs/medtronic-intro.rst
-badd +0 docs/medtronic.rst
-badd +0 README
-args docs/clmm.rst docs/foobar.rst docs/index.rst docs/insulaudit-intro.rst docs/insulaudit.rst docs/lifescan.rst docs/medtronic-intro.rst docs/medtronic.rst
-edit README
+badd +158 cl2.py
+badd +0 src/insulaudit/devices/clmm/console.py
+badd +0 src/insulaudit/devices/clmm/__init__.py
+badd +0 src/insulaudit/devices/clmm/proto.py
+badd +250 pcap/bewest.short.usb.beginning.log
+badd +316 README.markdown
+badd +169 src/insulaudit/lib.py
+args cl2.py src/insulaudit/devices/clmm/console.py src/insulaudit/devices/clmm/__init__.py src/insulaudit/devices/clmm/proto.py
+edit README.markdown
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
 argglobal
-edit README
+edit README.markdown
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -110,8 +67,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != ''
-setlocal filetype=
+if &filetype != 'conf'
+setlocal filetype=conf
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -141,7 +98,7 @@ setlocal nolisp
 setlocal nolist
 setlocal makeprg=
 setlocal matchpairs=(:),{:},[:]
-setlocal nomodeline
+setlocal modeline
 setlocal modifiable
 setlocal nrformats=octal,hex
 setlocal nonumber
@@ -159,7 +116,8 @@ setlocal shiftwidth=2
 setlocal noshortname
 setlocal nosmartindent
 setlocal softtabstop=0
-setlocal nospell
+set spell
+setlocal spell
 setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
 setlocal spellfile=
 setlocal spelllang=en
@@ -167,19 +125,19 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != ''
-setlocal syntax=
+if &syntax != 'conf'
+setlocal syntax=conf
 endif
 setlocal tabstop=2
 setlocal tags=
-setlocal textwidth=0
+setlocal textwidth=58
 setlocal thesaurus=
 setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 25) / 50)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
