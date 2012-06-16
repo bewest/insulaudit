@@ -82,6 +82,16 @@ We can say hello to the pump, but it's easier to read
 configuration than historical data.  We are not sure how
 to decode historical data.
 
+As [Thucydides said](http://en.wikipedia.org/wiki/Thucydides)
+> Right, as the world goes, is only in question between
+> equals in power, while the strong do what they can and
+> the weak suffer what they must.
+
+When vendors offering medical equipment fail to offer
+safe therapy to satisfy their own priorities, it's time to
+put on the
+[black hat for science](https://github.com/bewest/insulaudit/blob/master/pcap/andy/zero.py).
+
 # How to run
 The commands using PYTHONPATH assume you are in the root
 directory of the repo.
