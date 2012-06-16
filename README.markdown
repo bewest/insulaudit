@@ -158,8 +158,8 @@ This is kind of a "send command" command.
                  |       |              [ 0x01, 0x85 f, ?? ] == fail
   write          |------>|      code=[ 0x03 ] usb status command
   repeat         |       |<     Continually ask for the usb status until
-                 |       |      the stick indicates that we are done receiving and we
-                 |       |      have a length.
+                 |       |      the stick indicates that we are done
+                 |       |      receiving and we have a length.
   read           |<------|      length = bytes[6..8]
   read           |<------|      tx.stats = bytes[5]
   format         |<      |      Then use the length to format the flush 
