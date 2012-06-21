@@ -373,8 +373,8 @@ class Device(object):
     return self.command.format( )
 
 class PumpCommand(BaseCommand):
-  serial = '665455'
-  #serial = '206525'
+  #serial = '665455'
+  serial = '206525'
 
   params = [ ]
   bytesPerRecord = 64

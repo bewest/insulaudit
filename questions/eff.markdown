@@ -4,7 +4,8 @@ I have concerns related to the role of vendors in
 providing and disclosing knowledge necessary for safe
 therapy, their obligation to safety in the presence of
 protected intellectual property, as well as the role of
-open source methodology in establishing safe therapies.
+open source methodology in verifying, and practicing safe
+therapies.
 
 My name is Ben West, I'm a type 1 diabetic using an
 insulin pump and other gear made by Medtronic.  The
@@ -88,7 +89,12 @@ http://www.fda.gov/ForHealthProfessionals/ArticlesofInterest/ucm295562.htm
 confirms that lack of epistemic certainty regarding
 therapy results in harming patients.  It is a reflection
 on Medtronic that they refuse to share the knowledge
-needed to prevent these adverse events.
+needed to prevent these adverse events.  Many of these
+events can be prevented without servicing or modifying the
+device using generic software easily provided in any
+language.  My understanding is that vendors have distorted
+the facts around this situation, allowing confusion and
+misinformation to thrive.
 
 I shouldn't have to reverse engineer my own medical data.
 I don't understand how they can get away with doing harm
@@ -103,7 +109,11 @@ it's just too dangerous.
 Please contact me at your earliest convenience so that we
 can discuss the epistemic certainty[1] that the open source
 methodology provides, and put an end to the secrecy
-causing "adverse events."
+causing "adverse events."  I may have other parties
+interested in this discussion as well, is there any way we
+can set up some kind of conversation?
+
+I look forward to speaking with you,
 
 -bewest
 Ben West
@@ -111,4 +121,5 @@ San Francisco
 415-205-3920
 
 [1] http://openaccess.city.ac.uk/1069/1/1oo2-revised-13apr11.pdf
+https://github.com/bewest/insulaudit/blob/master/questions/fda.markdown
 
