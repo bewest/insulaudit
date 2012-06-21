@@ -1,10 +1,4 @@
-Dear Dr. Helene Clayton-Jeter,
-
-I have concerns related to the role of vendors in
-providing and disclosing knowledge necessary for safe
-therapy, their obligation to safety in the presence of
-protected intellectual property, as well as the role of
-open source methodology in establishing safe therapies.
+Howdy,
 
 My name is Ben West, I'm a type 1 diabetic using an
 insulin pump and other gear made by Medtronic.  The
@@ -100,15 +94,10 @@ supports.  I cannot abide allowing someone to give insulin
 to me without empirically investigating their methods,
 it's just too dangerous.
 
-Please contact me at your earliest convenience so that we
-can discuss the epistemic certainty[1] that the open source
-methodology provides, and put an end to the secrecy
-causing "adverse events."
-
 -bewest
 Ben West
 San Francisco
 415-205-3920
 
-[1] http://openaccess.city.ac.uk/1069/1/1oo2-revised-13apr11.pdf
+http://openaccess.city.ac.uk/1069/1/1oo2-revised-13apr11.pdf
 
