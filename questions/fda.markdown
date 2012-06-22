@@ -83,7 +83,9 @@ http://www.fda.gov/ForHealthProfessionals/ArticlesofInterest/ucm295562.htm
 confirms that lack of epistemic certainty regarding
 therapy results in harming patients.  It is a reflection
 on Medtronic that they refuse to share the knowledge
-needed to prevent these adverse events.
+needed to prevent these adverse events.  The therapeutic
+value of these pumps is mostly untapped, and it seems to
+be a deliberate choice.
 
 I shouldn't have to reverse engineer my own medical data.
 I don't understand how they can get away with doing harm
@@ -95,10 +97,9 @@ supports.  I cannot abide allowing someone to give insulin
 to me without empirically investigating their methods,
 it's just too dangerous.
 
--bewest
-Ben West
-San Francisco
-415-205-3920
+    -bewest
+    Ben West
+    Thu Jun 21 23:49:42 PDT 2012 San Francisco
 
 http://openaccess.city.ac.uk/1069/1/1oo2-revised-13apr11.pdf
 
