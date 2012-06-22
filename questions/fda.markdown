@@ -67,7 +67,8 @@ about the ability to correctly calibrate and fill my
 syringe, something Medtronic has expressly prevented me
 from doing.  The vendor is preventing access to
 information necessary for safe therapy, and has employed
-bundling and misinformation on the technology in order to
+software bundling and promotion of misinformation
+regarding the pump's technical capabilities in order to
 shape the market place in their favor at the cost of
 safety.
 
