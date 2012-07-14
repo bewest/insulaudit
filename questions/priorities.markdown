@@ -4,11 +4,11 @@ data and who is considered an "authorized user" of data.
 
 http://blogs.wsj.com/health/2012/06/26/the-microcomputer-in-your-chest-needs-a-landline/?KEYWORDS=medtronic
 
-    """But the monitors, which seamlessly download
-    information from the matchbox-sized “smart”
-    defibrillators as patients sleep, use traditional
-    phone lines to fire the information back to device
-    makers, such as Medtronic..."""
+> """But the monitors, which seamlessly download
+> information from the matchbox-sized “smart”
+> defibrillators as patients sleep, use traditional
+> phone lines to fire the information back to device
+> makers, such as Medtronic..."""
 
 So Medtronic makes a copy of the data from where it
 originates and still resides in me and transfers it to a
@@ -30,13 +30,13 @@ a web form.  I haven't given them permission to transfer
 data out of my control, they took the opportunity my
 vulnerability brings.
 
-    """Wireless is essential for the future,” said
-    Elizabeth Hoff, Medtronic’s general manager for
-    Cardiac Connected Care, the unit that makes its
-    CareLink monitoring system. “My mother, who eventually
-    will have an [implantable defibrillator], will not
-    even know her device is transmitted wirelessly up to
-    the cloud.”"""
+> """Wireless is essential for the future,” said
+> Elizabeth Hoff, Medtronic’s general manager for
+> Cardiac Connected Care, the unit that makes its
+> CareLink monitoring system. “My mother, who eventually
+> will have an [implantable defibrillator], will not
+> even know her device is transmitted wirelessly up to
+> the cloud.”"""
 
 Wording nits aside, I'm not sure why they would consider
 the data secret or why they would not feel the need to
@@ -47,18 +47,18 @@ is not denied like I am from accessing the fundamental
 controls to my health the way we used to with manual
 devices.
 
-    """To realize the full potential of data medical
-    devices collect for patient care — and profit — the
-    medical-technology industry says it has to defer to
-    outside players, such as cellular carriers. That’s an
-    “ecosystem the [device] industry doesn’t necessarily
-    control,” says Medtronic’s Hoff.
+> """To realize the full potential of data medical
+> devices collect for patient care — and profit — the
+> medical-technology industry says it has to defer to
+> outside players, such as cellular carriers. That’s an
+> “ecosystem the [device] industry doesn’t necessarily
+> control,” says Medtronic’s Hoff.
 
-    But, a wireless, data-driven future is very much in
-    Medtronic’s sights. “What we’re doing now is
-    recognizing that were putting computers into patients
-    bodies, and there is so much value in the data,” she
-    says. “Our strategy is to exploit the data.”""""
+> But, a wireless, data-driven future is very much in
+> Medtronic’s sights. “What we’re doing now is
+> recognizing that were putting computers into patients
+> bodies, and there is so much value in the data,” she
+> says. “Our strategy is to exploit the data.”""""
 
 I think the desire to retain as much control over data as
 possible in order to shape the market in their favor is
@@ -94,6 +94,6 @@ use, they are simply untapped at the intervention of
 Medtronic's software and my lack of access to their
 controls and logs.
 
-    -bewest
+> -bewest
 
 
