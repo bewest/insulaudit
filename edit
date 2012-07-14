@@ -1,4 +1,12 @@
 #!/bin/bash
-find . -name '*.py' -exec vim {} +
+ # Expand list of useful files into arguments for vim.
+ vim $(
+  find . -name '*.py'                \
+         -not -path './build*'       \
+         -or \( -name '*markdown' \) \
+         -or \( -name 'README*'   \) \
+  )
+  # I could never get this to work.
+  #-exec vim {} \+\;
 #####
 # EOF
