@@ -12,7 +12,8 @@ Setup script to install insulaudit.
 
 src = 'src'
 sys.path.append(src)
-import insulaudit.version as insulaudit
+sys.path.append(src + '/insulaudit')
+import version as insulaudit
 version     = insulaudit.__version__
 author      = insulaudit.__author__
 description = insulaudit.__doc__
