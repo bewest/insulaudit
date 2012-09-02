@@ -36,7 +36,6 @@ True
 
 """
 
-import doctest
 import dateutil.parser
 
 def _fmt_hex( bytez ):
@@ -323,6 +322,7 @@ def decodeDCByte(B):
   return ENCODE_TABLE.index(B)
 
 if __name__ == '__main__':
+  import doctest
   doctest.testmod( )
 
 #####

@@ -7,7 +7,6 @@ import serial
 import time
 import logging
 from pprint import pprint, pformat
-import doctest
 
 from insulaudit.core import Command
 from insulaudit.clmm.usbstick import *
@@ -544,6 +543,7 @@ def shutdownDevice(device):
 
 if __name__ == '__main__':
   io.info("hello world")
+  import doctest
   doctest.testmod( )
 
   port = None
