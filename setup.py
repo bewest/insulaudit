@@ -35,7 +35,7 @@ setup(
     url          = "http://github.com/bewest/insulaudit",
     packages     = find_packages(src),
     package_dir  = { '': src },
-    install_requires=[ 'pyserial', 'pyCLI', 'numpy', 'python-dateutil', 'doctest' ],
+    install_requires=[ 'pyserial', 'pyCLI', 'numpy', 'python-dateutil' ],
     long_description=read('README.markdown'),
     entry_points = {
       'console_scripts': [ 'insulaudit = insulaudit.main:main' ] },
