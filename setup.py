@@ -36,7 +36,7 @@ setup(
     packages     = find_packages(src),
     package_dir  = { '': src },
     install_requires=[ 'pyserial', 'pyCLI', 'numpy', 'python-dateutil', 'doctest' ],
-    long_description=read('README'),
+    long_description=read('README.markdown'),
     entry_points = {
       'console_scripts': [ 'insulaudit = insulaudit.main:main' ] },
 )
