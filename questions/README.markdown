@@ -276,9 +276,10 @@ they do this for many things already.
 ## Aren't you just tilting at windmills and making up complaints?
 
 No, I live with type 1 diabetes and I use an insulin pump.  I stop
-working about every hour so that I can follow procedures mandated by
-my use of the pump.  Having experienced low blood sugar and high blood
-sugars while attempting to follow the best advice, I find the
+working about every hour so that I can follow additional blood-letting
+procedures mandated by my use of the pump. The data goes nowhere I can
+use to improve my care.  Having experienced low blood sugar and high
+blood sugars while attempting to follow the best advice, I find the
 experiences outlined in the FDA report to be completely accurate and
 representative of my experience.
 
@@ -302,4 +303,6 @@ the FDA, their only objection is that the data is proprietary, or
 occasionally that it is useless data, exempt from HIPAA because it is
 not used in patient care.
 
-
+As for the blather, eventually I hope to see the creation and curation
+of an open suite technology to refine ever better and safer medical
+technology.  Beaglebone would make a great start.
