@@ -203,6 +203,9 @@ marketing problem, but a basic safety problem, fixable by including the
 protocol documentation in the user manual.  Many companies, especially
 TV manufacturers do this already.
 
+I don't know about medicine, but in software usability we try not to
+blame users.
+http://hcrenewal.blogspot.com/2011/10/nist-on-ehr-mission-hostile-user.html
 The fact that the device was working as designed when these hazardous
 conditions occurred only underscores the importance of making the
 behavior of these devices transparent and "debuggable" by the people
