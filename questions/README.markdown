@@ -16,6 +16,9 @@ communicate with the medical device.
 Here is an example of a document from Lifescan that educates a code
 literate person to talk with their glucometer:
 https://github.com/bewest/diabetes/blob/master/lifescan/OneTouchUltra2Protocol.pdf
+Now that some basic code, exists, others can re-use it or improve it
+in a way that makes sense to them or simply choose a vendor's
+solution.
 
 ## What will we do with this information?
 
@@ -100,18 +103,20 @@ and through the FDA approval process.
 
 ## But you are a novice and will mess up
 
-I have no confidence in my personal ability to write excellent and
-clean code.  I do have confidence in scientific methods, involving the
-review of my friends and colleagues, and the internet at large.  I'm
-convinced with the right community organized, there is a set of
-uniquely qualified people who can create a set of royalty-free safe
-technology that is easy to use and monitor.  The vendors mess up too,
-we've found numerous questionable during our code base, setting aside
-the "open" nature of the protocol as described by security hacker
-Jeromy Radcliffe et al.
+I have no confidence in my personal ability to write excellent,
+correct, and clean code.  I do have confidence in scientific methods,
+involving the review of my friends and colleagues, and the internet at
+large.  I'm convinced with the right community organized, there is a
+set of uniquely qualified people who can create a set of royalty-free
+safe technology that is easy to use and monitor.  The vendors mess up
+too, we've found numerous questionable issues during our analysis of
+their code base, setting aside the "open" nature of the protocol as
+described by security hacker
+[Jerome Radcliffe](https://www.blackhat.com/html/bh-us-12/speakers/Jerome-Radcliffe.html
+et al).
 
 The technology to do this is not magic just poorly reviewed.  Keeping
-it poorly reviewed won't increase safety.
+it poorly reviewed won't increase safety or security.
 
 ## But you are advanced user, what about all the intermediate users
 
@@ -210,3 +215,91 @@ The fact that the device was working as designed when these hazardous
 conditions occurred only underscores the importance of making the
 behavior of these devices transparent and "debuggable" by the people
 using them.
+
+## Why do this, did you have a bad childhood?
+
+No, I had a marvelously happy childhood reading fiction, playing with
+legos, tinker-toys, lincoln logs, puzzles, pianos, remote controlled
+toy cars, erector sets, chemistry sets, nature walks, and kitchens,
+developing an intuitive sense for how different things work and how
+they can be put together to produce either interesting, lovely, or
+compassionate results.  The world is full of interesting problems to
+solve, and the way most things work bears a striking resemblance to
+the way most other things work.  My childhood was also full of
+lectures on critical thinking, which over time became obvious
+conversation fillers.
+
+Currently, despite my howling at windmills, I live a rather care-free
+and happy life.  I work for an incredible company with the best and
+smartest people I've ever met working on interesting problems with the
+best support day in and day out.  I go to the gym for acrobatics and
+yoga 3 times a week because I like handstands.  Outside of work I
+maintain a professional musical performance schedule singing in
+several choirs, and occasionally as soloist.  I also play Samuel
+Barber, Bach, or Beethoven almost every day on either piano or
+ukulele.  Yes, almost every day.  Bringing your ukulele to lunch makes
+this easier.  I often walk in to work with a smile on my face, and I
+think everyone should whistle and sing more often.
+
+As I said, it turns out that in the course of attempting to monitor my
+therapy, I discovered a potential ability to correct persistent and
+dangerous design flaws.  My blood has boiled to acid leaving me
+writhing in pain because I never thought to question whether or not an
+annoyingly mundane alarm was actually significant after years of
+flawless use and the failure of other systems to alarm.  Now that my
+honeymoon phase is ending, I regularly catch and avoid dangerous
+situations just hours, minutes before they occur. Sometimes I discover
+them by actually experiencing the symptoms of insulin reactions caused
+by overdoses.  However, I do a much better job these days of
+questioning the [fidelity of the
+care](http://www.forbes.com/sites/andygreenberg/2012/06/26/eben-moglen-time-to-apply-the-first-law-of-robotics-to-our-smartphones/)
+my pump is offering.
+
+There are others in the open source community who will take the
+knowledge I render and bring it to great good.  However, someone needs
+to make that vision possible.
+
+## What about the FDA?
+
+The FDA doesn't have a good channel for establishing meaningful
+discussions with people like me.  I overwhelmed them with several
+concerns, and they rightfully informed me that they are only
+interested in safety concerns.  At the time of this writing, Thu Sep
+13 01:03:06 PDT 2012, I'm still waiting to hear back on my questions
+spefically targeted at safety from 2012-08-14.  I've tried submitting
+a proposal I think they can act on, but who knows.  The proposal was
+that access to debugging information such as the serial protocol is
+required for safety, and as such should be placed in the user manual.
+The FDA can easily mandate what information belongs in user manuals,
+they do this for many things already.
+
+## Aren't you just tilting at windmills and making up complaints?
+
+No, I live with type 1 diabetes and I use an insulin pump.  I stop
+working about every hour so that I can follow procedures mandated by
+my use of the pump.  Having experienced low blood sugar and high blood
+sugars while attempting to follow the best advice, I find the
+experiences outlined in the FDA report to be completely accurate and
+representative of my experience.
+
+One of the pieces of feedback I get is to stop complaining, fix it for
+my situation and then share it, or to find an "up and coming"
+competitor, and get in on the action with them.  Well, those are valid
+pieces of feedback.  I'm trying both, and I agree that this is all
+meaningless blather.  I've contacted 4 or 5 competitors who generally
+share Medtronic's enthusiasm for helping patients.  I will continue to
+contact others, and welcome contact from any pump manufacturer who
+will engage in technical discussions.  I don't mind putting in some
+work to optimize my technology for my specific situation, but I don't
+think it's ethical for my vendor to prevent me from properly auditing
+equipment I own, especially when my health is on the line.
+
+In informal settings, I've found engineers who work for Medtronic who
+mostly agreed with my points, especially related to the scientific
+mandate for independent reproduction, ignoring claims that the data is
+not "useful."  In all my formal discussions with the vendors and with
+the FDA, their only objection is that the data is proprietary, or
+occasionally that it is useless data, exempt from HIPAA because it is
+not used in patient care.
+
+
