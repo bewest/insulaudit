@@ -166,7 +166,7 @@ tty.js
 insulaudit onetouch sugars
 
 # terminal 2 - forward tty.js somewhere else
-ssh -g -R *:8080:127.0.0.1 public.example.com
+ssh -g -R *:8080:127.0.0.1:8080 public.example.com
 # Now, visit public.example.com:8080 where you can do the same thing.
 ```
 
