@@ -98,7 +98,7 @@ us instead of slaving away for the machines others have designed.
 
 ## Writing
 
-We need lots of documents, ranging from technical analsis, to arguments for
+We need lots of documents, ranging from technical analysis, to arguments for
 getting access to our data.
 
 You can edit the wiki, make a fork and submit patches, or simply use
