@@ -85,7 +85,7 @@ def hexdump( src, length=8 ):
     text = ''.join( [ chr(x) if 0x20 <= x < 0x7F else '.' \
                     for x in s ] )
     result.append( "%04X   %-*s   %s" % \
-                 ( i, length * ( digits + 1 )
+                 ( i, length * 5
                  , hexa, text ) )
   return '\n'.join(result)
 

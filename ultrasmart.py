@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+"""
+XXX: Does not work.
+Protocol for ULTRASMART requires some sort of initialization handshake and/or
+placing the USB configuration into "self-powered" mode.
+
+"""
+
 import user
 import serial
 from pprint import pprint, pformat
