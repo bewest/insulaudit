@@ -98,6 +98,12 @@ def decode_chunk(chunk):
   """
   hex_dump_data(chunk)
 
+  longs = [ ]
+  for x in range(0, 32, 4):
+    q = lib.BangLong(chunk[x:x+4])
+    longs.append(q)
+  logger.info('longs? %s' % ' '.join(map(str, longs)))
+
 def do_chunk(handle):
   """read a chunk, and call decode_chunk"""
   chunk = read_chunk(handle)
