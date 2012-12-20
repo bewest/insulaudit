@@ -51,6 +51,7 @@ def init( ):
 
 
 if __name__ == '__main__':
+  PORT = len(sys.argv) > 1 and sys.argv[1] or PORT
   port = init()
   io.info( port )
   port.close( )

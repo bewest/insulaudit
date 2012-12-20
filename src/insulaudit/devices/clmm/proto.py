@@ -16,9 +16,10 @@ log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
 io  = logging.getLogger('.'.join(['io', __name__, 'io' ]))
 #io = log
-io.setLevel( logging.DEBUG )
+#io.setLevel( logging.DEBUG )
 
 """
+Baud rate: BAUD_57600
 ######################
 #
 # ComLink2
@@ -322,17 +323,21 @@ class Device(object):
         that.sendAndRead()
         return True
       except DeviceCommsError, e:
+        log.error('\n'.join(map(str,
+                 [ 'device failed executing', self.command, e ])))
         errors.append(e)
       return False
       
-    if not retry(execute, sleep=.150):
-      raise DeviceCommsError('\n'.join([ "tried executing %s bunch of times and failed"
-                            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
+    if not retry(execute, retry=command.retries+1, sleep=2):
+      raise DeviceCommsError('\n'.join(
+            [ "tried executing command %s times and failed\n%s"
+            , "%s" % ('\n\t'.join(map(str, errors)))
+            ]) % (self.command.retries, self.command))
       
 
   def sendAndRead(self):
     self.sendDeviceCommand()
-    time.sleep(self.command.effectTime)
+    #time.sleep(self.command.effectTime)
     if self.expectedLength > 0:
       # in original code, this modifies the length tested in the previous if
       # statement
@@ -342,7 +347,8 @@ class Device(object):
     packet = self.buildTransmitPacket()
     io.info('sendDeviceCommand:write:%r' % (self.command))
     self.link.write(packet)
-    time.sleep(.500)
+    #time.sleep(.100)
+    time.sleep(self.command.effectTime)
     code = self.command.code
     params = self.command.params
     if code != 93 or params[0] != 0:
@@ -440,12 +446,14 @@ class Device(object):
 
     stat = StickStatusStruct(status)
     header = result[0:3]
-    test = [ StickStatusStruct(s) for s in header ]
-    log.info(test)
     log.info("HEADER:\n%s" % lib.hexdump(header))
     if 0 != commStatus:
       raise DeviceCommsError('\n'.join([ "rf read header indicates failure"
-                                       , "%s" % lib.hexdump(header) ]))
+                                       , str(stat)
+                                       , "header"
+                                       , lib.hexdump(header)
+                                       , "body"
+                                       , lib.hexdump(result[3:]) ]))
     assert commStatus == 0, ("command status not 0: %s:%s" % (commStatus, stat))
     bytesAvailable = lib.BangInt((lb, hb))
     self.status    = status
@@ -550,6 +558,7 @@ class ReadErrorStatus(PumpCommand):
   params = [ ]
   retries = 2
   maxRecords = 1
+  #effectTime = 3
 
 class ReadPumpState(PumpCommand):
   """

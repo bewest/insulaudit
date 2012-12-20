@@ -373,7 +373,8 @@ class Device(object):
 
 class PumpCommand(BaseCommand):
   #serial = '665455'
-  serial = '206525'
+  #serial = '206525'
+  serial = '208850'
 
   params = [ ]
   bytesPerRecord = 64
@@ -423,6 +424,12 @@ class PumpCommand(BaseCommand):
     packet.append(CRC8(params))
     io.info(packet)
     return bytearray(packet)
+    length = self.bytesPerRecord * self.maxRecords
+    i = length / 64
+    j = length % 64
+    if j > 0:
+      return i + 1
+    return i
 
   def calcRecordsRequired(self):
     length = self.bytesPerRecord * self.maxRecords
@@ -431,6 +438,7 @@ class PumpCommand(BaseCommand):
     if j > 0:
       return i + 1
     return i
+
 
 class PowerControl(PumpCommand):
   """
@@ -491,6 +499,15 @@ class ReadPumpState(PumpCommand):
   params = [ ]
   retries = 2
   maxRecords = 1
+
+class ReadGlucoseHistory(PumpCommand):
+  """
+  """
+  descr = "Read glucose history"
+  code = 131
+  params = [ ]
+  retries = 2
+
 
 class ReadPumpModel(PumpCommand):
   """

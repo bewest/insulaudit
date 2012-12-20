@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import serial
+import sys
 from pprint import pprint, pformat
 
 import insulaudit
@@ -53,6 +54,7 @@ def init( ):
 
 
 if __name__ == '__main__':
+  PORT = len(sys.argv) > 1 and sys.argv[1] or PORT
   port = init()
   io.info( port )
 
