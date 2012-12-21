@@ -203,7 +203,7 @@ class Link( core.CommBuffer ):
     # throw local usb exception
 
   def checkAck(self):
-    time.sleep(.100)
+    #time.sleep(.100)
     result     = bytearray(self.read(64))
     io.info('checkAck:read')
     commStatus = result[0]
@@ -288,7 +288,7 @@ class Device(object):
     packet = self.buildTransmitPacket()
     io.info('sendDeviceCommand:write:%r' % (self.command))
     self.link.write(packet)
-    time.sleep(.500)
+    time.sleep(.001)
     code = self.command.code
     params = self.command.params
     if code != 93 or params[0] != 0:
@@ -350,7 +350,7 @@ class Device(object):
     while result == 0 and time.time() - start < 1:
       log.debug('%r:getNumBytesAvailable:attempt:%s' % (self, i))
       result = self.readStatus( )
-      time.sleep(.100)
+      time.sleep(.10)
       i += 1
     log.info('getNumBytesAvailable:%s' % result)
     return result
@@ -424,12 +424,6 @@ class PumpCommand(BaseCommand):
     packet.append(CRC8(params))
     io.info(packet)
     return bytearray(packet)
-    length = self.bytesPerRecord * self.maxRecords
-    i = length / 64
-    j = length % 64
-    if j > 0:
-      return i + 1
-    return i
 
   def calcRecordsRequired(self):
     length = self.bytesPerRecord * self.maxRecords
@@ -474,17 +468,26 @@ class ReadErrorStatus(PumpCommand):
 
 class ReadHistoryData(PumpCommand):
   """
-    >>> ReadPumpState().format() == ReadPumpState._test_ok
-    True
   """
-  _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
-                         0x00, 0x00, 0x02, 0x01, 0x00, 0x83, 0x2E, 0x00 ])
 
-  code = 131
-  descr = "Read Pump State"
+  code = 128
+  descr = "Read History Data"
   params = [ ]
   retries = 2
   maxRecords = 1
+
+class ReadRTC(PumpCommand):
+  """
+  """
+
+  code = 112
+  descr = "Read RTC"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    return self.data
 
 class ReadPumpState(PumpCommand):
   """
@@ -532,9 +535,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  comm   = PowerControl()
-  device.execute(comm)
-  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  #comm   = PowerControl()
+  #device.execute(comm)
+  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -551,6 +554,11 @@ def do_commands(device):
   device.execute(comm)
   log.info('comm:%s:data:%s' % (comm, getattr(comm.getData( ), 'data', None)))
   log.info('REMOTE PUMP MODEL NUMBER: %s' % comm.getData( ))
+
+  log.info("READ RTC")
+  comm = ReadRTC( )
+  device.execute(comm)
+  log.info('comm:RTC:%s' % (lib.hexdump(comm.getData( ))))
 
 def shutdownDevice(device):
   comm = PowerControlOff()
