@@ -490,7 +490,6 @@ class ReadRTC(PumpCommand):
 
   def getData(self):
     data = self.data
-    log.info("interpreting date:\n%s" % (lib.hexdump(bytearray(data))))
     d = {
       'hour'  : int(data[0]),
       'minute': int(data[1]),
@@ -515,6 +514,25 @@ class ReadPumpID(PumpCommand):
   def getData(self):
     data = self.data
     return str(data[0:6])
+
+class ReadBatteryStatus(PumpCommand):
+  """
+  """
+
+  code = 114
+  descr = "Read Battery Status"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    bd = bytearray(data)
+    volt = lib.BangInt((bd[1], bd[2]))
+    indicator = bd[0]
+    battery = {'status': {0: 'normal', 1: 'low'}[indicator], 'voltage': volt/100.0 }
+    return battery
+
 
 class ReadPumpState(PumpCommand):
   """
@@ -562,9 +580,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  #comm   = PowerControl()
-  #device.execute(comm)
-  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  comm   = PowerControl()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -586,13 +604,17 @@ def do_commands(device):
   comm = ReadRTC( )
   device.execute(comm)
   log.info('comm:RTC:%s' % (comm.getData( )))
-  log.info('comm:RTC:%s' % (lib.hexdump(bytearray(comm.data))))
 
   log.info("READ PUMP ID")
   comm = ReadPumpID( )
   device.execute(comm)
-  log.info('comm:READ PUMP ID:\n%s' % (lib.hexdump(bytearray(comm.data))))
   log.info('comm:READ PUMP ID: ID: %s' % (comm.getData( )))
+
+
+  log.info("Battery Status")
+  comm = ReadBatteryStatus( )
+  device.execute(comm)
+  log.info('comm:READ Battery Status: %r' % (comm.getData( )))
 
 
 def shutdownDevice(device):
