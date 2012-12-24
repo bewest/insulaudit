@@ -373,9 +373,9 @@ class Device(object):
     return self.command.format( )
 
 class PumpCommand(BaseCommand):
-  serial = '665455'
+  #serial = '665455'
   #serial = '206525'
-  #serial = '208850'
+  serial = '208850'
 
   params = [ ]
   bytesPerRecord = 64
@@ -585,6 +585,26 @@ class ReadTotalsToday(PumpCommand):
     return totals
 
 
+class ReadRadioCtrlACL(PumpCommand):
+  """
+  """
+
+  code = 118
+  descr = "Read Radio ACL"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    ids = [ ]
+    ids.append( str(data[0:6]) )
+    ids.append( str(data[6:12]) )
+    ids.append( str(data[12:18]) )
+    log.info("READ radio ACL:\n%s" % lib.hexdump(data))
+    return ids
+
+
 class ReadPumpState(PumpCommand):
   """
     >>> ReadPumpState().format() == ReadPumpState._test_ok
@@ -681,6 +701,11 @@ def do_commands(device):
   comm = ReadTotalsToday( )
   device.execute(comm)
   log.info('comm:READ totals today: %r' % (comm.getData( )))
+
+  log.info("read totals today")
+  comm = ReadRadioCtrlACL( )
+  device.execute(comm)
+  log.info('comm:READ radio ACL: %r' % (comm.getData( )))
 
 
 def shutdownDevice(device):
