@@ -534,6 +534,22 @@ class ReadBatteryStatus(PumpCommand):
     return battery
 
 
+class ReadFirmwareVersion(PumpCommand):
+  """
+  """
+
+  code = 116
+  descr = "Read Firmware Version"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    log.debug("READ FIRMWARE HEX:\n%s" % lib.hexdump(data))
+    return str(data.split( chr(0x0b) )[0]).strip( )
+
+
 class ReadPumpState(PumpCommand):
   """
     >>> ReadPumpState().format() == ReadPumpState._test_ok
@@ -616,6 +632,10 @@ def do_commands(device):
   device.execute(comm)
   log.info('comm:READ Battery Status: %r' % (comm.getData( )))
 
+  log.info("Firmware Version")
+  comm = ReadFirmwareVersion( )
+  device.execute(comm)
+  log.info('comm:READ Firmware Version: %r' % (comm.getData( )))
 
 def shutdownDevice(device):
   comm = PowerControlOff()
