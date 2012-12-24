@@ -373,9 +373,9 @@ class Device(object):
     return self.command.format( )
 
 class PumpCommand(BaseCommand):
-  #serial = '665455'
+  serial = '665455'
   #serial = '206525'
-  serial = '208850'
+  #serial = '208850'
 
   params = [ ]
   bytesPerRecord = 64
@@ -565,6 +565,26 @@ class ReadRemainingInsulin(PumpCommand):
     return lib.BangInt(data[0:2])/10.0
 
 
+class ReadTotalsToday(PumpCommand):
+  """
+  """
+
+  code = 121
+  descr = "Read Totals Today"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    log.info("READ totals today:\n%s" % lib.hexdump(data))
+    totals = {
+      'today': lib.BangInt(data[0:2]) / 10.0,
+      'yesterday': lib.BangInt(data[2:4]) / 10.0
+    }
+    return totals
+
+
 class ReadPumpState(PumpCommand):
   """
     >>> ReadPumpState().format() == ReadPumpState._test_ok
@@ -611,9 +631,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  comm   = PowerControl()
-  device.execute(comm)
-  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  #comm   = PowerControl()
+  #device.execute(comm)
+  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -656,6 +676,11 @@ def do_commands(device):
   comm = ReadRemainingInsulin( )
   device.execute(comm)
   log.info('comm:READ Remaining Insulin: %r' % (comm.getData( )))
+
+  log.info("read totals today")
+  comm = ReadTotalsToday( )
+  device.execute(comm)
+  log.info('comm:READ totals today: %r' % (comm.getData( )))
 
 
 def shutdownDevice(device):
