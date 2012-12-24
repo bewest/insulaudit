@@ -311,7 +311,8 @@ class Device(object):
     lb, hb    = results[5] & 0x7F, results[6]
     self.eod  = (results[5] & 0x80) > 0
     resLength = lib.BangInt((lb, hb))
-    assert resLength > 63, ("cmd low byte count:\n%s" % lib.hexdump(results))
+    log.info('XXX resLength: %s' % resLength)
+    #assert resLength < 64, ("cmd low byte count:\n%s" % lib.hexdump(results))
 
     data = results[13:13+resLength]
     assert len(data) == resLength
@@ -489,16 +490,31 @@ class ReadRTC(PumpCommand):
 
   def getData(self):
     data = self.data
+    log.info("interpreting date:\n%s" % (lib.hexdump(bytearray(data))))
     d = {
       'hour'  : int(data[0]),
       'minute': int(data[1]),
       'second': int(data[2]),
       # XXX
-      'year'  : 2000 + int( '%02x' % (data[4] & 0x0F)),
+      'year'  : 2000 + (data[4] & 0x0F),
       'month' : int(data[5]),
       'day'   : int(data[6]),
     }
     return "%(year)s-%(month)s-%(day)sT%(hour)s:%(minute)s:%(second)s" % (d)
+
+class ReadPumpID(PumpCommand):
+  """
+  """
+
+  code = 113
+  descr = "Read Pump ID"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    return str(data[0:6])
 
 class ReadPumpState(PumpCommand):
   """
@@ -571,6 +587,13 @@ def do_commands(device):
   device.execute(comm)
   log.info('comm:RTC:%s' % (comm.getData( )))
   log.info('comm:RTC:%s' % (lib.hexdump(bytearray(comm.data))))
+
+  log.info("READ PUMP ID")
+  comm = ReadPumpID( )
+  device.execute(comm)
+  log.info('comm:READ PUMP ID:\n%s' % (lib.hexdump(bytearray(comm.data))))
+  log.info('comm:READ PUMP ID: ID: %s' % (comm.getData( )))
+
 
 def shutdownDevice(device):
   comm = PowerControlOff()
