@@ -624,6 +624,55 @@ class ReadBasalTemp(PumpCommand):
     log.info("READ temporary basal:\n%s" % lib.hexdump(data))
     return { 'rate': rate, 'duration': duration }
 
+class ReadSettings(PumpCommand):
+  """
+  """
+
+  code = 192
+  descr = "Read Settings"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def alarm(self, alarm):
+    d = { 'volume': alarm, 'mode': 2 }
+    if alarm == 4:
+      d = { 'volume': -1, 'mode': 1 }
+    return d
+    
+  def getData(self):
+    data = self.data
+    log.info("READ pump settings:\n%s" % lib.hexdump(data))
+    
+
+    auto_off_duration_hrs = data[0]
+    alarm = self.alarm(data[1])
+    audio_bolus_enable = data[2] == 1
+    audio_bolus_size = 0
+    if audio_bolus_enable:
+      audio_bolus_size = data[3] / 10.0
+    variable_bolus_enable = data[4] == 1  
+    #MM23 is different
+    maxBolus = data[5]/ 10.0
+    # MM512 and up
+    maxBasal = lib.BangInt(data[6:8]) / 40
+    timeformat = data[8]
+    insulinConcentration = {0: 100, 1: 50}[data[9]]
+    patterns_enabled = data[10] == 1
+    selected_pattern = data[11]
+    rf_enable = data[12] == 1
+    block_enable = data[13] == 1
+    """
+    # MM12
+    insulin_action_type = data[17] == 0 and 'Fast' or 'Regular'
+    """
+    #MM15
+    insulin_action_type = data[17]
+    low_reservoir_warn_type = data[18]
+    low_reservoir_warn_point = data[19]
+    keypad_lock_status = data[20]
+
+    return locals( )
 
 class ReadPumpState(PumpCommand):
   """
@@ -671,9 +720,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  comm   = PowerControl()
-  device.execute(comm)
-  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  #comm   = PowerControl()
+  #device.execute(comm)
+  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -731,6 +780,11 @@ def do_commands(device):
   comm = ReadBasalTemp( )
   device.execute(comm)
   log.info('comm:READ temp basal: %r' % (comm.getData( )))
+
+  log.info("read settings")
+  comm = ReadSettings( )
+  device.execute(comm)
+  log.info('comm:READ settings!: %r' % (comm.getData( )))
 
 
 def shutdownDevice(device):
