@@ -604,6 +604,26 @@ class ReadRadioCtrlACL(PumpCommand):
     log.info("READ radio ACL:\n%s" % lib.hexdump(data))
     return ids
 
+class ReadBasalTemp(PumpCommand):
+  """
+  MM511 - 120
+  MM512 and up - opcode 152
+  # strokes per basalunit = 40 - mm12, 10 in mm11
+  """
+
+  code = 152
+  descr = "Read Temp Basal"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    rate = lib.BangInt(data[2:4])/40.0
+    duration = lib.BangInt(data[4:6])
+    log.info("READ temporary basal:\n%s" % lib.hexdump(data))
+    return { 'rate': rate, 'duration': duration }
+
 
 class ReadPumpState(PumpCommand):
   """
@@ -651,9 +671,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  #comm   = PowerControl()
-  #device.execute(comm)
-  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  comm   = PowerControl()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -702,10 +722,15 @@ def do_commands(device):
   device.execute(comm)
   log.info('comm:READ totals today: %r' % (comm.getData( )))
 
-  log.info("read totals today")
+  log.info("read remote IDS")
   comm = ReadRadioCtrlACL( )
   device.execute(comm)
   log.info('comm:READ radio ACL: %r' % (comm.getData( )))
+
+  log.info("read temporary basal")
+  comm = ReadBasalTemp( )
+  device.execute(comm)
+  log.info('comm:READ temp basal: %r' % (comm.getData( )))
 
 
 def shutdownDevice(device):
