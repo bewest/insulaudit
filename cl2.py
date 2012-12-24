@@ -486,8 +486,19 @@ class ReadRTC(PumpCommand):
   retries = 2
   maxRecords = 1
 
+
   def getData(self):
-    return self.data
+    data = self.data
+    d = {
+      'hour'  : int(data[0]),
+      'minute': int(data[1]),
+      'second': int(data[2]),
+      # XXX
+      'year'  : 2000 + int( '%02x' % (data[4] & 0x0F)),
+      'month' : int(data[5]),
+      'day'   : int(data[6]),
+    }
+    return "%(year)s-%(month)s-%(day)sT%(hour)s:%(minute)s:%(second)s" % (d)
 
 class ReadPumpState(PumpCommand):
   """
@@ -558,7 +569,8 @@ def do_commands(device):
   log.info("READ RTC")
   comm = ReadRTC( )
   device.execute(comm)
-  log.info('comm:RTC:%s' % (lib.hexdump(comm.getData( ))))
+  log.info('comm:RTC:%s' % (comm.getData( )))
+  log.info('comm:RTC:%s' % (lib.hexdump(bytearray(comm.data))))
 
 def shutdownDevice(device):
   comm = PowerControlOff()

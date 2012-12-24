@@ -321,6 +321,7 @@ def decodeDCByte(B):
   # look up in decode table
   return ENCODE_TABLE.index(B)
 
+
 if __name__ == '__main__':
   import doctest
   doctest.testmod( )

@@ -16,10 +16,9 @@ log.setLevel( logging.DEBUG )
 log.info( 'hello world' )
 io  = logging.getLogger('.'.join(['io', __name__, 'io' ]))
 #io = log
-#io.setLevel( logging.DEBUG )
+io.setLevel( logging.DEBUG )
 
 """
-Baud rate: BAUD_57600
 ######################
 #
 # ComLink2
@@ -142,6 +141,7 @@ execute:
 class ProtocolError(Exception): pass
 
 class DeviceCommsError(ProtocolError): pass
+class RFFailed(DeviceCommsError): pass
 class AckError(DeviceCommsError): pass
 
 def retry(block, retry=3, sleep=0):
@@ -223,13 +223,14 @@ class Link( core.CommBuffer ):
     msg = bytearray([ msg, a2, a3 ])
     io.info('sendComLink2Command:write')
     self.write(msg)
-    return retry(self.checkAck, sleep=.100)
+    return retry(self.checkAck, sleep=.01)
     # throw local usb exception
 
-  def checkAck(self):
-    time.sleep(.100)
+  def checkAck(self, sleep=.01):
+    time.sleep(sleep)
     result     = bytearray(self.read(64))
     if len(result) == 0:
+      return False
       raise AckError('checkAck must have a response')
     io.info('checkAck:read')
     commStatus = result[0]
@@ -241,7 +242,7 @@ class Link( core.CommBuffer ):
     status     = result[1]
     # status == 102 'f' NAK, look up NAK
     if status == 85: # 'U'
-      log.info('ACK OK')
+      log.info('checkACK: ACK OK')
       return result[3:]
     assert False, "NAK!!"
 
@@ -323,32 +324,27 @@ class Device(object):
         that.sendAndRead()
         return True
       except DeviceCommsError, e:
-        log.error('\n'.join(map(str,
-                 [ 'device failed executing', self.command, e ])))
         errors.append(e)
       return False
       
-    if not retry(execute, retry=command.retries+1, sleep=2):
-      raise DeviceCommsError('\n'.join(
-            [ "tried executing command %s times and failed\n%s"
-            , "%s" % ('\n\t'.join(map(str, errors)))
-            ]) % (self.command.retries, self.command))
+    if not retry(execute, sleep=.150):
+      raise DeviceCommsError('\n'.join([ "tried executing %s bunch of times and failed"
+                            , "%s" % ('\n\t'.join(map(str, errors))) ]) % self.command)
       
 
   def sendAndRead(self):
     self.sendDeviceCommand()
-    #time.sleep(self.command.effectTime)
+    time.sleep(self.command.effectTime)
     if self.expectedLength > 0:
-      # in original code, this modifies the length tested in the previous if
-      # statement
+      # in original code, this modifies the length tested in
+      # the previous if statement
       self.command.data = self.readDeviceData()
 
   def sendDeviceCommand(self):
     packet = self.buildTransmitPacket()
     io.info('sendDeviceCommand:write:%r' % (self.command))
     self.link.write(packet)
-    #time.sleep(.100)
-    time.sleep(self.command.effectTime)
+    time.sleep(.500)
     code = self.command.code
     params = self.command.params
     if code != 93 or params[0] != 0:
@@ -374,10 +370,11 @@ class Device(object):
     assert resLength > 63, ("cmd low byte count:\n%s" % lib.hexdump(results))
 
     data = results[13:13+resLength]
+    #log.debug('readDeviceDataIO:data length check:%r:expected length:%r' % ())
     assert len(data) == resLength
     crc = results[-1]
     # crc check
-    log.info('readDeviceDataIO:msgCRC:%r:expectedCRC:%r:data:%r' % (crc, CRC8(data), data))
+    log.debug('readDeviceDataIO:msgCRC:%r:expectedCRC:%r:data:%r' % (crc, CRC8(data), data))
     assert crc == CRC8(data)
     return data
 
@@ -419,26 +416,27 @@ class Device(object):
     while result == 0 and time.time() - start < 4:
       log.debug('%r:getNumBytesAvailable:attempt:%s' % (self, i))
       result = self.readStatus( )
-      time.sleep(.100)
+      time.sleep(.001)
       i += 1
     log.info('getNumBytesAvailable:%s' % result)
     return result
 
   def readStatus(self):
-    """
     result = False
     def fetch_status( ):
       res = self.link.sendComLink2Command(3)
-      status = res[0] # 0 indicates success
+      status = res and res[0] # 0 indicates success
       if status == 0:
         result = res
         return True
       return False
       
-    if not retry(fetch_status) or not result or len(result) == 0:
+    if not retry(fetch_status) or len(result) == 0:
       raise RFFailed("rf read header indicates failure")
     """
-    result         = self.link.sendComLink2Command(3)
+    """
+    #result         = self.link.sendComLink2Command(3)
+      
     commStatus     = result[0] # 0 indicates success
     
     status         = result[2]
@@ -446,14 +444,12 @@ class Device(object):
 
     stat = StickStatusStruct(status)
     header = result[0:3]
+    test = [ StickStatusStruct(s) for s in header ]
+    log.info(test)
     log.info("HEADER:\n%s" % lib.hexdump(header))
     if 0 != commStatus:
       raise DeviceCommsError('\n'.join([ "rf read header indicates failure"
-                                       , str(stat)
-                                       , "header"
-                                       , lib.hexdump(header)
-                                       , "body"
-                                       , lib.hexdump(result[3:]) ]))
+                                       , "%s" % lib.hexdump(header) ]))
     assert commStatus == 0, ("command status not 0: %s:%s" % (commStatus, stat))
     bytesAvailable = lib.BangInt((lb, hb))
     self.status    = status
@@ -558,7 +554,6 @@ class ReadErrorStatus(PumpCommand):
   params = [ ]
   retries = 2
   maxRecords = 1
-  #effectTime = 3
 
 class ReadPumpState(PumpCommand):
   """
