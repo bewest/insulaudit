@@ -549,6 +549,21 @@ class ReadFirmwareVersion(PumpCommand):
     log.debug("READ FIRMWARE HEX:\n%s" % lib.hexdump(data))
     return str(data.split( chr(0x0b) )[0]).strip( )
 
+class ReadRemainingInsulin(PumpCommand):
+  """
+  """
+
+  code = 115
+  descr = "Read Remaining Insulin"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    log.info("READ remaining insulin:\n%s" % lib.hexdump(data))
+    return lib.BangInt(data[0:2])/10.0
+
 
 class ReadPumpState(PumpCommand):
   """
@@ -636,6 +651,12 @@ def do_commands(device):
   comm = ReadFirmwareVersion( )
   device.execute(comm)
   log.info('comm:READ Firmware Version: %r' % (comm.getData( )))
+
+  log.info("remaining insulin")
+  comm = ReadRemainingInsulin( )
+  device.execute(comm)
+  log.info('comm:READ Remaining Insulin: %r' % (comm.getData( )))
+
 
 def shutdownDevice(device):
   comm = PowerControlOff()
