@@ -765,8 +765,8 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  comm   = PowerControl()
-  device.execute(comm)
+  #comm   = PowerControl()
+  #device.execute(comm)
   #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
@@ -853,10 +853,10 @@ def get_pages(device):
   pages = comm.getData( )
 
   for x in range(pages):
-    log.info('comm:READ page number!!!: %r' % (comm.getData( )))
-    log.info("read HISTORY DATA")
+    log.info('comm:READ HISTORY DATA page number: %r' % (x))
     comm = ReadHistoryData( params=[ x ] )
     device.execute(comm)
+    comm.getData( )
   #log.info('comm:READ history data!!!: %r' % (comm.getData( )))
 
 def shutdownDevice(device):
