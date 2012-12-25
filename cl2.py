@@ -478,7 +478,7 @@ class ReadHistoryData(PumpCommand):
 
   code = 128
   descr = "Read History Data"
-  params = [ 0x03 ]
+  params = [ 0x00 ]
   retries = 2
   maxRecords = 2
 
@@ -495,12 +495,12 @@ class ReadCurPageNumber(PumpCommand):
   descr = "Read Cur Page Number"
   params = [ ]
   retries = 2
-  maxRecords = 2
+  maxRecords = 1
 
   def getData(self):
     data = self.data
     log.info("XXX: READ cur page number:\n%s" % lib.hexdump(data))
-    return data
+    return lib.BangLong(data[0:4])
 
 
 class ReadRTC(PumpCommand):
@@ -767,7 +767,7 @@ def initDevice(link):
 
   comm   = PowerControl()
   device.execute(comm)
-  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -844,7 +844,20 @@ def do_commands(device):
   log.info("read HISTORY DATA")
   comm = ReadHistoryData( )
   device.execute(comm)
-  log.info('comm:READ history data!!!: %r' % (comm.getData( )))
+  #log.info('comm:READ history data!!!: %r' % (comm.getData( )))
+
+def get_pages(device):
+  log.info("read cur page number")
+  comm = ReadCurPageNumber( )
+  device.execute(comm)
+  pages = comm.getData( )
+
+  for x in range(pages):
+    log.info('comm:READ page number!!!: %r' % (comm.getData( )))
+    log.info("read HISTORY DATA")
+    comm = ReadHistoryData( params=[ x ] )
+    device.execute(comm)
+  #log.info('comm:READ history data!!!: %r' % (comm.getData( )))
 
 def shutdownDevice(device):
   comm = PowerControlOff()
@@ -867,7 +880,8 @@ if __name__ == '__main__':
   link = Link(port)
   link.initUSBComms()
   device = initDevice(link)
-  do_commands(device)
+  #do_commands(device)
+  get_pages(device)
   #shutdownDevice(device)
   link.endCommunicationsIO()
   #pprint( carelink( USBProductInfo(      ) ).info )
