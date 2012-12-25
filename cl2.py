@@ -437,7 +437,7 @@ class PumpCommand(BaseCommand):
 
 class PowerControl(PumpCommand):
   """
-    >>> PowerControl().format() == PowerControl._test_ok
+    >>> PowerControl(serial='665455').format() == PowerControl._test_ok
     True
   """
   _test_ok = bytearray( [ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
@@ -456,7 +456,7 @@ class PowerControlOff(PowerControl):
 
 class ReadErrorStatus(PumpCommand):
   """
-    >>> ReadErrorStatus().format() == ReadErrorStatus._test_ok
+    >>> ReadErrorStatus(serial='665455').format() == ReadErrorStatus._test_ok
     True
   """
   _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
@@ -469,13 +469,39 @@ class ReadErrorStatus(PumpCommand):
 
 class ReadHistoryData(PumpCommand):
   """
+    >>> ReadHistoryData(serial='208850').format() == ReadHistoryData._test_ok
+    True
   """
+  _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x20, 0x88, 0x50, 0x80,
+               0x01, 0x00, 0x02, 0x02, 0x00, 0x80, 0x9B, 0x03,
+               0x36, ])
 
   code = 128
   descr = "Read History Data"
+  params = [ 0x03 ]
+  retries = 2
+  maxRecords = 2
+
+  def getData(self):
+    data = self.data
+    log.info("XXX: READ HISTORY DATA!!:\n%s" % lib.hexdump(data))
+    return data
+
+class ReadCurPageNumber(PumpCommand):
+  """
+  """
+
+  code = 157
+  descr = "Read Cur Page Number"
   params = [ ]
   retries = 2
-  maxRecords = 1
+  maxRecords = 2
+
+  def getData(self):
+    data = self.data
+    log.info("XXX: READ cur page number:\n%s" % lib.hexdump(data))
+    return data
+
 
 class ReadRTC(PumpCommand):
   """
@@ -624,8 +650,26 @@ class ReadBasalTemp(PumpCommand):
     log.info("READ temporary basal:\n%s" % lib.hexdump(data))
     return { 'rate': rate, 'duration': duration }
 
+class ReadContrast(PumpCommand):
+  """
+  """
+
+  code = 195
+  descr = "Read Contrast"
+  params = [ ]
+  retries = 2
+  maxRecords = 1
+
+  def getData(self):
+    data = self.data
+    log.info("READ contrast:\n%s" % lib.hexdump(data))
+    return data
+
+
 class ReadSettings(PumpCommand):
   """
+  XXX: changed in MM512 to 192
+
   """
 
   code = 192
@@ -676,7 +720,7 @@ class ReadSettings(PumpCommand):
 
 class ReadPumpState(PumpCommand):
   """
-    >>> ReadPumpState().format() == ReadPumpState._test_ok
+    >>> ReadPumpState(serial='665455').format() == ReadPumpState._test_ok
     True
   """
   _test_ok = bytearray([ 0x01, 0x00, 0xA7, 0x01, 0x66, 0x54, 0x55, 0x80,
@@ -697,9 +741,10 @@ class ReadGlucoseHistory(PumpCommand):
   retries = 2
 
 
+
 class ReadPumpModel(PumpCommand):
   """
-    >>> ReadPumpModel().format() == ReadPumpModel._test_ok
+    >>> ReadPumpModel(serial='665455').format() == ReadPumpModel._test_ok
     True
   """
   code = 141
@@ -720,9 +765,9 @@ class ReadPumpModel(PumpCommand):
 def initDevice(link):
   device = Device(link)
 
-  #comm   = PowerControl()
-  #device.execute(comm)
-  #log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
+  comm   = PowerControl()
+  device.execute(comm)
+  log.info('comm:%s:data:%s' % (comm, getattr(comm, 'data', None)))
 
   comm   = ReadErrorStatus()
   device.execute(comm)
@@ -786,6 +831,20 @@ def do_commands(device):
   device.execute(comm)
   log.info('comm:READ settings!: %r' % (comm.getData( )))
 
+  log.info("read contrast")
+  comm = ReadContrast( )
+  device.execute(comm)
+  log.info('comm:READ contrast: %r' % (comm.getData( )))
+
+  log.info("read cur page number")
+  comm = ReadCurPageNumber( )
+  device.execute(comm)
+  log.info('comm:READ page number!!!: %r' % (comm.getData( )))
+
+  log.info("read HISTORY DATA")
+  comm = ReadHistoryData( )
+  device.execute(comm)
+  log.info('comm:READ history data!!!: %r' % (comm.getData( )))
 
 def shutdownDevice(device):
   comm = PowerControlOff()
