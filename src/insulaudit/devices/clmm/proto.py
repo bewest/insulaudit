@@ -422,16 +422,21 @@ class Device(object):
     return result
 
   def readStatus(self):
-    result = False
+    result = [ ]
     def fetch_status( ):
       res = self.link.sendComLink2Command(3)
-      status = res and res[0] # 0 indicates success
-      if status == 0:
-        result = res
-        return True
+      #status = res and res[0] # 0 indicates success
+      log.info("res: %r" % res)
+      if res and res[0] == 0: # 0 indicates success
+        return res
+      #if status == 0:
+        #result = res
+        #return True
       return False
       
-    if not retry(fetch_status) or len(result) == 0:
+    #if not retry(fetch_status) or len(result) == 0:
+    result = retry(fetch_status)
+    if not result:
       raise RFFailed("rf read header indicates failure")
     """
     """
