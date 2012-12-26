@@ -852,7 +852,7 @@ def get_pages(device):
   device.execute(comm)
   pages = comm.getData( )
 
-  for x in range(pages):
+  for x in range(pages + 1):
     log.info('comm:READ HISTORY DATA page number: %r' % (x))
     comm = ReadHistoryData( params=[ x ] )
     device.execute(comm)
