@@ -20,6 +20,10 @@ insulaudit python scripts to produce log files.  This proof of concept is a
 bit of a mind-bender but demonstrates more than enough control for anyone to
 build this kind of device using commodity, off-the-shelf parts, available today.
 
+![beaglebone carelink 3g bayer usb](https://github.com/bewest/insulaudit/blob/master/hacking/carelink-bayer-usb-modem-beaglebone.jpg?raw=true)
+
+![node ttyjs](https://github.com/bewest/insulaudit/blob/master/hacking/node_tty_js_glucose_beaglebone.jpg?raw=true)
+
 ### Parts
 
 #### An embeddable device, running linux
