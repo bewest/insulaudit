@@ -1,4 +1,13 @@
-#
-docs/_build*
-#####
-# EOF
+
+*.sw?
+*-private*
+*-ignore*
+
+*.pyo
+*.pyi
+*.pyc
+
+.DS_*/
+node_modules/
+
+*.egg-info/

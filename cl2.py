@@ -1,14 +1,14 @@
 #!/usr/bin/python
 import user
 
-import struct
+#import struct
 import sys
 import serial
 import time
 import logging
 from pprint import pprint, pformat
 
-from insulaudit.core import Command
+#from insulaudit.core import Command
 from insulaudit.clmm.usbstick import *
 from insulaudit import lib
 
@@ -169,8 +169,9 @@ class Link( core.CommBuffer ):
   def initCommunicationsIO(self):
     # close/open serial
     self.readProductInfo( )
-    self.readSignalStrength()
-
+    sig = 0
+    while sig < 50:
+      sig = self.readSignalStrength()
   def endCommunicationsIO(self):
     self.readSignalStrength()
     self.readInterfaceStatistics()
@@ -203,7 +204,7 @@ class Link( core.CommBuffer ):
     # throw local usb exception
 
   def checkAck(self):
-    #time.sleep(.100)
+    time.sleep(.050)
     result     = bytearray(self.read(64))
     io.info('checkAck:read')
     commStatus = result[0]
@@ -288,7 +289,7 @@ class Device(object):
     packet = self.buildTransmitPacket()
     io.info('sendDeviceCommand:write:%r' % (self.command))
     self.link.write(packet)
-    time.sleep(.001)
+    time.sleep(.010)
     code = self.command.code
     params = self.command.params
     if code != 93 or params[0] != 0:
@@ -481,6 +482,7 @@ class ReadHistoryData(PumpCommand):
   params = [ 0x00 ]
   retries = 2
   maxRecords = 2
+  effectTime = .100
 
   def getData(self):
     data = self.data
@@ -851,6 +853,7 @@ def get_pages(device):
   comm = ReadCurPageNumber( )
   device.execute(comm)
   pages = comm.getData( )
+  log.info('attempting to read %s pages of history' % pages)
 
   for x in range(pages + 1):
     log.info('comm:READ HISTORY DATA page number: %r' % (x))
