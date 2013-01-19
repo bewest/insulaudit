@@ -147,8 +147,9 @@ activity, for a variety of reasons.
 
 ### Install
 
+#### option 1
 ```bash
-# on beaglebone
+# on beaglebone with stock `cloud9-image` or similar
 opkg install python-modules
 opkg install python-setuptools
 git clone git@github.com:bewest/insulaudit.git
@@ -173,9 +174,57 @@ insulaudit onetouch sugars
 ssh -g -R *:8080:127.0.0.1:8080 public.example.com
 # Now, visit public.example.com:8080 where you can do the same thing.
 ```
+#### option 2
+
+Use [meta-insulaudit](https://github.com/n-west/meta-insulaudit)!!!
+We have clean builds of this running on beagle bone circa
+`Fri Jan 18 23:33:57 PST 2013`
+
+### decoding medtronic insulin pumps
+
+The main effort of `decoding-carelink` is to independently and
+reproducibly download medical records.
+
+The insulin pump is a machine providing therapy.  It keeps a log of
+it's actions at all times.  In order to correctly and wisely make
+decisions, patients need unfettered access to these logs.
+
+[successfully downloads pages](https://github.com/bewest/decoding-carelink/blob/5e0534b62c76ce3e38553b4b32cfc4b771995f19/logs/explain.log)
+along with many other settings history from insulin pumps.
+
+`decoding-carelink` can 
+[forward your carelink usb stick over the internet](https://github.com/bewest/decoding-carelink/blob/rewriting/bin/socat_run_app.sh)
+to allow a remote service to
+[audit your device](https://github.com/bewest/decoding-carelink/blob/26d9036febee8196fb7b9f49b5f6c02ecd29ee0a/explain.markdown).
+
+I've tested with a 515, and would appreciate further help testing and
+verifying the work.  
+As you can see the data with my custom binary parser is starting to
+line up with the CSV exports.
+
+Once we can align all the records correctly with carelink's exported
+CSV, the features developed in decoding-carelink will be folded into
+insulaudit.  Think of decoding-carelink as a proving ground for
+[reverse engineering the carelink protocol](https://github.com/bewest/decoding-carelink/tree/rewriting/analysis)
+
+At this point, almost anyone could help simply by running:
+```bash
+# fork the repo on github
+# clone the repo
+$ git clone git@github.com/<yourname>/decoding-carelink.git
+$ cd decoding-carelink
+$ git checkout -b <yourname>
+$ ./insert.sh # will ask for sudo to configure usbserial for the stick
+# ./status-quo.sh [[<path>|/dev/ttyUSB0] [<serial>|208850]] eg:
+$ ./status-quo.sh /dev/ttyUSB0 208850
+$ git commit -avm "here is my data <yourname>"
+$ git push -u origin <yourname>
+```
+
+Then send me a note, and I'll take a look at your results!
 
 ### Where to send the data?
 
-You wil need to know how to exercise control of how and where to send your
+You will need to know how to exercise control of how and where to send your
 data.  See TODO for more info.
 
