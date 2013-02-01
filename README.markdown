@@ -21,13 +21,28 @@ medical devices widely used.
     * Onetouch series
     * Mini/Profile
 
-# Using the USB Stick
+  * Dexcom, Onetouch Ping, Bayer, omnipod.  In no particular order.
 
-## Lifescan
+
+## Usage
+
+```bash
+
+  insulaudit [opts] [command]
+  insulaudit <device> [opts] [command]
+  insulaudit [device] [command] [opts]
+
+  insulaudit --help
+  insulaudit clmm scan
+
+
+```
+
+### Lifescan
 Nothing special, my system registers a serial device right
 away.
 
-## Minimed
+### Minimed
 In linux, you need to poke the usbserial module with some
 parameters to make it work.  This only needs to be done
 once::
@@ -43,9 +58,9 @@ which point I needed to reset the usbstick by removing it
 and re-inserting into the PC.
 On mac, I can't recall if this is necessary.  We just need
 a generic usb-serial adapter.  I haven't tried it, but I
-suspect COM1 will likely work on MS, although
+suspect COM1 will likely work on M$, although
 auto-scanning will not detect it.  If your mac inserts the
-device somewhere under /dev/usb.serial* we will likely
+device somewhere under `/dev/usb.serial*` we will likely
 scan it.
 
 In dmesg, you should see a message like this when you
@@ -65,8 +80,9 @@ inser the usb stick::
     bewest@mimsy:~/Documents/bb/diabetes/src/mock$ 
 
 # Installing insulaudit
-There is no release of insulaudit, only somewhat broken
-pieces of code towards establishing a tool.
+There is no official release of insulaudit, only some pieces of code
+towards establishing a tool.  Pull requests welcome.
+
 :::
    
     # Download the source
@@ -78,21 +94,32 @@ pieces of code towards establishing a tool.
     python setup.py develop
 
 # Status quo
-We can say hello to the pump, but it's easier to read
-configuration than historical data.  We are not sure how
-to decode historical data.
 
 As [Thucydides said](http://en.wikipedia.org/wiki/Thucydides)
 > Right, as the world goes, is only in question between
 > equals in power, while the strong do what they can and
 > the weak suffer what they must.
 
-When vendors offering medical equipment put their own
-priorities ahead of safe therapy, and then prevent access
-to making it safer, it's time to put on the
-[black hat for science](https://github.com/bewest/insulaudit/blob/master/pcap/andy/zero.py).
+## [decoding-carelink](https://github.com/bewest/decoding-carelink)
+Medtronic is partially decoded.  We will be adding support to
+insulaudit when things are better/tested and cleaned up.  Have a
+Medtronic pump?  Help us analyze the data, and visualizations are that
+much closer.  At this point, we just need people to help line up
+records with the CSV output, and confirm accuracy or highlight
+problems.
 
-# How to run
+## [decoding-omnipod](https://github.com/bewest/decoding-omnipod)
+Need captures/traces.
+
+## [decoding-dexcom](https://github.com/bewest/decoding-dexcom)
+Need captures/traces.
+
+## [decoding-onetouchping](https://github.com/bewest/decoding-onetouchping)
+Need captures/traces.
+
+
+# How to run (outdated)
+
 The commands using PYTHONPATH assume you are in the root
 directory of the repo.
 The commands using insulaudit assume you have installed
@@ -124,14 +151,9 @@ few times. ::
 # TODO
 Now that the basic framework is taking shape, the protocol
 support needs to be stabilized and the framework needs to
-continue to gel a bit.  I need a reliable protocol, but
-there is a retry bug demonstrated earlier that prevents very
-clean and repeatable runs.
+continue to gel a bit.
 
 
-  * stabilize runs of both proto.py and hello
-  * expand protocol: ReadHistoryData 205
-  * pyserial in git
   * convert hello to some kind of scan
   * introduce new device flows
   * introduce device profiles/console flows
@@ -152,254 +174,8 @@ clean and repeatable runs.
     * log 
 
 
-## clmm pump comms - coms.msc
-Message sizes are always in 64 byte chunks, except
-outgoing messages.
-Use the radio command to send a
-message. Generally write each command twice.
-This is kind of a "send command" command.
-
-```text
-  
-                 pc      usb     
-                 |       |       
-  write          |------>|      Hint: code is 14th byte (bytes[13])
-  read           |<------|      3 bytes [ 0x01, 0x85 U, ?? ] == success
-                 |       |              [ 0x01, 0x85 f, ?? ] == fail
-  write          |------>|      code=[ 0x03 ] usb status command
-  repeat         |       |<     Continually ask for the usb status until
-                 |       |      the stick indicates that we are done
-                 |       |      receiving and we have a length.
-  read           |<------|      length = bytes[6..8]
-  read           |<------|      tx.stats = bytes[5]
-  format         |<      |      Then use the length to format the flush 
-                 |       |      command, which will give us the
-                 |       |      contents of radio buffer.
-  write          |------>|      command [ 0x0C, 0x00, 0x00, HighByte(length),
-                 |       |                HighByte(length), LowByte(length)  ]
-  read           |<------|      read data in 64 byte chunks until we've got
-                 |       |      the amount of data we expected
-                 |       |       
-
-```
-
-
-Some Commands
--------------
-
-::
-
-    devices/
-      SyncCommand
-      ComLink2/
-        CMD_READ_STATUS = 3;
-        CMD_READ_PRODUCT_INFO = 4;
-        CMD_READ_INTERFACE_STATS = 5;
-        CMD_READ_SIGNAL_STRENGTH = 6;
-        CMD_READ_DATA = 12;
-      LSMeter/
-        LEN_READ_CLOCK = 50;
-        IO_DELAY_READ_RETRY_MS = 10000;
-      LSOneTouchUltraMini
-        READ_TIMEOUT_MS = 500
-      LSOneTouchUltraSmart
-        CMD_READ_CLOCK = "DMF\r";
-        READ_TO_MS = 1500;
-
-      MMMeter/
-        CMD_READ_CLOCK = 160;
-        CMD_READ_SETTINGS = 162;
-        CMD_READ_GLUCOSE_DATA = 128;
-        LEN_READ_CLOCK = 28;
-        LEN_READ_SETTINGS = 72;
-        LEN_READ_GLUCOSE_DATA = 44;
-        READ_TO_MS = 2500;
-        READ_DATA_OFFSET = 0;
-        READ_MEM_DATA_OFFSET = 2;
-        MAX_READ_BYTES = 250;
-      MMPump/
-       WRITE_DELAY_MS = 3;
-
-      MMPump508/
-        CMD_READ_RTC = 32;
-        CMD_READ_PUMP_ID = 33;
-        CMD_READ_FIRMWARE_VER = 37;
-        CMD_READ_ERROR_STATUS = 38;
-        CMD_READ_REMOTE_CTRL_ID = 46;
-        REC_SIZE_READ_PUMP_ID = 10;
-        REC_SIZE_READ_FIRMWARE_VER = 8;
-        REC_SIZE_READ_RTC = 7;
-        CMD_READ_BATTERY_STATUS = 34;
-        CMD_READ_REMAINING_INSULIN = 35;
-        CMD_READ_BOLUS_HISTORY = 39;
-        CMD_READ_DAILY_TOTALS = 40;
-        CMD_READ_PRIME_BOLUSES = 41;
-        CMD_READ_ALARMS = 42;
-        CMD_READ_PROFILE_SETS = 43;
-        CMD_READ_USER_EVENTS = 44;
-        CMD_READ_128K_MEM = 55;
-        CMD_READ_256K_MEM = 56;
-        CMD_READ_TEMP_BASAL = 64;
-        CMD_READ_TODAYS_TOTALS = 65;
-        CMD_READ_STD_PROFILES = 66;
-        CMD_READ_A_PROFILES = 67;
-        CMD_READ_B_PROFILES = 68;
-        REC_SIZE_READ_PUMP_ID = 10;
-        REC_SIZE_READ_FIRMWARE_VER = 8;
-        REC_SIZE_READ_RTC = 7;
-        REC_SIZE_READ_TODAYS_TOTAL = 4;
-        REC_SIZE_READ_TEMP_BASAL = 4;
-        REC_SIZE_READ_CURR_SETTINGS1 = 28;
-        REC_SIZE_READ_CURR_SETTINGS2 = 26;
-        REC_SIZE_READ_CURR_SETTINGS3 = 4;
-        REC_SIZE_READ_CURR_SETTINGS4 = 2;
-
-      MMPump511/
-        SuspendResume        = 77;
-        PushKeypad           = 91;
-        PowerCTRL            = 93;
-        ReadRTC              = 112;
-        ReadPumpId           = 113;
-        ReadBatteryStatus    = 114;
-        ReadRemainingInsulin = 115;
-        ReadFirmwareVersion  = 116;
-        ReadErrorStatus      = 117;
-        ReadRadioCtrlACL     = 118;
-        ReadBasalTemp        = 120;
-        ReadTotalsToday      = 121;
-        ReadProfiles_STD     = 122;
-        ReadProfiles_A       = 123;
-        ReadProfiles_B       = 124;
-        ReadSettings         = 127;
-        ReadHistoryData      = 128;
-        ReadPumpStatus       = 131;
-        ReadPumpTrace        = 163;
-        ReadDetailTrace      = 164;
-        ReadNewTraceAlarm    = 166;
-        ReadOldTraceAlarm    = 167;
-
-      MMPump512/ # test pump is a 512
-        CMD_READ_SETTINGS = 145;
-        CMD_READ_TEMP_BASAL = 152;
-        CMD_READ_STD_PROFILES
-        CMD_READ_A_PROFILES = 147;
-        CMD_READ_B_PROFILES = 148;
-        CMD_READ_BG_ALARM_CLOCKS = 142;
-        CMD_READ_BG_ALARM_ENABLE = 151;
-        CMD_READ_BG_REMINDER_ENABLE = 144;
-        CMD_READ_BG_TARGETS = 140;
-        CMD_READ_BG_UNITS = 137;
-        CMD_READ_BOLUS_WIZARD_SETUP_STATUS = 135;
-        CMD_READ_CARB_RATIOS = 138;
-        CMD_READ_CARB_UNITS = 136;
-        CMD_READ_LOGIC_LINK_IDS = 149;
-        CMD_READ_INSULIN_SENSITIVITIES = 139;
-        CMD_READ_RESERVOIR_WARNING = 143;
-        CMD_READ_PUMP_MODEL_NUMBER = 141;
-        CMD_READ_LANGUAGE = 134;
-
-      MMGuardian3/
-        CMD_READ_SENSOR_SETTINGS = 207;
-        CMD_READ_SENSOR_ALARM_SILENCE = 211;
-        CMD_READ_SENSOR_DEMO_AND_GRAPH_TIMEOUT = 210
-        CMD_READ_SENSOR_PREDICTIVE_ALERTS = 209;
-        CMD_READ_SENSOR_RATE_OF_CHANGE_ALERTS = 212;
-
-      MMX15/
-        CMD_READ_SETTINGS = 192;
-        CMD_READ_BG_TARGETS = 159;
-        CMD_READ_CURRENT_HISTORY_PAGE_NUMBER = 157;
-        CMD_READ_SAVED_SETTINGS_DATE = 193;
-        CMD_READ_CONSTRAST = 195;
-        CMD_READ_BOLUS_REMINDER_ENABLE = 197;
-        CMD_READ_BOLUS_REMINDERS = 198;
-        CMD_READ_FACTORY_PARAMETERS = 199;
-        CMD_READ_CURRENT_PUMP_STATUS = 206;
-
-      MMX22/ # production pump is a 522
-        CMD_WRITE_GLUCOSE_HISTORY_TIMESTAMP = 40;
-        CMD_READ_CURRENT_GLUCOSE_HISTORY_PAGE_NUMBER = 205;
-        CMD_READ_GLUCOSE_HISTORY = 154;
-        CMD_READ_CALIBRATION_FACTOR = 156;
-        CMD_READ_ISIG_HISTORY = 155;
-        CMD_READ_SENSOR_SETTINGS = 153;
-
-      MMX23/
-        CMD_READ_VCNTR_HISTORY = 213;
-        CMD_READ_OTHER_DEVICES_IDS = 240;
-
-
-Blather
--------
-
 ::
   
-  devices/
-    lsultramini
-    onetouch2
-  --TO--
-  devices/
-    DeviceApp
-    * get_devices
-      * lsultramini
-        ui.py
-        proto.py
-      * onetouch2
-        proto.py
-      * clmm/
-        ui.py - 
-        proto.py - provides protocol utitilities, subclassing 
-          exports classes to use with a core/link
-    base.py
-  
-   
-  profile.py
-    * checked_at
-    * created_at
-    * version? insulaudit vs rep/format
-    * serial
-    * model
-    * manufacturer
-    * drift_t
-    * uri
-
-  ui.py
-    * username, short user, write_err, interactive, flush, edit, traceback,
-      note, debug, prompt, prompt_choice, getpass, log, label, termwidth,
-      expandpath, plain, config stuff, readconfig, has_section, config,
-      setconfig, configsource, configpath, progress,
-
-  commands.py - pulls 
-  main.py - main entry point, configure the system, and run the console
-    * subclass application from console
-    * get the list of devices from devices/
-    * 
-    Command
-    Subcommand
-    Flow
-    LinkedCommand
-
-  core/
-    * CommBuffer TODO: rename to SerialLink?
-    * command
-    * exceptions
-    * response
-    device
-    link
-  data/
-  console/
-    __init__.py
-    devices
-
-# Usage
-::
-
-  insulaudit [opts] [command]
-  insulaudit <device> [opts] [command]
-  insulaudit [device] [command] [opts]
-
-  insulaudit clmm scan
-
 
 ## License
 Author
@@ -410,6 +186,13 @@ license`_, so you can do with it whatever you wish except
 hold me responsible if it does something you don't like.
 
 .. _MIT license: http://www.opensource.org/licenses/mit-license.php
+
+Blather
+-------
+http://www.diabetesmine.com/2013/01/the-ethical-imperative-of-diabetes-interoperability.html
+
+Interoperability is my middle name.  Just give us the raw data, and
+we'll make it interoperable.
 
 # Fidelity of Care
 
