@@ -23,6 +23,7 @@ medical devices widely used.
 
   * Dexcom, Onetouch Ping, Bayer, omnipod.  In no particular order.
 
+  * Bayer, coming soon: thanks to iko, https://bitbucket.org/iko/glucodump/src/e37ea2a38776/glucodump/usbcomm.py
 
 ## Usage
 
