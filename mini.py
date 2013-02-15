@@ -41,7 +41,7 @@ def init( ):
   print ""
   print "all records"
   records = [ ]
-  for x in xrange( 2 ):
+  for x in xrange( max_records ):
     print 'record: %s' % x
     r = mini.execute( lsultramini.ReadGlucoseRecord( x ) )
     print r
