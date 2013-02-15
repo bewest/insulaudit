@@ -84,7 +84,7 @@ class AckCommand( core.Command ):
 class DiscoverFirmware( AckCommand ):
   code = [ 5, 13, 2 ]
   def decode( self, msg ):
-    return str( msg[ 3: len(msg) - 3 ] )
+    return str( msg[ 4: len(msg) - 3 ] )
 
 class ReadSerialNumber( DiscoverFirmware ):
   code = [ 0x05, 0x0B, 0x02,
