@@ -52,6 +52,5 @@ class Application(LoggingApp):
     #pprint(self.params)
     self.selected.main(self)
 
-
 #####
 # EOF
