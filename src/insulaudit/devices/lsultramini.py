@@ -101,7 +101,7 @@ class ReadAvailableRecords( AckCommand ):
 class ReadGlucoseRecord( AckCommand ):
   code = [ 0x05, 0x1F ]
   def __init__( self, idx=0 ):
-    self.code.extend( [ lib.LowByte( idx ), lib.HighByte( idx ) ] )
+    self.code = self.code + [ lib.LowByte( idx ), lib.HighByte( idx ) ]
 
   def decode( self, msg ):
     data = bytearray( msg[ 3: len(msg) - 3 ] )

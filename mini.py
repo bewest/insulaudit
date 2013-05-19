@@ -8,7 +8,11 @@ import insulaudit
 from insulaudit.log import io
 from insulaudit.devices import lsultramini
 
-PORT = '/dev/ttyACM0'
+import argparse
+import argcomplete # PYTHON_ARGCOMPLETE_OK
+import dateutil
+
+PORT = '/home/bewest/dev/vmodem0'
 
 def format_packet( command ):
   COMMAND = [
@@ -22,7 +26,7 @@ def read_serial( ):
 def get_serial( port, timeout=2 ):
   return serial.Serial( port, timeout=timeout )
 
-def init( ):
+def init(args):
   mini = lsultramini.LSUltraMini( PORT, 0.5 )
   print "is open? %s\n timeout: %s" % ( mini.serial.isOpen( ), mini.serial.getTimeout() )
   mini.disconnect( )
@@ -43,9 +47,12 @@ def init( ):
   records = [ ]
   for x in xrange( max_records ):
     print 'record: %s' % x
-    r = mini.execute( lsultramini.ReadGlucoseRecord( x ) )
-    print r
-    records.append( x )
+    r = mini.execute( lsultramini.ReadGlucoseRecord(idx=x ) )
+    ts, sugar = dateutil.parser.parse(r[0]), r[1]
+    msg = ','.join([ts.isoformat( ), str(sugar)])
+    print msg
+    args.output.write(msg + "\n")
+    records.append( r )
 
   print "total records found:%s" % len(records)
 
@@ -54,7 +61,15 @@ def init( ):
 
 
 if __name__ == '__main__':
-  PORT = len(sys.argv) > 1 and sys.argv[1] or PORT
-  port = init()
+  parser = argparse.ArgumentParser(add_help=True)
+  parser.add_argument('--output', type=argparse.FileType('w'),
+                      default="sugars.txt")
+  parser.add_argument('port', type=str,
+                      default=PORT)
+  args = parser.parse_args( )
+  # PORT = len(sys.argv) > 1 and sys.argv[1] or PORT
+  PORT = args.port
+  io.info("using PORT %s" % PORT)
+  port = init(args)
   io.info( port )
 
