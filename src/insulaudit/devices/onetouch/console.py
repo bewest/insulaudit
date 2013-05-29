@@ -14,6 +14,11 @@ class OnetouchApp(device.LinkCommand):
     return proto.Link
     #return proto.Linonetouch2.OneTouchUltra2( PORT, 5 )
 
+  def setup(self, parser):
+    import argparse, sys
+    super(type(self), self).setup(parser)
+    parser.add_argument('--output', type=argparse.FileType('w'),
+                        default=sys.stdout)
   def getFlows(self):
     return [ HelloFlow, sugars ]
 
@@ -51,17 +56,20 @@ class sugars(core.Flow):
   """
   #name = 'sugars'
   def get_out_file(self):
-    import sys
+    return self.session.handler.handler.params.output
     return sys.stdout
 
   def flow(self, session):
     link = session.link
     serial = link.execute( proto.ReadSerial( ) )
     data = link.read_glucose( )
-    print data
+    #print data
     print "len glucose: %s" % len( data )
     head, body = data 
-    print glucose.format_records( body )
+    records = glucose.format_records( body )
+    print head
+    print records
+    self.get_out_file( ).write(records)
 
 #####
 # EOF
